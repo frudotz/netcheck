@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "hello-mobil",
+      "name": "netcheck",
       "dependencies": {
         "@astrojs/mdx": "^8.0.3",
         "@astrojs/react": "^7.0.1",
