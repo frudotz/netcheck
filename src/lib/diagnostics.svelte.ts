@@ -1,7 +1,9 @@
 // Tanılama çalıştırıcısı — paylaşılan durum (store). Sayfalar arası geçişte sonuçlar korunur.
-import type { DiagnosticKind, DiagnosticTest } from "../types/netcheck";
-import { NativeUnavailableError, runDiagnostic } from "./native";
+import type { DiagnosticKind, DiagnosticReport, DiagnosticTest } from "../types/netcheck";
+import { generateReportId, getNetworkSnapshot, NativeUnavailableError, runDiagnostic } from "./native";
 import { diagnosticName, diagnosticTargetHint, errorMessage, outcomeMessage } from "./labels";
+import { computeScore } from "./score";
+import { reports } from "./reports.svelte";
 
 export const DIAGNOSTIC_KINDS: DiagnosticKind[] = ["gateway", "cloudflare", "google", "dns", "internet"];
 
@@ -18,6 +20,8 @@ class Diagnostics {
   tests = $state<DiagnosticTest[]>(initialTests());
   running = $state(false);
   error = $state("");
+  /** Son çalıştırmada oluşturulan rapor (yeni çalıştırma başlayınca sıfırlanır). */
+  report = $state<DiagnosticReport | null>(null);
 
   passed = $derived(this.tests.filter((t) => t.status === "success").length);
   completed = $derived(this.tests.filter((t) => t.status !== "pending" && t.status !== "running").length);
@@ -26,10 +30,28 @@ class Diagnostics {
     if (this.running) return;
     this.running = true;
     this.error = "";
+    this.report = null;
     this.tests = initialTests().map((t) => ({ ...t, status: "running" }));
     try {
       // Testler bağımsızdır; paralel çalıştırmak çevrimdışı durumda bekleme süresini kısaltır.
-      await Promise.all(DIAGNOSTIC_KINDS.map((kind, index) => this.runOne(kind, index)));
+      const [network] = await Promise.all([
+        getNetworkSnapshot(),
+        Promise.all(DIAGNOSTIC_KINDS.map((kind, index) => this.runOne(kind, index))),
+      ]);
+      const id = await generateReportId();
+      const tests = $state.snapshot(this.tests);
+      const passed = tests.filter((t) => t.status === "success").length;
+      const report: DiagnosticReport = {
+        id,
+        createdAt: new Date().toISOString(),
+        score: computeScore(tests),
+        passed,
+        failed: tests.length - passed,
+        network,
+        tests,
+      };
+      reports.add(report);
+      this.report = report;
     } catch (e) {
       this.error = errorMessage(e, "Tanılama çalıştırılamadı. Lütfen tekrar deneyin.");
       this.tests = initialTests();

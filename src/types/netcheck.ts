@@ -44,3 +44,16 @@ export interface DiagnosticTest {
   latencyMs?: number;
   message?: string;
 }
+
+export interface DiagnosticReport {
+  /** Rust `generate_report_id`: NCHK-YYYY-XXXXXXXX */
+  id: string;
+  /** ISO 8601 (UTC) */
+  createdAt: string;
+  /** 0–100, bkz. src/lib/score.ts */
+  score: number;
+  passed: number;
+  failed: number;
+  network: NetworkSnapshot;
+  tests: DiagnosticTest[];
+}

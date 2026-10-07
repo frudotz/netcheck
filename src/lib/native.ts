@@ -25,3 +25,8 @@ export function getNetworkSnapshot(): Promise<NetworkSnapshot> {
 export function runDiagnostic(kind: DiagnosticKind): Promise<DiagnosticOutcome> {
   return call<DiagnosticOutcome>("run_diagnostic", { kind });
 }
+
+/** Rapor kimliği yalnızca Rust tarafında üretilir (NCHK-YYYY-XXXXXXXX). */
+export function generateReportId(): Promise<string> {
+  return call<string>("generate_report_id");
+}

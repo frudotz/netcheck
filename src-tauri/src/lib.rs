@@ -2,6 +2,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 mod diagnostics;
 mod network;
+mod report_id;
 
 // Adım 11: Rust komutu — ön yüz invoke("bilet_olustur", { etkinlikId }) ile çağırır
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -32,11 +33,22 @@ async fn run_diagnostic(kind: diagnostics::DiagnosticKind) -> Result<diagnostics
         .map_err(|_| "diagnostic_failed".to_string())
 }
 
+// NetCheck: tanılama raporu kimliği — invoke("generate_report_id") → "NCHK-2026-XXXXXXXX"
+#[tauri::command]
+fn generate_report_id() -> String {
+    report_id::generate()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![bilet_olustur, get_network_snapshot, run_diagnostic])
+        .invoke_handler(tauri::generate_handler![
+            bilet_olustur,
+            get_network_snapshot,
+            run_diagnostic,
+            generate_report_id
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

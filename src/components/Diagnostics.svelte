@@ -2,6 +2,9 @@
   // Tanılama — sabit hedeflere bağlantı testleri (hedefler Rust'ta tanımlı)
   import { diagnostics } from "$lib/diagnostics.svelte";
   import { formatLatency } from "$lib/labels";
+  import { reportHref } from "$lib/reports.svelte";
+  import { SCORE_NOTE } from "$lib/score";
+  import ScoreGauge from "./ScoreGauge.svelte";
   import StatusBadge from "./StatusBadge.svelte";
 </script>
 
@@ -17,6 +20,18 @@
 
   {#if diagnostics.error}
     <p class="kart uyari" role="alert">{diagnostics.error}</p>
+  {/if}
+
+  {#if diagnostics.report}
+    <section class="kart sonuc" aria-live="polite">
+      <ScoreGauge score={diagnostics.report.score} size={88} />
+      <div class="sonuc-metin">
+        <span class="etiket">Rapor oluşturuldu</span>
+        <code>{diagnostics.report.id}</code>
+        <span class="not">Bağlantı Skoru — {SCORE_NOTE}</span>
+        <a class="rapor-link" href={reportHref(diagnostics.report.id)}>Raporu görüntüle →</a>
+      </div>
+    </section>
   {/if}
 
   <ul class="kart testler" aria-live="polite">
@@ -59,6 +74,46 @@
   .uyari {
     margin: 0;
     padding: 14px 16px;
+  }
+
+  .sonuc {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--renk-ana);
+  }
+
+  .sonuc-metin {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .sonuc-metin .etiket {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--yazi-soluk);
+  }
+
+  .sonuc-metin code {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 16px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+  }
+
+  .sonuc-metin .not {
+    font-size: 12px;
+    color: var(--yazi-soluk);
+  }
+
+  .rapor-link {
+    margin-top: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--renk-ana);
   }
 
   .testler {
