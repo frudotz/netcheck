@@ -4,8 +4,8 @@
 
 - **Proje Adı:** NetCheck — Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması
 - **Slogan:** Ağınızda ne olduğunu saniyeler içinde görün.
-- **Öğrenci Adı Soyadı:** [Adınız Soyadınız]
-- **Öğrenci Numarası:** [Öğrenci Numaranız]
+- **Öğrenci Adı Soyadı:** Hamza Arda Karabacak
+- **Öğrenci Numarası:** 2520191010
 - **İlham Alınan Konsept:** Özgün fikir — işletim sistemlerinin "ağ sorun gidericisi" araçlarının sade, raporlanabilir bir sürümü. Bilişim Güvenliği Teknolojisi programının ağ temelleriyle doğrudan ilişkili olduğu için seçildi.
 
 ---
