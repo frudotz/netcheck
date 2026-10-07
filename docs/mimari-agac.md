@@ -49,6 +49,7 @@ Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçm
 |---|---|---|
 | **Telefon (< 768 px)** | Tek sütun, `padding: 16px` | Sabit alt menü (`alt-menu`) |
 | **Tablet (768–1199 px)** | `.sayfa` ortalanır (`max-width: 1040px`); Genel Bakış 2 sütun | Alt menü, sekmeler en fazla 200 px |
-| **Masaüstü (≥ 1200 px)** | Genel Bakış 3 sütun; arayüz listesi tam genişlik | Alt menü ortalanmış |
+| **Masaüstü (1200–1599 px)** | Genel Bakış 3 sütun; arayüz listesi tam genişlik | Alt menü ortalanmış |
+| **Büyük ekran (≥ 1600 px)** | Düzen masaüstüyle aynı; içerik `max-width: 1040px` ile ortalanır, kenar boşlukları genişler (satır uzunluğu sınırlı kalır) | Alt menü ortalanmış, sekmeler en fazla 200 px |
 
 Varsayılan Tauri penceresi: 420 × 820 (telefon düzeni).

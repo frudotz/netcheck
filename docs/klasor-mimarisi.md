@@ -21,7 +21,6 @@ netcheck/
 ├── src-tauri/               # Rust Tauri çekirdeği (Pencere, yetkiler, native komutlar)
 │   ├── tauri.conf.json      # Masaüstü/mobil pencere ayarları ve frontendDist hedefi
 │   ├── Cargo.toml           # Rust kütüphaneleri ve bağımlılıkları
-│   ├── app-icon.svg         # Platform ikonlarının kaynak görseli (bun run tauri icon)
 │   └── src/                 # lib.rs (komut kaydı) + ağ, tanılama ve rapor kimliği modülleri
 │
 ├── src/                     # Ön yüz kaynak kodları (Frontend)
