@@ -121,6 +121,8 @@
 
 Uygulama; bağlı olunan ağın temel bilgilerini gösterir, gateway / genel DNS / alan adı çözümleme / HTTPS testlerini çalıştırır ve sonuçları **Rust tarafında üretilen** `NCHK-YYYY-XXXXXXXX` kimlikli bir rapora dönüştürür. Sunucu, hesap, veritabanı veya bulut eşitlemesi yoktur; raporlar yalnızca cihazda (`localStorage`) tutulur. Bir değer alınamadığında uygulama sahte veri üretmez, "Kullanılamıyor" gösterir.
 
+**Platform durumu:** NetCheck şu anda doğrulanmış bir **Windows** masaüstü uygulaması olarak çalışır. **macOS** ve **Linux** desteği kod tabanında mevcuttur ancak henüz çalışma ortamında doğrulanmamıştır. **Android** ve **iOS** planlanan hedef platformlardır ve sonraki geliştirme aşamalarında uygulanacaktır. Ayrıntılar: [`docs/mimari-agac.md`](docs/mimari-agac.md#2-hedef-platform-matrisi).
+
 Konsept, ekranlar, hedef kitle ve veri modeli: [`docs/proje-fikri.md`](docs/proje-fikri.md).
 
 ---
