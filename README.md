@@ -73,7 +73,7 @@
 | **Blackboard Kursu** | Kurs Kodu: `2026–2027–1–11283–1` |
 | **Kaynak Depo** | [`keyvanarasteh/hello-mobil`](https://github.com/keyvanarasteh/hello-mobil) |
 | **Telegram Grubu** | `App Development - 2026` *(Ders içi kapalı grup · Bağlantı sınıfta paylaşılır)* |
-| **Geliştirici / Öğrenci** | *`[Adınız Soyadınız — Öğrenci No — Şube 1]`* &nbsp;·&nbsp; [@frudotz](https://github.com/frudotz) &nbsp;·&nbsp; [`docs/proje-fikri.md`](docs/proje-fikri.md) |
+| **Geliştirici / Öğrenci** | **Hamza Arda Karabacak** — `2520191010` — Şube 1 &nbsp;·&nbsp; [@frudotz](https://github.com/frudotz) &nbsp;·&nbsp; [`docs/proje-fikri.md`](docs/proje-fikri.md) |
 
 <br>
 
@@ -102,8 +102,8 @@
 <h3 align="left">👨‍💻 Geliştirici (Öğrenci) Künyesi</h3>
 
 <ul>
-  <li><b>Adı Soyadı:</b> <code>[Adınız Soyadınız]</code></li>
-  <li><b>Öğrenci No:</b> <code>[Öğrenci Numaranız]</code></li>
+  <li><b>Adı Soyadı:</b> Hamza Arda Karabacak</li>
+  <li><b>Öğrenci No:</b> <code>2520191010</code></li>
   <li><b>Şube:</b> <code>Şube 1</code></li>
   <li><b>GitHub:</b> <a href="https://github.com/frudotz">@frudotz</a></li>
   <li><b>Proje Fikri:</b> <a href="docs/proje-fikri.md">docs/proje-fikri.md</a></li>
