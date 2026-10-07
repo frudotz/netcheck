@@ -55,7 +55,7 @@ netcheck/
 - **Ne zaman kullanılır?** Üst bar, alt gezinme menüsü, tema kontrolü (`document.documentElement.dataset.tema`) ve yumuşak sayfa geçişleri (`<ClientRouter />`) burada tanımlanır. Sayfalar bu layout'u sarmalar.
 
 ### 5. `src/pages/` (Dosya Tabanlı Rotalar)
-- **Ne konur?** Kullanıcının gezeceği sayfalar (`index.astro`, `tanilama.astro`, `rapor.astro`, `gecmis.astro`, `ayarlar.astro`, `hakkinda.mdx`). Sayfa listesi: [`docs/mimari-agac.md`](mimari-agac.md).
+- **Ne konur?** Kullanıcının gezeceği sayfalar: uygulama ekranları (`index.astro`, `tanilama.astro`, `rapor.astro`, `gecmis.astro`, `ayarlar.astro`) ve bilgi sayfaları (`hakkinda.mdx`, `iletisim.astro`, `kosullar.mdx`, `gizlilik.mdx`; diğer diller `en/`, `ar/`, `fa/` alt klasörlerinde). Sayfa listesi: [`docs/mimari-agac.md`](mimari-agac.md).
 - **Kural:** Dosya adı doğrudan URL yolu olur. İçerik ağırlıklı sayfalar için `.mdx`, dinamik veya bileşen içeren sayfalar için `.astro` kullanılır.
 
 ### 6. `src/components/` (Yeniden Kullanılabilir UI Bileşenleri)
