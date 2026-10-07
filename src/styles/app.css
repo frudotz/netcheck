@@ -1,14 +1,17 @@
 /* Adım 2: Global stil — tüm sayfaların ortak renkleri ve yardımcı sınıfları */
 :root {
-  --renk-ana: #e4002b;
-  --renk-koyu: #1a1a2e;
-  --zemin: #f4f5f7;
+  /* NetCheck marka token'ları — tek kaynak: docs/branding.md */
+  --renk-ana: #0e7490;
+  --renk-ana-yazi: #ffffff;
+  --renk-vurgu: #22d3ee;
+  --renk-koyu: #0b1f2a;
+  --zemin: #f4f7fa;
   --kart: #ffffff;
-  --yazi: #1a1a2e;
-  --yazi-soluk: #6b7280;
-  --kenar: #e5e7eb;
+  --yazi: #0f172a;
+  --yazi-soluk: #556476;
+  --kenar: #e2e8f0;
   --radius: 14px;
-  /* NetCheck: tanılama durum renkleri (metin / rozet zemini) */
+  /* Tanılama durum renkleri (metin / rozet zemini) */
   --durum-basarili: #15803d;
   --durum-basarili-zemin: #dcfce7;
   --durum-hata: #b91c1c;
@@ -25,11 +28,13 @@
 
 /* Adım 15: Gece modu — <html data-tema="gece"> olunca değişkenler koyulaşır */
 :root[data-tema="gece"] {
-  --zemin: #0f1117;
-  --kart: #1a1d26;
-  --yazi: #f3f4f6;
-  --yazi-soluk: #9ca3af;
-  --kenar: #2a2e3a;
+  --renk-ana: #22d3ee;
+  --renk-ana-yazi: #062a33;
+  --zemin: #0b1220;
+  --kart: #131c2e;
+  --yazi: #e6edf6;
+  --yazi-soluk: #94a3b8;
+  --kenar: #23304a;
   --durum-basarili: #4ade80;
   --durum-basarili-zemin: #052e16;
   --durum-hata: #fca5a5;
@@ -69,6 +74,19 @@ button {
   gap: 16px;
 }
 
+/* Tablet ve üzeri: içerik ortalanır (bkz. docs/mimari-agac.md breakpoint'leri) */
+@media (min-width: 768px) {
+  .sayfa {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+}
+
+.mono {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
 .kart {
   background: var(--kart);
   border: 1px solid var(--kenar);
@@ -81,7 +99,7 @@ button {
   border: 0;
   border-radius: var(--radius);
   background: var(--renk-ana);
-  color: #fff;
+  color: var(--renk-ana-yazi);
   font-weight: 600;
   text-align: center;
 }

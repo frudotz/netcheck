@@ -1,7 +1,7 @@
 {
-  "name": "hello-mobil",
+  "name": "netcheck",
   "version": "0.1.0",
-  "description": "",
+  "description": "NetCheck — Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması",
   "type": "module",
   "scripts": {
     "dev": "astro dev",

@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    hello_mobil_lib::run()
+    netcheck_lib::run()
 }
