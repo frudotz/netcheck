@@ -89,6 +89,11 @@
   const rows = $derived(
     snapshot
       ? [
+          {
+            label: "Genel IP",
+            value: internet?.status === "success" && internet.detail ? internet.detail : checking ? "…" : "Alınamadı",
+            mono: true,
+          },
           { label: "Yerel IPv4", value: snapshot.localIPv4 ?? UNAVAILABLE, mono: true },
           { label: "IPv6", value: snapshot.localIPv6 ?? UNAVAILABLE, mono: true },
           { label: "Gateway", value: snapshot.gateway ?? NOT_FOUND, mono: true },
