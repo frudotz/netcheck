@@ -28,9 +28,20 @@ const currentPath = Astro.url.pathname;
     <title>{title}</title>
     <script is:inline>
       // Adım 15: Açılışta renk yanıp sönmesini engellemek için temayı anında uygula
-      document.documentElement.dataset.tema =
-        localStorage.getItem("tema") ??
-        (matchMedia("(prefers-color-scheme: dark)").matches ? "gece" : "gunduz");
+      (() => {
+        const uygula = () => {
+          document.documentElement.dataset.tema =
+            localStorage.getItem("tema") ??
+            (matchMedia("(prefers-color-scheme: dark)").matches ? "gece" : "gunduz");
+        };
+        uygula();
+        // ClientRouter gezinmesinde <html> öznitelikleri yeni sayfadan kopyalanır ve data-tema düşer;
+        // her sayfa değişiminden sonra tekrar uygulanır (dinleyici bir kez eklenir).
+        if (!window.__netcheckTema) {
+          window.__netcheckTema = true;
+          document.addEventListener("astro:after-swap", uygula);
+        }
+      })();
     </script>
     <ClientRouter />
   </head>
