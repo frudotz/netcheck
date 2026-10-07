@@ -35,13 +35,28 @@ Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçm
 
 ## 2. Hedef Platform Matrisi
 
-| Platform Grubu | Hedef Sistemler | Paket Formatı | NetCheck notu |
+Tauri v2 ile tek kod tabanından aşağıdaki platformlar **hedeflenir**. Hedef platform, doğrulanmış platform anlamına gelmez; güncel durum ayrı sütunda verilir (denetim: 2026-10-07).
+
+| Platform Grubu | Hedef Sistemler | Paket Formatı | Güncel Durum |
 |---|---|---|---|
-| **Masaüstü** | Windows (10 / 11 x64) | `.msi`, `.exe` | Birincil geliştirme/demo platformu; ICMP `IcmpSendEcho` ile |
-| **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` | Ping sistem `ping` ikilisiyle |
-| **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` | Ping sistem `ping` ikilisiyle |
-| **Mobil** | iOS (iPhone & iPad) | `.ipa` (Xcode) | Ping kullanılamazsa test "Kullanılamıyor" |
-| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | Ping kullanılamazsa test "Kullanılamıyor" |
+| **Masaüstü** | Windows (10 / 11 x64) | `.msi`, `.exe` | **Doğrulandı** — geliştirme ve sürüm derlemesi (`bun run tauri build`) çalıştırıldı; ICMP `IcmpSendEcho` |
+| **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` | Kod ve paket yapılandırması mevcut; **derleme ve çalışma doğrulanmadı** |
+| **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` | Kod ve paket yapılandırması mevcut; **derleme ve çalışma doğrulanmadı** |
+| **Mobil** | iOS / iPadOS | `.ipa` (Xcode) | **Planlanan hedef** — mobil proje henüz yapılandırılmadı |
+| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | **Planlanan hedef** — mobil proje henüz yapılandırılmadı |
+
+Tarayıcı (`bun run dev`) yalnızca arayüz önizlemesidir; ağ tanılama Tauri uygulaması gerektirir.
+
+### Mobil yol haritası (planlanan)
+Her aşama kendi dalında yapılır (ör. `feature/android-foundation`, `feature/ios-foundation`):
+1. Tauri Android/iOS projelerinin üretilmesi ve yapılandırılması.
+2. Platform izinleri ve capability'ler (Android'de ağ izinleri doğrulanarak eklenecek).
+3. Android ağ bilgisi (IP, IPv6, gateway, DNS, hostname, arayüzler) — kullanılabilir API'ler doğrulanarak.
+4. iOS ağ bilgisi — Apple kısıtları ve API'leri doğrulanarak.
+5. Mobil tanılama — süreç tabanlı ping mobilde uygun değilse platforma özgü alternatif.
+6. Android APK/AAB derleme doğrulaması.
+7. iOS derleme/arşiv doğrulaması (macOS ortamında).
+8. Gerçek cihaz testleri.
 
 ## 3. Ekran Boyutları (Responsive Breakpoints)
 

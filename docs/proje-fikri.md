@@ -12,7 +12,7 @@
 
 ## 1. Proje Özeti
 
-NetCheck, bağlı olunan yerel ağın temel bilgilerini (IP adresleri, gateway, DNS, bağlantı türü) gösteren ve birkaç basit bağlantı testi çalıştıran **yerel öncelikli (local-first)** bir masaüstü/mobil uygulamadır. Test sonuçları, Rust tarafında üretilen benzersiz bir kimlikle **tanılama raporuna** dönüştürülür ve yalnızca cihazda saklanır. Sunucu, hesap, veritabanı veya bulut eşitlemesi yoktur.
+NetCheck, bağlı olunan yerel ağın temel bilgilerini (IP adresleri, gateway, DNS, bağlantı türü) gösteren ve birkaç basit bağlantı testi çalıştıran **yerel öncelikli (local-first)** bir masaüstü uygulamasıdır (Android ve iOS planlanan hedef platformlardır). Test sonuçları, Rust tarafında üretilen benzersiz bir kimlikle **tanılama raporuna** dönüştürülür ve yalnızca cihazda saklanır. Sunucu, hesap, veritabanı veya bulut eşitlemesi yoktur.
 
 ## 2. Temel 3 Ekran ve İşlev
 
