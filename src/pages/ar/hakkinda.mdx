@@ -1,0 +1,42 @@
+---
+layout: ../../layouts/InfoLayout.astro
+lang: ar
+slug: hakkinda
+title: حول التطبيق
+---
+
+import CanliRozet from '../../components/react/CanliRozet';
+import ExternalLink from '../../components/ExternalLink.svelte';
+
+# حول NetCheck
+
+**NetCheck — تطبيق تشخيص الشبكة المحلية وتحليل الاتصال.** يعرض المعلومات الأساسية للشبكة المتصل بها، ويُجري بعض اختبارات الاتصال البسيطة، ويحوّل النتائج إلى تقرير تشخيص بمعرّف فريد يُنشأ بلغة Rust ‏(`NCHK-YYYY-XXXXXXXX`).
+
+## الهدف والقصة
+
+غالبًا ما يصعب تحديد سبب مشكلة "لا يوجد إنترنت": هل هي في الموجّه أم في DNS أم في الاتصال الخارجي؟ يفصل NetCheck هذه الطبقات في شاشة واحدة ويُعِدّ تقريرًا مرقّمًا يمكن مشاركته مع الدعم الفني. لا يوجد خادم ولا حساب ولا مزامنة سحابية؛ كل شيء يبقى على جهازك.
+
+<div style="margin: 16px 0;">
+  <CanliRozet client:load etiket="مكوّن React داخل MDX" />
+</div>
+
+## المطوّر
+
+- **الاسم:** Hamza Arda Karabacak
+- **الرقم الجامعي:** 2520191010
+- **القسم:** تكنولوجيا أمن المعلومات — المدرسة المهنية العليا
+- **الجامعة:** جامعة إستينيه (İstinye)
+- **المقرر:** MYO063 برمجة الأجهزة المحمولة — المحاضر Keyvan Arasteh Abbasabad
+- **الشيفرة المصدرية:** <ExternalLink client:load href="https://github.com/frudotz/netcheck">github.com/frudotz/netcheck</ExternalLink>
+
+## التقنيات المستخدمة
+
+- **Tauri v2** — بيئة تشغيل سطح المكتب والجسر بين Rust والواجهة (IPC)
+- **Rust** — معلومات الشبكة واختبارات ping وDNS وHTTPS ومعرّف التقرير
+- **Astro** — بناء الصفحات الثابتة والتوجيه المعتمد على الملفات
+- **Svelte 5** — الشاشات وإدارة الحالة (`$state`، `$derived`)
+- **React 19 + MDX** — صفحات المعلومات هذه والشارة التفاعلية
+
+## حالة المنصّات
+
+يعمل NetCheck حاليًا كتطبيق سطح مكتب مُتحقَّق منه على **Windows**. دعم macOS وLinux موجود في الشيفرة لكنه لم يُتحقَّق منه بعد. أما Android وiOS فهما منصّتان مستهدفتان مخطَّط لهما.

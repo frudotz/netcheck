@@ -1,52 +1,42 @@
 ---
-layout: ../layouts/Layout.astro
-title: Hakkında — NetCheck
+layout: ../layouts/InfoLayout.astro
+lang: tr
+slug: hakkinda
+title: Hakkında
 ---
 
 import CanliRozet from '../components/react/CanliRozet';
 import ExternalLink from '../components/ExternalLink.svelte';
 
-<div class="sayfa">
-  <div class="kart" style="padding: 20px;">
-    <h1>NetCheck</h1>
-    <p>
-      <strong>Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması.</strong> NetCheck; bağlı olduğunuz ağın
-      temel bilgilerini gösterir, basit bağlantı testleri çalıştırır ve sonuçları benzersiz bir rapor
-      kimliğiyle cihazınızda saklar.
-    </p>
+# NetCheck Hakkında
 
-    <div style="margin: 16px 0;">
-      <CanliRozet client:load etiket="MDX içinde React Bileşeni" />
-    </div>
+**NetCheck — Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması.** Bağlı olduğunuz ağın temel bilgilerini gösterir, birkaç basit bağlantı testi çalıştırır ve sonuçları Rust tarafında üretilen benzersiz bir kimlikle (`NCHK-YYYY-XXXXXXXX`) tanılama raporuna dönüştürür.
 
-    <h2>Bölümler</h2>
-    <ul>
-      <li><strong>Genel Bakış (<code>/</code>):</strong> Bağlantı durumu, IP adresleri, gateway, DNS ve ağ arayüzleri</li>
-      <li><strong>Tanılama (<code>/tanilama</code>):</strong> Gateway, 1.1.1.1, 8.8.8.8, DNS çözümleme ve HTTPS testleri</li>
-      <li><strong>Tanılama Raporu (<code>/rapor</code>):</strong> Rust tarafından üretilen <code>NCHK-YYYY-XXXXXXXX</code> kimlikli rapor</li>
-      <li><strong>Geçmiş (<code>/gecmis</code>):</strong> Bu cihazda saklanan önceki raporlar</li>
-    </ul>
+## Amaç ve hikâye
 
-    <h2>Gizlilik</h2>
-    <p>
-      NetCheck bir sunucuya veri göndermez; hesap, analitik veya bulut eşitlemesi yoktur. Raporlar yalnızca
-      bu cihazın yerel depolamasında (<code>localStorage</code>) tutulur. Tanılama sırasında yalnızca sabit
-      test hedeflerine (ağ geçidi, 1.1.1.1, 8.8.8.8, cloudflare.com) bağlantı kurulur.
-    </p>
+"İnternet yok" sorunu çoğu zaman modemde mi, DNS'te mi yoksa dış bağlantıda mı olduğu anlaşılmadan yaşanır. NetCheck bu katmanları tek ekranda ayırır ve teknik desteğe iletilebilecek, kimlik numaralı bir rapor hazırlar. Sunucu, hesap veya bulut eşitlemesi yoktur; her şey cihazınızda kalır.
 
-    <h2>Teknoloji</h2>
-    <ul>
-      <li><strong>Tauri v2 + Rust:</strong> Ağ bilgisi, ping, DNS, HTTPS testleri ve rapor kimliği üretimi</li>
-      <li><strong>Astro:</strong> Statik sayfa derlemesi ve dosya tabanlı yönlendirme</li>
-      <li><strong>Svelte 5 Runes:</strong> Ekranlar ve durum yönetimi (<code>$state</code>, <code>$derived</code>)</li>
-      <li><strong>React 19 + MDX:</strong> Bu bilgi sayfası ve etkileşimli rozet</li>
-    </ul>
-
-    <h2>Geliştirici</h2>
-    <p>
-      İstinye Üniversitesi Meslek Yüksekokulu · Bilişim Güvenliği Teknolojisi · MYO063 Mobil Programlama dersi
-      kapsamında geliştirilmiştir. Kaynak kod:{" "}
-      <ExternalLink client:load href="https://github.com/frudotz/netcheck">github.com/frudotz/netcheck</ExternalLink>
-    </p>
-  </div>
+<div style="margin: 16px 0;">
+  <CanliRozet client:load etiket="MDX içinde React bileşeni" />
 </div>
+
+## Geliştirici
+
+- **Ad Soyad:** Hamza Arda Karabacak
+- **Öğrenci No:** 2520191010
+- **Bölüm:** Bilişim Güvenliği Teknolojisi — Meslek Yüksekokulu
+- **Üniversite:** İstinye Üniversitesi
+- **Ders:** MYO063 Mobil Programlama — Öğr. Gör. Keyvan Arasteh Abbasabad
+- **Kaynak kod:** <ExternalLink client:load href="https://github.com/frudotz/netcheck">github.com/frudotz/netcheck</ExternalLink>
+
+## Kullanılan teknolojiler
+
+- **Tauri v2** — masaüstü çalışma ortamı ve Rust ↔ arayüz köprüsü (IPC)
+- **Rust** — ağ bilgisi, ping, DNS ve HTTPS testleri, rapor kimliği
+- **Astro** — statik sayfa derlemesi ve dosya tabanlı yönlendirme
+- **Svelte 5** — ekranlar ve durum yönetimi (`$state`, `$derived`)
+- **React 19 + MDX** — bu bilgi sayfaları ve etkileşimli rozet
+
+## Platform durumu
+
+NetCheck şu anda doğrulanmış bir **Windows** masaüstü uygulamasıdır. macOS ve Linux desteği kod tabanında vardır ancak henüz doğrulanmamıştır. Android ve iOS planlanan hedef platformlardır.

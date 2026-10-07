@@ -1,0 +1,28 @@
+---
+layout: ../layouts/InfoLayout.astro
+lang: tr
+slug: gizlilik
+title: Gizlilik Politikası
+---
+
+# Gizlilik Politikası
+
+NetCheck **yerel öncelikli** bir uygulamadır: hesap, sunucu, analitik veya izleme çerezi yoktur.
+
+## 1. İşlenen veriler
+Tanılama sırasında cihazınızda şu bilgiler okunur: yerel IP adresleri, ağ geçidi, DNS sunucuları, bilgisayar adı (hostname), ağ arayüzü adları ve MAC adresleri, genel IP adresi ve test gecikmeleri. Bu bilgiler yalnızca ekranda gösterilir ve oluşturduğunuz raporlara eklenir.
+
+## 2. Yerel depolama (localStorage)
+- `netcheck.reports` — tanılama raporlarınız (en fazla 50).
+- `tema` — tema tercihiniz.
+
+Veriler yalnızca bu cihazda tutulur; **Ayarlar → Geçmiş** üzerinden "Geçmişi Temizle" ile silebilirsiniz. İletişim formuna yazdıklarınız gönderilmez ve saklanmaz.
+
+## 3. Dış bağlantılar
+Tanılama yalnızca sabit hedeflere bağlanır: ağ geçidiniz, `1.1.1.1` ve `8.8.8.8` (ping), `cloudflare.com` (DNS çözümleme) ve `https://www.cloudflare.com/cdn-cgi/trace` (HTTPS testi ve genel IP). Her internet bağlantısında olduğu gibi, bu hizmetler bağlantının geldiği genel IP adresini görebilir.
+
+## 4. KVKK bildirimi
+6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) kapsamında: NetCheck geliştiricisi kişisel verilerinizi **toplamaz, aktarmaz ve saklamaz**; işleme yalnızca cihazınızda, sizin başlattığınız tanılama amacıyla yapılır. IP adresleri kişisel veri sayılabileceğinden, raporlarınızı paylaşırken bunu dikkate alın. Yerel verileri dilediğiniz zaman silebilirsiniz.
+
+## 5. İletişim
+Sorularınız için [İletişim](/iletisim) sayfasını veya [GitHub deposunu](https://github.com/frudotz/netcheck) kullanabilirsiniz.

@@ -15,11 +15,13 @@
     { href: "/ayarlar", ad: "Ayarlar", ikon: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0", ek: ["M16 4v4", "M10 10v4", "M18 16v4"] },
   ];
 
-  // Rapor detayı Geçmiş'in, Hakkında sayfası Ayarlar'ın parçasıdır.
+  // Rapor detayı Geçmiş'in; bilgi sayfaları (tüm dillerde) Ayarlar'ın parçasıdır.
+  const BILGI_SAYFASI = /^(\/(en|ar|fa))?\/(hakkinda|iletisim|kosullar|gizlilik)(\/|$)/;
+
   function aktif(href: string, path: string): boolean {
     if (href === "/") return path === "/";
     if (href === "/gecmis" && path.startsWith("/rapor")) return true;
-    if (href === "/ayarlar" && path.startsWith("/hakkinda")) return true;
+    if (href === "/ayarlar" && BILGI_SAYFASI.test(path)) return true;
     return path.startsWith(href);
   }
 

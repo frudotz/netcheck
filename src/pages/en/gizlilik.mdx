@@ -1,0 +1,28 @@
+---
+layout: ../../layouts/InfoLayout.astro
+lang: en
+slug: gizlilik
+title: Privacy Policy
+---
+
+# Privacy Policy
+
+NetCheck is a **local-first** application: there are no accounts, servers, analytics or tracking cookies.
+
+## 1. Data processed
+During diagnostics the following is read on your device: local IP addresses, gateway, DNS servers, computer name (hostname), network interface names and MAC addresses, public IP address and test latencies. This information is only shown on screen and added to the reports you create.
+
+## 2. Local storage (localStorage)
+- `netcheck.reports` — your diagnostic reports (up to 50).
+- `tema` — your theme preference.
+
+Data stays on this device only; you can delete it with "Geçmişi Temizle" under **Settings → History**. Whatever you type into the contact form is neither sent nor stored.
+
+## 3. External connections
+Diagnostics only connect to fixed targets: your gateway, `1.1.1.1` and `8.8.8.8` (ping), `cloudflare.com` (DNS resolution) and `https://www.cloudflare.com/cdn-cgi/trace` (HTTPS test and public IP). As with any internet connection, these services can see the public IP address the connection comes from.
+
+## 4. KVKK notice (Turkish data protection law)
+Under Law No. 6698 on the Protection of Personal Data (KVKK): the NetCheck developer does **not collect, transfer or store** your personal data; processing happens only on your device, for the diagnostics you start. Since IP addresses may count as personal data, keep this in mind when sharing reports. You can delete local data at any time.
+
+## 5. Contact
+For questions, use the [Contact](/en/iletisim) page or the [GitHub repository](https://github.com/frudotz/netcheck).

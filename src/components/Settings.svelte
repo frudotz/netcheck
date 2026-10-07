@@ -53,6 +53,17 @@
   </section>
 
   <section class="kart bolum">
+    <h2>Bilgi Sayfaları</h2>
+    <ul class="bilgi-listesi">
+      <li><a class="satir-link" href="/hakkinda">Hakkında →</a></li>
+      <li><a class="satir-link" href="/iletisim">İletişim →</a></li>
+      <li><a class="satir-link" href="/kosullar">Kullanım Koşulları →</a></li>
+      <li><a class="satir-link" href="/gizlilik">Gizlilik Politikası →</a></li>
+    </ul>
+    <p class="not">Bilgi sayfaları Türkçe, English, العربية ve فارسی dillerinde sunulur.</p>
+  </section>
+
+  <section class="kart bolum">
     <h2>Uygulama Bilgisi</h2>
     <dl>
       <div><dt>Uygulama</dt><dd>NetCheck</dd></div>
@@ -62,7 +73,6 @@
       <div><dt>Ders</dt><dd>İstinye Üniversitesi · MYO063 Mobil Programlama</dd></div>
     </dl>
     <div class="baglantilar">
-      <a class="satir-link" href="/hakkinda">Hakkında →</a>
       <ExternalLink href="https://github.com/frudotz/netcheck">Kaynak kod (GitHub) ↗</ExternalLink>
     </div>
   </section>
@@ -144,6 +154,15 @@
     font-size: 14px;
     font-weight: 600;
     text-align: right;
+  }
+
+  .bilgi-listesi {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 16px;
   }
 
   .baglantilar {

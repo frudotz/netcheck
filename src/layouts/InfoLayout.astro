@@ -1,0 +1,154 @@
+---
+// Bilgi sayfaları iskeleti (Hakkında, İletişim, Koşullar, Gizlilik) — dil seçici ve sayfa bağlantıları.
+// MDX sayfaları özellikleri `frontmatter` ile, .astro sayfaları doğrudan prop olarak iletir.
+import Layout from './Layout.astro';
+import {
+  dirOf, infoHref, INFO_SLUGS, LOCALES, localeName, pageTitle, ui,
+  type InfoSlug, type Locale,
+} from '../lib/i18n';
+
+interface Props {
+  lang?: Locale;
+  slug?: InfoSlug;
+  frontmatter?: { lang?: Locale; slug?: InfoSlug };
+}
+
+const lang: Locale = Astro.props.lang ?? Astro.props.frontmatter?.lang ?? 'tr';
+const slug: InfoSlug = Astro.props.slug ?? Astro.props.frontmatter?.slug ?? 'hakkinda';
+const dir = dirOf(lang);
+const t = ui[lang];
+---
+
+<Layout title={`${pageTitle[lang][slug]} — NetCheck`} lang={lang} dir={dir}>
+  <div class="sayfa">
+    <nav class="diller" aria-label={t.language}>
+      {LOCALES.map((l) => (
+        <a
+          href={infoHref(l, slug)}
+          lang={l}
+          hreflang={l}
+          aria-current={l === lang ? 'page' : undefined}
+          class:list={{ secili: l === lang }}
+        >
+          {localeName[l]}
+        </a>
+      ))}
+    </nav>
+
+    <article class="kart icerik">
+      <slot />
+      <p class="guncelleme">{t.updated}</p>
+    </article>
+
+    <nav class="kart diger" aria-label={t.otherPages}>
+      <span>{t.otherPages}</span>
+      <ul>
+        {INFO_SLUGS.filter((s) => s !== slug).map((s) => (
+          <li><a href={infoHref(lang, s)}>{pageTitle[lang][s]}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</Layout>
+
+<style>
+  .sayfa {
+    max-width: 820px;
+  }
+
+  .diller {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .diller a {
+    padding: 6px 12px;
+    border: 1px solid var(--kenar);
+    border-radius: 999px;
+    background: var(--kart);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--yazi-soluk);
+  }
+
+  .diller a.secili {
+    border-color: var(--renk-ana);
+    background: var(--renk-ana);
+    color: var(--renk-ana-yazi);
+  }
+
+  .icerik {
+    padding: 20px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  /* MDX içeriği bileşen kapsamı dışında üretilir; tipografi :global ile verilir. */
+  .icerik :global(h1) {
+    margin: 0 0 8px;
+    font-size: 24px;
+    line-height: 1.25;
+  }
+
+  .icerik :global(h2) {
+    margin: 22px 0 6px;
+    font-size: 17px;
+  }
+
+  .icerik :global(p),
+  .icerik :global(li) {
+    font-size: 15px;
+  }
+
+  .icerik :global(ul) {
+    margin: 6px 0;
+    padding-inline-start: 22px;
+  }
+
+  .icerik :global(a) {
+    color: var(--renk-ana);
+    font-weight: 600;
+  }
+
+  .icerik :global(code) {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 0.9em;
+    padding: 1px 5px;
+    border-radius: 6px;
+    background: var(--zemin);
+  }
+
+  .guncelleme {
+    margin: 20px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--kenar);
+    font-size: 12px !important;
+    color: var(--yazi-soluk);
+  }
+
+  .diger {
+    padding: 14px 16px;
+    font-size: 13px;
+  }
+
+  .diger span {
+    font-weight: 600;
+    color: var(--yazi-soluk);
+  }
+
+  .diger ul {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+  }
+
+  .diger a {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--renk-ana);
+  }
+</style>
