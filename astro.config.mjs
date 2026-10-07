@@ -10,6 +10,10 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
   output: 'static',
   integrations: [svelte(), react(), mdx()],
+  // Dev toolbar sabit alt menünün üzerine biniyor (Tauri penceresinde sekmeleri örtüyor).
+  devToolbar: {
+    enabled: false,
+  },
   server: {
     port: 1420,
     host: '127.0.0.1',
@@ -24,6 +28,10 @@ export default defineConfig({
     clearScreen: false,
     server: {
       strictPort: true,
+      // Rust derleme çıktıları (src-tauri/target) Vite tarafından izlenmez; EBUSY hatalarını önler.
+      watch: {
+        ignored: ['**/src-tauri/**'],
+      },
     },
     envPrefix: ['VITE_', 'TAURI_ENV_*'],
   },
