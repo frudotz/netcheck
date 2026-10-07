@@ -203,7 +203,18 @@ fn https_check(url: &str) -> Result<(f64, Option<String>), Failure> {
         .into();
     let start = Instant::now();
     match agent.get(url).call() {
-        Ok(response) => Ok((elapsed_ms(start), Some(response.status().as_u16().to_string()))),
+        Ok(mut response) => {
+            let latency = elapsed_ms(start);
+            // cdn-cgi/trace gövdesindeki "ip=" satırı genel IP'dir; yalnızca geçerli bir IP ise kullanılır.
+            let public_ip = response
+                .body_mut()
+                .with_config()
+                .limit(4096)
+                .read_to_string()
+                .ok()
+                .and_then(|body| parse_trace_ip(&body));
+            Ok((latency, public_ip))
+        }
         Err(ureq::Error::Timeout(_)) => Err((Status::Failed, "timeout")),
         Err(ureq::Error::StatusCode(_)) => Err((Status::Failed, "http_error")),
         Err(ureq::Error::HostNotFound) => Err((Status::Failed, "resolve_failed")),
@@ -211,9 +222,24 @@ fn https_check(url: &str) -> Result<(f64, Option<String>), Failure> {
     }
 }
 
+fn parse_trace_ip(body: &str) -> Option<String> {
+    body.lines()
+        .find_map(|line| line.strip_prefix("ip="))
+        .and_then(|value| value.trim().parse::<IpAddr>().ok())
+        .map(|ip| ip.to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn trace_ip_parsing() {
+        assert_eq!(parse_trace_ip("fl=1\nip=203.0.113.7\nts=1"), Some("203.0.113.7".into()));
+        assert_eq!(parse_trace_ip("ip=2001:db8::1\n"), Some("2001:db8::1".into()));
+        assert_eq!(parse_trace_ip("ip=<script>\n"), None);
+        assert_eq!(parse_trace_ip("fl=1\n"), None);
+    }
 
     #[test]
     fn all_diagnostics_return_without_panicking() {

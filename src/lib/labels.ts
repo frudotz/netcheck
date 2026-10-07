@@ -57,7 +57,7 @@ export function outcomeMessage(kind: DiagnosticKind, outcome: DiagnosticOutcome)
       case "dns":
         return outcome.detail ? `cloudflare.com → ${outcome.detail}` : "Alan adı çözümlendi.";
       case "internet":
-        return "HTTPS bağlantısı başarılı.";
+        return outcome.detail ? `HTTPS bağlantısı başarılı · Genel IP ${outcome.detail}` : "HTTPS bağlantısı başarılı.";
       default:
         return "Hedef yanıt verdi.";
     }
