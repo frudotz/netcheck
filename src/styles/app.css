@@ -8,6 +8,13 @@
   --yazi-soluk: #6b7280;
   --kenar: #e5e7eb;
   --radius: 14px;
+  /* NetCheck: tanılama durum renkleri (metin / rozet zemini) */
+  --durum-basarili: #15803d;
+  --durum-basarili-zemin: #dcfce7;
+  --durum-hata: #b91c1c;
+  --durum-hata-zemin: #fee2e2;
+  --durum-uyari: #92400e;
+  --durum-uyari-zemin: #fef3c7;
   color-scheme: light;
 
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -23,6 +30,12 @@
   --yazi: #f3f4f6;
   --yazi-soluk: #9ca3af;
   --kenar: #2a2e3a;
+  --durum-basarili: #4ade80;
+  --durum-basarili-zemin: #052e16;
+  --durum-hata: #fca5a5;
+  --durum-hata-zemin: #450a0a;
+  --durum-uyari: #fcd34d;
+  --durum-uyari-zemin: #451a03;
   color-scheme: dark;
 }
 

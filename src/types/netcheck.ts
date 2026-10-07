@@ -22,3 +22,25 @@ export interface NetworkSnapshot {
   interfaceName?: string;
   interfaces: NetworkInterface[];
 }
+
+export type DiagnosticKind = "gateway" | "cloudflare" | "google" | "dns" | "internet";
+
+export type DiagnosticStatus = "pending" | "running" | "success" | "failed" | "unavailable";
+
+/** Rust `run_diagnostic` yanıtı; `code` Türkçe mesaja ön yüzde çevrilir. */
+export interface DiagnosticOutcome {
+  status: "success" | "failed" | "unavailable";
+  target?: string;
+  latencyMs?: number;
+  code: string;
+  detail?: string;
+}
+
+export interface DiagnosticTest {
+  id: DiagnosticKind;
+  name: string;
+  target?: string;
+  status: DiagnosticStatus;
+  latencyMs?: number;
+  message?: string;
+}
