@@ -1,53 +1,54 @@
 # Mimari Ağaç Yapısı ve Kapsam
 
-> ✍️ **Öğrenci Görevi:** Bu taslağı uygulamanızın sayfalarına ve özelliklerine göre doldurun. Ayrıntılı yönerge için [`docs/tasks/week-3/07-hedefler-agac-yapisi.task.md`](tasks/week-3/07-hedefler-agac-yapisi.task.md) dosyasını inceleyin.
+> Görev tanımı: [`docs/tasks/week-3/07-hedefler-agac-yapisi.task.md`](tasks/week-3/07-hedefler-agac-yapisi.task.md). Klasör yapısı için bkz. [`docs/klasor-mimarisi.md`](klasor-mimarisi.md).
 
 ---
 
-## 1. Sayfa ve Özellik Ağacı (Site & Feature Map)
+## 1. Sayfa ve Özellik Ağacı
 
 ```
-[Projenizin Adı]
-├── / (Ana Sayfa)
-│   ├── [Arama ve filtreleme özellikleri]
-│   └── [Listelenecek öğeler]
+NetCheck
+├── / (Genel Bakış)
+│   ├── Bağlantı durumu (HTTPS hızlı kontrol) ve 1.1.1.1 gecikmesi
+│   ├── Son Bağlantı Skoru → son rapora bağlantı
+│   ├── Ağ bilgileri: genel IP, IPv4, IPv6, gateway, DNS, hostname, bağlantı türü
+│   └── Etkin ağ arayüzleri
 │
-├── /[detay-sayfasi]/[id] (Öğe Detayı)
-│   ├── [Detay bilgileri]
-│   └── [Seçenek ve işlem butonları]
+├── /tanilama (Tanılama)
+│   ├── 5 sabit test: Gateway · 1.1.1.1 · 8.8.8.8 · DNS · HTTPS
+│   └── "Tanılamayı Başlat" → [Rust: run_diagnostic ×5, get_network_snapshot, generate_report_id]
 │
-├── /[islem-sayfasi] (İşlem / Sepet / Kayıt)
-│   └── [Özet ve Rust backend komutu tetikleme]
+├── /rapor?id=NCHK-… (Tanılama Raporu)
+│   └── Rust tarafından üretilen kimlik, skor, test sonuçları, ağ anlık görüntüsü
 │
-├── /[sonuc-sayfasi] (Sonuçlar / Kodlarım)
-│   └── [Üretilen benzersiz kodlar ve geçmiş]
+├── /gecmis (Geçmiş)
+│   └── localStorage raporları, rapora git, geçmişi temizle
 │
-├── /profil (Kullanıcı & Tema)
-│   └── [Kullanıcı bilgisi ve tema geçişi]
+├── /ayarlar (Ayarlar)
+│   └── Tema (Sistem / Gündüz / Gece), yerel veri, uygulama bilgisi
 │
-└── Bilgi ve Yasal Sayfalar
-    ├── /hakkinda (MDX)
-    ├── /iletisim (Reaktif Form)
-    ├── /kosullar (MDX)
-    └── /gizlilik (MDX)
+└── Bilgi Sayfası
+    └── /hakkinda (MDX + React bileşeni)
 ```
 
----
+Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş, `/hakkinda` → Ayarlar sekmesi etkin).
 
 ## 2. Hedef Platform Matrisi
 
-| Platform Grubu | Hedef Sistemler | Paket Formatı |
-|---|---|---|
-| **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` |
-| **Masaüstü** | Windows (10 / 11) | `.msi`, `.exe` |
-| **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` |
-| **Mobil** | iOS (iPhone & iPad) | `.ipa` (Xcode) |
-| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` |
-
----
+| Platform Grubu | Hedef Sistemler | Paket Formatı | NetCheck notu |
+|---|---|---|---|
+| **Masaüstü** | Windows (10 / 11 x64) | `.msi`, `.exe` | Birincil geliştirme/demo platformu; ICMP `IcmpSendEcho` ile |
+| **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` | Ping sistem `ping` ikilisiyle |
+| **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` | Ping sistem `ping` ikilisiyle |
+| **Mobil** | iOS (iPhone & iPad) | `.ipa` (Xcode) | Ping kullanılamazsa test "Kullanılamıyor" |
+| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | Ping kullanılamazsa test "Kullanılamıyor" |
 
 ## 3. Ekran Boyutları (Responsive Breakpoints)
 
-- **Telefon (375px - 430px):** Tek sütun, alt menü (`alt-menu`) sabit.
-- **Tablet (768px - 1024px):** 2 sütunlu ızgara düzeni.
-- **Masaüstü (1200px+):** 3 sütunlu ızgara, `max-width` ortalanmış görünüm.
+| Aralık | Düzen | Gezinme |
+|---|---|---|
+| **Telefon (< 768 px)** | Tek sütun, `padding: 16px` | Sabit alt menü (`alt-menu`) |
+| **Tablet (768–1199 px)** | `.sayfa` ortalanır (`max-width: 1040px`); Genel Bakış 2 sütun | Alt menü, sekmeler en fazla 200 px |
+| **Masaüstü (≥ 1200 px)** | Genel Bakış 3 sütun; arayüz listesi tam genişlik | Alt menü ortalanmış |
+
+Varsayılan Tauri penceresi: 420 × 820 (telefon düzeni).
