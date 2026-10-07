@@ -20,6 +20,8 @@
 </script>
 
 <div class="sayfa">
+  <a class="geri" href="/gecmis">← Geçmiş</a>
+
   {#if !ready}
     <p class="kart bilgi" role="status">Rapor yükleniyor...</p>
   {:else if !report}
@@ -82,6 +84,14 @@
 </div>
 
 <style>
+  .geri {
+    align-self: flex-start;
+    margin-bottom: -6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--renk-ana);
+  }
+
   .bilgi {
     margin: 0;
     padding: 16px;
