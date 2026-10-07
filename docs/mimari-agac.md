@@ -25,13 +25,18 @@ NetCheck
 │   └── localStorage raporları, rapora git, geçmişi temizle
 │
 ├── /ayarlar (Ayarlar)
-│   └── Tema (Sistem / Gündüz / Gece), yerel veri, uygulama bilgisi
+│   └── Tema (Sistem / Gündüz / Gece), yerel veri, bilgi sayfası bağlantıları, uygulama bilgisi
 │
-└── Bilgi Sayfası
-    └── /hakkinda (MDX + React bileşeni)
+└── Bilgi Sayfaları (TR kökte; EN/AR/FA dil önekiyle — AR/FA `dir="rtl"`)
+    ├── /hakkinda  · /en/hakkinda  · /ar/hakkinda  · /fa/hakkinda   (MDX + React bileşeni)
+    ├── /iletisim  · /en/iletisim  · /ar/iletisim  · /fa/iletisim   (Astro + Svelte form)
+    ├── /kosullar  · /en/kosullar  · /ar/kosullar  · /fa/kosullar   (MDX)
+    └── /gizlilik  · /en/gizlilik  · /ar/gizlilik  · /fa/gizlilik   (MDX)
 ```
 
-Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş, `/hakkinda` → Ayarlar sekmesi etkin).
+Toplam 21 rota: 5 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil).
+
+Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş; tüm bilgi sayfaları → Ayarlar sekmesi etkin).
 
 ## 2. Hedef Platform Matrisi
 
