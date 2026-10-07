@@ -4,6 +4,7 @@ title: Hakkında — NetCheck
 ---
 
 import CanliRozet from '../components/react/CanliRozet';
+import ExternalLink from '../components/ExternalLink.svelte';
 
 <div class="sayfa">
   <div class="kart" style="padding: 20px;">
@@ -45,7 +46,7 @@ import CanliRozet from '../components/react/CanliRozet';
     <p>
       İstinye Üniversitesi Meslek Yüksekokulu · Bilişim Güvenliği Teknolojisi · MYO063 Mobil Programlama dersi
       kapsamında geliştirilmiştir. Kaynak kod:{" "}
-      <a href="https://github.com/frudotz/netcheck" style="color: var(--renk-ana); font-weight: 600;">github.com/frudotz/netcheck</a>
+      <ExternalLink client:load href="https://github.com/frudotz/netcheck">github.com/frudotz/netcheck</ExternalLink>
     </p>
   </div>
 </div>
