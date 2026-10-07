@@ -30,6 +30,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 - Tauri uygulaması: `bun run tauri dev`
 - Derleme ve doğrulama: `bun run build`
 - Rust testleri: `cd src-tauri && cargo test`
+- Tip kontrolü: `bunx svelte-check --tsconfig ./tsconfig.json` (0 hata / 0 uyarı beklenir)
 
 ## 3. Geliştirme ve Git Kuralları
 
