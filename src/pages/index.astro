@@ -1,12 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Kesfet from '../components/Kesfet.svelte';
-import CanliRozet from '../components/react/CanliRozet';
+import Overview from '../components/Overview.svelte';
 ---
 
-<Layout title="PassoKlon — Keşfet">
-  <div style="padding: 12px 16px 0; display: flex; justify-content: flex-end;">
-    <CanliRozet client:load etiket="Astro + React + Svelte" />
-  </div>
-  <Kesfet client:load />
+<Layout title="NetCheck — Genel Bakış">
+  <Overview client:load />
 </Layout>
