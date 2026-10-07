@@ -1,0 +1,12 @@
+---
+import InfoLayout from '../../layouts/InfoLayout.astro';
+import IletisimFormu from '../../components/IletisimFormu.svelte';
+import ExternalLink from '../../components/ExternalLink.svelte';
+---
+
+<InfoLayout lang="ar" slug="iletisim">
+  <h1>اتصل بنا</h1>
+  <p>استخدم النموذج أدناه لإرسال الملاحظات أو الاقتراحات أو الإبلاغ عن الأخطاء. وللملاحظات الدائمة يمكنك فتح مسألة (issue) في مستودع GitHub.</p>
+  <p><ExternalLink client:load href="https://github.com/frudotz/netcheck/issues">github.com/frudotz/netcheck/issues</ExternalLink></p>
+  <IletisimFormu client:load lang="ar" />
+</InfoLayout>

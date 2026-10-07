@@ -6,16 +6,19 @@ import '../styles/app.css';
 
 interface Props {
   title?: string;
+  // Bilgi sayfaları (görev 06) dil ve yön iletir; varsayılan Türkçe / soldan sağa.
+  lang?: string;
+  dir?: "ltr" | "rtl";
   // MDX sayfaları (layout: frontmatter) başlığı bu alanla iletir.
   frontmatter?: { title?: string };
 }
 
-const { title = Astro.props.frontmatter?.title ?? "NetCheck" } = Astro.props;
+const { title = Astro.props.frontmatter?.title ?? "NetCheck", lang = "tr", dir = "ltr" } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
 <!doctype html>
-<html lang="tr">
+<html lang={lang} dir={dir}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />

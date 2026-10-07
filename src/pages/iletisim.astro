@@ -1,0 +1,12 @@
+---
+import InfoLayout from '../layouts/InfoLayout.astro';
+import IletisimFormu from '../components/IletisimFormu.svelte';
+import ExternalLink from '../components/ExternalLink.svelte';
+---
+
+<InfoLayout lang="tr" slug="iletisim">
+  <h1>İletişim</h1>
+  <p>Görüş, öneri veya hata bildirimi için aşağıdaki formu kullanabilirsiniz. Kalıcı geri bildirim için GitHub deposunda bir konu (issue) açabilirsiniz.</p>
+  <p><ExternalLink client:load href="https://github.com/frudotz/netcheck/issues">github.com/frudotz/netcheck/issues</ExternalLink></p>
+  <IletisimFormu client:load lang="tr" />
+</InfoLayout>

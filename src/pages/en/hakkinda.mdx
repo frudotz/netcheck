@@ -1,0 +1,42 @@
+---
+layout: ../../layouts/InfoLayout.astro
+lang: en
+slug: hakkinda
+title: About
+---
+
+import CanliRozet from '../../components/react/CanliRozet';
+import ExternalLink from '../../components/ExternalLink.svelte';
+
+# About NetCheck
+
+**NetCheck — Local Network Diagnostics and Connection Analysis.** It shows the basic details of the network you are connected to, runs a few simple connectivity tests and turns the results into a diagnostic report with a unique ID generated in Rust (`NCHK-YYYY-XXXXXXXX`).
+
+## Purpose and story
+
+"No internet" problems are often hard to place: is it the router, DNS or the outside connection? NetCheck separates these layers on a single screen and prepares an ID-numbered report you can share with technical support. There is no server, account or cloud sync; everything stays on your device.
+
+<div style="margin: 16px 0;">
+  <CanliRozet client:load etiket="React component inside MDX" />
+</div>
+
+## Developer
+
+- **Name:** Hamza Arda Karabacak
+- **Student number:** 2520191010
+- **Department:** Information Security Technology — Vocational School
+- **University:** İstinye University
+- **Course:** MYO063 Mobile Programming — Lecturer Keyvan Arasteh Abbasabad
+- **Source code:** <ExternalLink client:load href="https://github.com/frudotz/netcheck">github.com/frudotz/netcheck</ExternalLink>
+
+## Technologies
+
+- **Tauri v2** — desktop runtime and the Rust ↔ UI bridge (IPC)
+- **Rust** — network information, ping, DNS and HTTPS tests, report ID
+- **Astro** — static site build and file-based routing
+- **Svelte 5** — screens and state management (`$state`, `$derived`)
+- **React 19 + MDX** — these information pages and the interactive badge
+
+## Platform status
+
+NetCheck currently runs as a verified **Windows** desktop application. macOS and Linux support is present in the codebase but not yet verified. Android and iOS are planned target platforms.
