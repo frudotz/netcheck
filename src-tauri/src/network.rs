@@ -141,12 +141,19 @@ pub fn hostname() -> Option<String> {
 /// Varsayılan IPv4 gateway (varsa). Tanılama testleri de bu fonksiyonu kullanır.
 pub fn default_gateway() -> Option<IpAddr> {
     let iface = netdev::get_default_interface().ok()?;
-    let gw = iface.gateway?;
-    gw.ipv4
-        .into_iter()
-        .find(|a| !a.is_unspecified())
-        .map(IpAddr::V4)
-        .or_else(|| gw.ipv6.into_iter().find(|a| !a.is_unspecified()).map(IpAddr::V6))
+    let gw = iface.gateway.as_ref()?;
+    pick_gateway(&gw.ipv4, &gw.ipv6, &iface.ip_addrs())
+}
+
+/// Arayüzün kendi adresi gateway sayılmaz: noktadan noktaya bağlantılarda (ör. Android hücresel,
+/// `0.0.0.0/0 -> <kendi IP> ccmni1`) ayrı bir sonraki atlama yoktur; o adrese ping cihazın kendisine
+/// gider ve sahte "gateway yanıt verdi" sonucu üretir. Bu durumda gateway "bulunamadı" sayılır.
+fn pick_gateway(v4: &[Ipv4Addr], v6: &[Ipv6Addr], own: &[IpAddr]) -> Option<IpAddr> {
+    let usable = |a: &IpAddr| !a.is_unspecified() && !own.contains(a);
+    v4.iter()
+        .map(|a| IpAddr::V4(*a))
+        .find(usable)
+        .or_else(|| v6.iter().map(|a| IpAddr::V6(*a)).find(usable))
 }
 
 pub fn snapshot() -> NetworkSnapshot {
@@ -192,6 +199,17 @@ mod tests {
         let snap = snapshot();
         println!("{}", serde_json::to_string_pretty(&snap).unwrap());
         assert!(snap.interfaces.iter().all(|i| i.is_up));
+    }
+
+    #[test]
+    fn own_address_is_not_a_gateway() {
+        let own: Vec<IpAddr> = vec!["10.198.128.138".parse().unwrap()];
+        // Android hücresel: varsayılan rota kendi adres üzerinden → gateway yok.
+        assert_eq!(pick_gateway(&["10.198.128.138".parse().unwrap()], &[], &own), None);
+        // Normal LAN: ayrı gateway korunur.
+        let own: Vec<IpAddr> = vec!["10.34.25.7".parse().unwrap()];
+        assert_eq!(pick_gateway(&["10.34.25.2".parse().unwrap()], &[], &own), Some("10.34.25.2".parse().unwrap()));
+        assert_eq!(pick_gateway(&[Ipv4Addr::UNSPECIFIED], &[], &own), None);
     }
 
     #[test]
