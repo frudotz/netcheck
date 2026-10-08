@@ -6,7 +6,7 @@
 // | Windows                 | `IcmpApi`     | iphlpapi `IcmpSendEcho`; yönetici yetkisi gerekmez      |
 // | macOS / Linux (desktop) | `SystemPing`  | sistem `ping` ikilisi, sabit argümanlar                  |
 // | Android                 | `IcmpSocket`  | ayrıcalıksız ICMP datagram soketi (gerçek ICMP echo)      |
-// | iOS                     | `Unavailable` | henüz uygulanmadı → test "Kullanılamıyor"                |
+// | iOS                     | `IcmpSocket`  | Darwin ICMP datagram soketi; iOS cihaz/simülatörde **doğrulanmadı** |
 use serde::Serialize;
 
 /// Her derleme hedefi yalnızca kendi arka ucunu kurar; diğer varyantlar o hedefte kullanılmaz.
@@ -22,7 +22,6 @@ pub enum Backend {
 }
 
 /// Tanılama katmanı bu hataları kendi durum/kod modeline çevirir.
-/// iOS arka ucu yalnızca `Unsupported` üretir; diğer varyantlar orada kullanılmaz.
 #[allow(dead_code)]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EchoError {
@@ -128,7 +127,7 @@ mod imp {
 }
 
 /// ICMP echo paketi yardımcıları (saf fonksiyonlar; host üzerinde birim testlenir).
-#[cfg(any(target_os = "android", test))]
+#[cfg(any(target_os = "android", target_os = "ios", test))]
 mod packet {
     const ECHO_REQUEST: u8 = 8;
     const ECHO_REPLY: u8 = 0;
@@ -146,9 +145,11 @@ mod packet {
         !(sum as u16)
     }
 
-    /// Echo request: tür 8, kod 0, tanımlayıcı 0 (datagram ICMP soketinde çekirdek yerel portu yazar), sıra no.
-    pub fn echo_request(seq: u16, payload: &[u8]) -> Vec<u8> {
-        let mut p = vec![ECHO_REQUEST, 0, 0, 0, 0, 0];
+    /// Echo request: tür 8, kod 0, tanımlayıcı, sıra no. Linux/Android datagram ICMP soketinde çekirdek
+    /// tanımlayıcıyı yerel portla değiştirir (0 verilir); Darwin değiştirmez (benzersiz değer verilir).
+    pub fn echo_request(id: u16, seq: u16, payload: &[u8]) -> Vec<u8> {
+        let mut p = vec![ECHO_REQUEST, 0, 0, 0];
+        p.extend_from_slice(&id.to_be_bytes());
         p.extend_from_slice(&seq.to_be_bytes());
         p.extend_from_slice(payload);
         let c = checksum(&p);
@@ -159,6 +160,58 @@ mod packet {
     /// Datagram ICMP soketi IP başlığı olmadan ICMP mesajını döndürür.
     pub fn is_echo_reply(buf: &[u8], seq: u16) -> bool {
         buf.len() >= 8 && buf[0] == ECHO_REPLY && buf[1] == 0 && u16::from_be_bytes([buf[6], buf[7]]) == seq
+    }
+
+    /// Darwin datagram ICMP soketi IPv4 yanıtını IP başlığıyla döndürür ve çekirdek yanıtları kimliğe göre
+    /// ayırmaz: başlık atlanır, tanımlayıcı da eşleşmelidir.
+    #[cfg(any(target_os = "ios", test))]
+    pub fn is_echo_reply_with_ip_header(buf: &[u8], id: u16, seq: u16) -> bool {
+        if buf.len() < 20 || buf[0] >> 4 != 4 {
+            return false;
+        }
+        let Some(icmp) = buf.get(usize::from(buf[0] & 0x0f) * 4..) else { return false };
+        is_echo_reply(icmp, seq) && u16::from_be_bytes([icmp[4], icmp[5]]) == id
+    }
+}
+
+/// Darwin (iOS; birim testi macOS'ta) ayrıcalıksız ICMP datagram soketi — Apple'ın SimplePing örneğiyle
+/// aynı genel BSD soket API'si; özel API, yetki (entitlement) veya süreç başlatma yok.
+#[cfg(any(target_os = "ios", all(test, target_os = "macos")))]
+mod darwin {
+    use super::{packet, EchoError};
+    use socket2::{Domain, Protocol, Socket, Type};
+    use std::io::ErrorKind;
+    use std::net::{IpAddr, SocketAddr, UdpSocket};
+    use std::sync::atomic::{AtomicU16, Ordering};
+    use std::time::{Duration, Instant};
+
+    const SEQ: u16 = 1;
+    /// Eşzamanlı istekler aynı yanıtları görür; her soket süreç içinde benzersiz bir tanımlayıcı kullanır.
+    static NEXT_ID: AtomicU16 = AtomicU16::new(0);
+
+    pub fn echo(addr: IpAddr, timeout: Duration) -> Result<f64, EchoError> {
+        let IpAddr::V4(v4) = addr else { return Err(EchoError::Unsupported) };
+        let socket: UdpSocket = Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::ICMPV4))
+            .map_err(|_| EchoError::Unsupported)?
+            .into();
+        let id = (std::process::id() as u16).wrapping_add(NEXT_ID.fetch_add(1, Ordering::Relaxed));
+        let request = packet::echo_request(id, SEQ, b"NetCheck");
+        let start = Instant::now();
+        socket.send_to(&request, SocketAddr::new(addr, 0)).map_err(|_| EchoError::Unreachable)?;
+
+        let mut buf = [0u8; 512];
+        loop {
+            let remaining = timeout.checked_sub(start.elapsed()).filter(|d| !d.is_zero()).ok_or(EchoError::Timeout)?;
+            socket.set_read_timeout(Some(remaining)).map_err(|_| EchoError::Unreachable)?;
+            match socket.recv_from(&mut buf) {
+                Ok((n, from)) if from.ip() == IpAddr::V4(v4) && packet::is_echo_reply_with_ip_header(&buf[..n], id, SEQ) => {
+                    return Ok((start.elapsed().as_secs_f64() * 1000.0 * 10.0).round() / 10.0);
+                }
+                Ok(_) => continue, // başka bir isteğin yanıtı veya başka bir ICMP mesajı
+                Err(e) if matches!(e.kind(), ErrorKind::WouldBlock | ErrorKind::TimedOut) => return Err(EchoError::Timeout),
+                Err(_) => return Err(EchoError::Unreachable),
+            }
+        }
     }
 }
 
@@ -186,7 +239,7 @@ mod imp {
         // Bağlanmamış soket + send_to/recv_from (iputils `ping` ile aynı); çekirdek yanıtları soket
         // kimliğine göre ayırır, burada ayrıca tür ve sıra numarası doğrulanır.
         let seq = SEQ;
-        let request = packet::echo_request(seq, b"NetCheck");
+        let request = packet::echo_request(0, seq, b"NetCheck");
         let start = Instant::now();
         socket.send_to(&request, SocketAddr::new(IpAddr::V4(v4), 0)).map_err(|_| EchoError::Unreachable)?;
 
@@ -208,16 +261,11 @@ mod imp {
 
 #[cfg(target_os = "ios")]
 mod imp {
-    use super::{Backend, EchoError};
-    use std::net::IpAddr;
-    use std::time::Duration;
+    use super::Backend;
 
-    pub const BACKEND: Backend = Backend::Unavailable;
-
-    /// iOS: henüz uygulanmadı (feature/ios). Açıkça "kullanılamıyor" döner; sahte sonuç üretilmez.
-    pub fn echo(_addr: IpAddr, _timeout: Duration) -> Result<f64, EchoError> {
-        Err(EchoError::Unsupported)
-    }
+    /// iOS: Darwin ICMP datagram soketi. Soket açılamazsa `Unsupported` → "Kullanılamıyor"; sahte sonuç yok.
+    pub const BACKEND: Backend = Backend::IcmpSocket;
+    pub use super::darwin::echo;
 }
 
 #[cfg(test)]
@@ -228,20 +276,47 @@ mod tests {
 
     #[test]
     fn echo_request_has_valid_checksum() {
-        let p = packet::echo_request(7, b"NetCheck");
+        let p = packet::echo_request(0x1234, 7, b"NetCheck");
         assert_eq!(&p[..2], &[8, 0]);
+        assert_eq!(u16::from_be_bytes([p[4], p[5]]), 0x1234);
         assert_eq!(u16::from_be_bytes([p[6], p[7]]), 7);
         assert_eq!(packet::checksum(&p), 0, "checksum over a packet including its checksum must be 0");
     }
 
     #[test]
     fn echo_reply_matching() {
-        let mut reply = packet::echo_request(9, b"NetCheck");
+        let mut reply = packet::echo_request(0, 9, b"NetCheck");
         reply[0] = 0; // echo reply
         assert!(packet::is_echo_reply(&reply, 9));
         assert!(!packet::is_echo_reply(&reply, 10));
-        assert!(!packet::is_echo_reply(&packet::echo_request(9, b""), 9)); // request, not reply
+        assert!(!packet::is_echo_reply(&packet::echo_request(0, 9, b""), 9)); // request, not reply
         assert!(!packet::is_echo_reply(&[0, 0, 0], 9));
+    }
+
+    #[test]
+    fn darwin_reply_with_ip_header_matching() {
+        let mut icmp = packet::echo_request(0xbeef, 1, b"NetCheck");
+        icmp[0] = 0;
+        let mut datagram = vec![0x45, 0, 0, 0, 0, 0, 0, 0, 64, 1, 0, 0, 127, 0, 0, 1, 127, 0, 0, 1];
+        datagram.extend_from_slice(&icmp);
+        assert!(packet::is_echo_reply_with_ip_header(&datagram, 0xbeef, 1));
+        assert!(!packet::is_echo_reply_with_ip_header(&datagram, 0xbeee, 1)); // başka bir soketin yanıtı
+        assert!(!packet::is_echo_reply_with_ip_header(&datagram, 0xbeef, 2));
+        assert!(!packet::is_echo_reply_with_ip_header(&icmp, 0xbeef, 1)); // IP başlığı yok
+        assert!(!packet::is_echo_reply_with_ip_header(&datagram[..22], 0xbeef, 1));
+    }
+
+    /// iOS ile aynı XNU çekirdek yolu macOS CI'da gerçek soketle denenir (geri döngü adresine eşzamanlı ping).
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn darwin_icmp_socket_concurrent_loopback() {
+        let handles: Vec<_> = (0..3)
+            .map(|_| std::thread::spawn(|| darwin::echo(IpAddr::V4(Ipv4Addr::LOCALHOST), Duration::from_secs(2))))
+            .collect();
+        for h in handles {
+            let r = h.join().unwrap();
+            assert!(matches!(r, Ok(ms) if ms >= 0.0), "{r:?}");
+        }
     }
 
     #[test]

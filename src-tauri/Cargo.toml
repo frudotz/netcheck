@@ -44,3 +44,11 @@ windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Network
 jni = "0.21"
 ndk-context = "0.1"
 socket2 = "0.6"
+
+# iOS platform katmanı: Darwin ICMP datagram soketi (socket2 zaten bağımlılık ağacında).
+[target.'cfg(target_os = "ios")'.dependencies]
+socket2 = "0.6"
+
+# Aynı Darwin ICMP yolu macOS CI'da birim testiyle denenir.
+[target.'cfg(target_os = "macos")'.dev-dependencies]
+socket2 = "0.6"
