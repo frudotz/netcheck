@@ -60,7 +60,7 @@ export interface DiagnosticReport {
 
 /** Rust `get_platform_info` (src-tauri/src/platform). */
 export type PlatformFamily = "desktop" | "mobile";
-export type IcmpBackend = "icmp-api" | "system-ping" | "unavailable";
+export type IcmpBackend = "icmp-api" | "system-ping" | "icmp-socket" | "unavailable";
 
 export interface PlatformInfo {
   /** "windows" | "macos" | "linux" | "android" | "ios" */
