@@ -19,6 +19,8 @@ pub enum Backend {
 }
 
 /// Tanılama katmanı bu hataları kendi durum/kod modeline çevirir.
+/// Mobil arka uç yalnızca `Unsupported` üretir; diğer varyantlar orada kullanılmaz.
+#[allow(dead_code)]
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum EchoError {
     /// Yanıt zaman aşımında gelmedi.
