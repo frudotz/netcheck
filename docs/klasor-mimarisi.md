@@ -16,12 +16,13 @@ netcheck/
 ├── astro.config.mjs         # Astro entegrasyonları (Svelte, React, MDX) ve Vite port ayarları
 ├── tsconfig.json            # TypeScript yapılandırması ve $lib alias'ı
 ├── .gitignore               # Versiyon kontrol dışı bırakılan dosyalar
+├── .github/workflows/       # CI: Linux/macOS/Windows + Android/iOS Rust derleme kontrolü
 │
 ├── public/                  # Statik varlıklar (Derlenmeyen logolar, favicon, görseller)
 ├── src-tauri/               # Rust Tauri çekirdeği (Pencere, yetkiler, native komutlar)
 │   ├── tauri.conf.json      # Masaüstü/mobil pencere ayarları ve frontendDist hedefi
 │   ├── Cargo.toml           # Rust kütüphaneleri ve bağımlılıkları
-│   └── src/                 # lib.rs (komut kaydı) + ağ, tanılama ve rapor kimliği modülleri
+│   └── src/                 # lib.rs (komut kaydı), platformdan bağımsız modüller + platform/ (OS'e özgü kod)
 │
 ├── src/                     # Ön yüz kaynak kodları (Frontend)
 │   ├── layouts/             # Sayfa iskeletleri (Layout.astro, ortak header/nav, ClientRouter)
@@ -47,7 +48,7 @@ netcheck/
 - **Nasıl kullanılır?** Kod içinde `/logo.svg` veya `/favicon.png` şeklinde kök dizinden çağrılır.
 
 ### 3. `src-tauri/` (Native Çekirdek)
-- **Ne konur?** Rust backend kodları (`src/lib.rs` komut kaydı; `network.rs`, `diagnostics.rs`, `report_id.rs` modülleri), Cargo paketleri (`Cargo.toml`), izinler (`capabilities/`) ve pencere ayarları (`tauri.conf.json`).
+- **Ne konur?** Rust backend kodları (`src/lib.rs` komut kaydı; platformdan bağımsız `network.rs`, `diagnostics.rs`, `report_id.rs`; işletim sistemine göre değişen her şey `src/platform/` altında — ör. `platform/icmp.rs`: Windows `IcmpSendEcho`, macOS/Linux sistem `ping`, Android/iOS henüz yok), Cargo paketleri (`Cargo.toml`), izinler (`capabilities/`) ve pencere ayarları (`tauri.conf.json`).
 - **Ne zaman kullanılır?** İşletim sistemiyle konuşan native kodlar (ağ arayüzleri, ping, DNS, HTTPS testi, rapor kimliği) yazılırken. Test hedefleri burada sabittir; ön yüzden komuta serbest girdi aktarılmaz.
 
 ### 4. `src/layouts/` (Sayfa İskeletleri)
