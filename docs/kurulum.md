@@ -44,6 +44,8 @@ bun run tauri android dev                                    # bağlı cihaz/em�
 ```
 > Debug APK: `src-tauri/gen/android/app/build/outputs/apk/universal/debug/`. Yükleme: `adb install -r <apk>`.
 
+> **iOS:** henüz derlenmedi ve doğrulanmadı. `tauri ios` komutları yalnızca macOS'ta bulunur (Windows'ta yoktur). Tauri belgelerine göre gerekenler: macOS, Xcode (yalnız Command Line Tools yetmez), Homebrew + `brew install cocoapods`, `rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-apple-ios-sim`; ilk kez `bun run tauri ios init` ile `src-tauri/gen/apple` üretilir.
+
 7. **Rust testleri (isteğe bağlı):**
 ```bash
 cd src-tauri
