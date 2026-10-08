@@ -123,6 +123,7 @@
 
   .secim button {
     padding: 10px 0;
+    min-height: 44px;
     border: 0;
     border-radius: 9px;
     background: transparent;
@@ -180,6 +181,12 @@
     gap: 8px 16px;
   }
 
+  .baglantilar :global(a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
   .baglantilar {
     display: flex;
     flex-wrap: wrap;
@@ -188,6 +195,9 @@
   }
 
   .satir-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-size: 14px;
     font-weight: 600;
     color: var(--renk-ana);
