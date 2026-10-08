@@ -1,0 +1,96 @@
+# Cross-platform compile/test check.
+# The main development host is Windows; this workflow compiles the platform-specific
+# Rust paths (src-tauri/src/platform) on Linux, macOS, Android and iOS targets.
+# It does not build installers, run emulators or run the app on devices.
+name: Cross-platform check
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  desktop:
+    name: Desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tauri system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev iputils-ping
+
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: bun install --frozen-lockfile
+      # tauri::generate_context! embeds ../dist at compile time.
+      - run: bun run build
+
+      - name: Type check
+        if: runner.os == 'Linux'
+        run: bunx svelte-check --tsconfig ./tsconfig.json
+
+      - name: cargo check
+        working-directory: src-tauri
+        run: cargo check --locked
+
+      - name: cargo test
+        working-directory: src-tauri
+        run: cargo test --locked
+
+  mobile:
+    name: Mobile Rust (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-linux-android
+            os: ubuntu-latest
+          - target: aarch64-apple-ios
+            os: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+
+      # Android NDK is preinstalled on GitHub's Ubuntu runners.
+      - name: Android NDK toolchain
+        if: contains(matrix.target, 'android')
+        run: |
+          BIN="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          echo "CC_aarch64_linux_android=$BIN/aarch64-linux-android24-clang" >> "$GITHUB_ENV"
+          echo "CXX_aarch64_linux_android=$BIN/aarch64-linux-android24-clang++" >> "$GITHUB_ENV"
+          echo "AR_aarch64_linux_android=$BIN/llvm-ar" >> "$GITHUB_ENV"
+          echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$BIN/aarch64-linux-android24-clang" >> "$GITHUB_ENV"
+
+      - name: cargo check (library, ${{ matrix.target }})
+        working-directory: src-tauri
+        run: cargo check --locked --lib --target ${{ matrix.target }}
