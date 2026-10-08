@@ -36,7 +36,7 @@ Tanımlar: [`src/types/netcheck.ts`](../src/types/netcheck.ts) (TypeScript) ↔ 
 
 | Model | Alanlar | Kaynak |
 |---|---|---|
-| `NetworkSnapshot` | `hostname?`, `localIPv4?`, `localIPv6?`, `gateway?`, `dnsServers[]`, `connectionType` (`ethernet`/`wifi`/`unknown`), `interfaceName?`, `interfaces[]` | Rust `get_network_snapshot` |
+| `NetworkSnapshot` | `hostname?`, `localIPv4?`, `localIPv6?`, `gateway?`, `dnsServers[]`, `connectionType` (`ethernet`/`wifi`/`cellular`/`unknown`), `interfaceName?`, `interfaces[]` | Rust `get_network_snapshot` |
 | `NetworkInterface` | `name`, `ipv4?`, `ipv6?`, `mac?`, `type`, `isUp`, `isDefault` | Rust |
 | `DiagnosticTest` | `id`, `name`, `target?`, `status`, `latencyMs?`, `message?` | Rust `run_diagnostic` sonucu + Türkçe mesaj |
 | `DiagnosticReport` | `id`, `createdAt`, `score`, `passed`, `failed`, `network`, `tests[]` | Ön yüz birleştirir; `id` Rust'tan |

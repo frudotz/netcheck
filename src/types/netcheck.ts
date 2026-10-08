@@ -1,6 +1,6 @@
 // NetCheck veri modelleri — Rust tarafındaki serde yapılarıyla birebir (camelCase).
 
-export type ConnectionType = "ethernet" | "wifi" | "unknown";
+export type ConnectionType = "ethernet" | "wifi" | "cellular" | "unknown";
 
 export interface NetworkInterface {
   name: string;
@@ -56,4 +56,15 @@ export interface DiagnosticReport {
   failed: number;
   network: NetworkSnapshot;
   tests: DiagnosticTest[];
+}
+
+/** Rust `get_platform_info` (src-tauri/src/platform). */
+export type PlatformFamily = "desktop" | "mobile";
+export type IcmpBackend = "icmp-api" | "system-ping" | "unavailable";
+
+export interface PlatformInfo {
+  /** "windows" | "macos" | "linux" | "android" | "ios" */
+  os: string;
+  family: PlatformFamily;
+  icmp: IcmpBackend;
 }

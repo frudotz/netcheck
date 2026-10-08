@@ -140,7 +140,7 @@ Konsept, ekranlar, hedef kitle ve veri modeli: [`docs/proje-fikri.md`](docs/proj
 
 ## 🧩 Mimari
 
-1. **Rust Çekirdeği (Tauri v2):** `get_network_snapshot`, `run_diagnostic`, `generate_report_id` IPC komutları — ağ arayüzleri (`netdev`), ICMP (Windows `IcmpSendEcho`), DNS (sistem çözümleyici), HTTPS (`ureq`).
+1. **Rust Çekirdeği (Tauri v2):** `get_network_snapshot`, `run_diagnostic`, `generate_report_id`, `get_platform_info` IPC komutları — ağ arayüzleri (`netdev`), ICMP (Windows `IcmpSendEcho`), DNS (sistem çözümleyici), HTTPS (`ureq`). İşletim sistemine özgü kod `src-tauri/src/platform/` altında toplanır.
 2. **Astro Statik Altyapısı (`output: 'static'`):** Dosya tabanlı rotalar ve `<ClientRouter />` ile akıcı sayfa geçişleri.
 3. **Svelte 5 (Runes):** Ekranlar ve paylaşılan durum (`$state`, `$derived`, `$props`).
 4. **React 19 + MDX:** Hakkında sayfası ve etkileşimli bileşen.

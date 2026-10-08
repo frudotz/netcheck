@@ -44,6 +44,7 @@
   .logo {
     display: flex;
     align-items: center;
+    min-height: 44px;
     gap: 8px;
     color: #fff;
     font-size: 22px;
@@ -72,8 +73,8 @@
   }
 
   .tema-dugme {
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
     border: 1px solid #ffffff33;
     border-radius: 50%;
     background: #ffffff14;

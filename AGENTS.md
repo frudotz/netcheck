@@ -32,6 +32,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 - Derleme ve doğrulama: `bun run build`
 - Rust testleri: `cd src-tauri && cargo test`
 - Tip kontrolü: `bunx svelte-check --tsconfig ./tsconfig.json` (0 hata / 0 uyarı beklenir)
+- CI: [`.github/workflows/cross-platform.yml`](.github/workflows/cross-platform.yml) — PR'larda Windows/Linux/macOS derleme + test ve Android/iOS Rust derleme kontrolü
 
 ## 3. Geliştirme ve Git Kuralları
 
@@ -49,6 +50,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 - **Dil:** Kullanıcıya görünen tüm metinler Türkçedir (`src/lib/labels.ts`); yeni kod tanımlayıcıları İngilizcedir. Mevcut CSS token adları (`--renk-ana` …) korunur.
 - **Svelte 5 Runes:** Yeni bileşenlerde yalnızca `$state`, `$derived`, `$props`; Svelte 4 sözdizimi (`export let`, `$:`) kullanılmaz.
 - **SSR güvenliği:** `window`, `document`, `localStorage` yalnızca istemcide (`onMount` içinde) veya `typeof … !== "undefined"` korumasıyla kullanılır. localStorage'dan gelen liste `onMount` sonrası çizilir.
+- **Platform sınırı:** İşletim sistemine göre değişen Rust kodu (`#[cfg(windows)]`, `cfg(mobile)` …) yalnızca [`src-tauri/src/platform/`](src-tauri/src/platform/) altında yazılır; diğer modüller platformdan bağımsız kalır. Bir platformda olmayan yetenek sahte değer yerine açıkça "kullanılamıyor" döner. Platform farkı ön yüzde `get_platform_info` ile okunur, tarayıcı/OS tahmini yapılmaz.
 - **Rust ↔ TS:** IPC çağrıları yalnızca [`src/lib/native.ts`](src/lib/native.ts) üzerinden yapılır; tipler [`src/types/netcheck.ts`](src/types/netcheck.ts) ile Rust serde yapıları (`camelCase`) birebir eşleşir.
 - **Sahte veri yasak:** IP, gateway, DNS, gecikme, bağlantı durumu veya arayüz bilgisi asla uydurulmaz. Değer alınamazsa "Kullanılamıyor" / "Bulunamadı" gösterilir. Tauri dışında (tarayıcı) JS ile yedek veri veya rapor kimliği üretilmez.
 - **Rapor kimliği** yalnızca Rust'ta üretilir (`generate_report_id` → `NCHK-YYYY-XXXXXXXX`).

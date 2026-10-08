@@ -86,6 +86,9 @@
 <style>
   .geri {
     align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     margin-bottom: -6px;
     font-size: 14px;
     font-weight: 600;

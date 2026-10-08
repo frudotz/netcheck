@@ -40,20 +40,20 @@ Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçm
 
 ## 2. Hedef Platform Matrisi
 
-Tauri v2 ile tek kod tabanından aşağıdaki platformlar **hedeflenir**. Hedef platform, doğrulanmış platform anlamına gelmez; güncel durum ayrı sütunda verilir (denetim: 2026-10-07).
+Tauri v2 ile tek kod tabanından aşağıdaki platformlar **hedeflenir**. Hedef platform, doğrulanmış platform anlamına gelmez; güncel durum ayrı sütunda verilir (güncelleme: 2026-10-08). "CI" = [`cross-platform.yml`](../.github/workflows/cross-platform.yml) derleme/test kontrolü; uygulama çalıştırma veya paketleme değildir.
 
 | Platform Grubu | Hedef Sistemler | Paket Formatı | Güncel Durum |
 |---|---|---|---|
 | **Masaüstü** | Windows (10 / 11 x64) | `.msi`, `.exe` | **Doğrulandı** — geliştirme ve sürüm derlemesi (`bun run tauri build`) çalıştırıldı; ICMP `IcmpSendEcho` |
-| **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` | Kod ve paket yapılandırması mevcut; **derleme ve çalışma doğrulanmadı** |
-| **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` | Kod ve paket yapılandırması mevcut; **derleme ve çalışma doğrulanmadı** |
-| **Mobil** | iOS / iPadOS | `.ipa` (Xcode) | **Planlanan hedef** — mobil proje henüz yapılandırılmadı |
-| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | **Planlanan hedef** — mobil proje henüz yapılandırılmadı |
+| **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` | Rust kodu CI'da **derleniyor ve testleri geçiyor** (sistem `ping` yolu dahil); uygulama paketi ve çalıştırma **doğrulanmadı** |
+| **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` | Rust kodu CI'da **derleniyor ve testleri geçiyor** (sistem `ping` yolu dahil); uygulama paketi ve çalıştırma **doğrulanmadı** |
+| **Mobil** | iOS / iPadOS | `.ipa` (Xcode) | **Planlanan hedef** — Rust kütüphanesi CI'da `aarch64-apple-ios` için derleniyor; mobil proje (`gen/apple`) yok, ping "kullanılamıyor" |
+| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | **Planlanan hedef** — Rust kütüphanesi CI'da `aarch64-linux-android` için derleniyor; mobil proje (`gen/android`) yok, ping "kullanılamıyor" |
 
 Tarayıcı (`bun run dev`) yalnızca arayüz önizlemesidir; ağ tanılama Tauri uygulaması gerektirir.
 
 ### Mobil yol haritası (planlanan)
-Her aşama kendi dalında yapılır (ör. `feature/android-foundation`, `feature/ios-foundation`):
+Temel aşama (`feature/mobile-foundation`) tamamlandı: platform sınırı `src-tauri/src/platform/`, `get_platform_info`, hücresel bağlantı türü, `TAURI_DEV_HOST`, 44 px dokunma hedefleri, CI derleme kontrolü. Sonraki aşamalar kendi dallarında (ör. `feature/android`, `feature/ios`):
 1. Tauri Android/iOS projelerinin üretilmesi ve yapılandırılması.
 2. Platform izinleri ve capability'ler (Android'de ağ izinleri doğrulanarak eklenecek).
 3. Android ağ bilgisi (IP, IPv6, gateway, DNS, hostname, arayüzler) — kullanılabilir API'ler doğrulanarak.

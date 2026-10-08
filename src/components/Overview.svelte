@@ -221,6 +221,7 @@
   .yenile {
     display: inline-flex;
     align-items: center;
+    min-height: 44px;
     gap: 6px;
     padding: 8px 14px;
     border: 1px solid var(--kenar);
@@ -411,6 +412,9 @@
   }
 
   .skor-metin a:not(.btn) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-size: 13px;
     font-weight: 600;
     color: var(--renk-ana);
