@@ -48,15 +48,16 @@ Tauri v2 ile tek kod tabanından aşağıdaki platformlar **hedeflenir**. Hedef 
 | **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` | Rust kodu CI'da **derleniyor ve testleri geçiyor** (sistem `ping` yolu dahil); uygulama paketi ve çalıştırma **doğrulanmadı** |
 | **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` | Rust kodu CI'da **derleniyor ve testleri geçiyor** (sistem `ping` yolu dahil); uygulama paketi ve çalıştırma **doğrulanmadı** |
 | **Mobil** | iOS / iPadOS | `.ipa` (Xcode) | **Planlanan hedef** — Rust kütüphanesi CI'da `aarch64-apple-ios` için derleniyor; mobil proje (`gen/apple`) yok, ping "kullanılamıyor" |
-| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | **Emülatörde doğrulandı** (Android 16 / API 36, x86_64 debug APK): ağ bilgisi, ICMP soketi ile ping, DNS, HTTPS, rapor, geçmiş, 4 dil + RTL. Sürüm `aarch64` APK derlendi (imzasız). **Fiziksel cihazda doğrulanmadı.** |
+| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | **Uygulandı; emülatörde ve fiziksel cihazda doğrulandı.** Emülatör (Android 16 / API 36, x86_64 debug APK): ağ bilgisi, ICMP soketi ile ping, DNS, HTTPS, rapor, geçmiş, 4 dil + RTL. Fiziksel cihaz (Redmi Note 13 Pro, Android 16 / HyperOS 3.0, arm64): Wi-Fi ve mobil veri (Turkcell) üzerinde ağ bilgisi, ICMP soketi ile ping, DNS, HTTPS, genel IP, 5 tanılama, 4 dil + RTL, dar ekran (392 / 320 px) yerleşimi. Sürüm `aarch64` APK derlendi (imzasız; yalnız yerel test için debug anahtarıyla imzalanıp kuruldu). Mağaza / Play Store imzalaması ve AAB yayını **uygulanmadı**. Fiziksel test tek cihaz ve tek operatörle sınırlı. |
 
 Tarayıcı (`bun run dev`) yalnızca arayüz önizlemesidir; ağ tanılama Tauri uygulaması gerektirir.
 
 ### Mobil yol haritası
 1. ✅ Mobil temel (`feature/mobile-foundation`): platform sınırı `src-tauri/src/platform/`, `get_platform_info`, CI.
 2. ✅ Android (`feature/android`): Tauri Android projesi (`src-tauri/gen/android`), ICMP datagram soketi, JNI ile cihaz adı, `ACCESS_NETWORK_STATE`; emülatörde doğrulandı.
-3. ⏳ Android fiziksel cihaz testi; imzalı sürüm (AAB/APK).
-4. ⏳ iOS (`feature/ios`): macOS + Xcode ortamında `tauri ios init`, iOS ICMP ve ağ bilgisi, cihaz testi.
+3. ✅ Android fiziksel cihaz testi (Redmi Note 13 Pro; Wi-Fi + Turkcell mobil veri).
+4. ⏳ Android imzalı sürüm (keystore, AAB/APK).
+5. ⏳ iOS (`feature/ios`): macOS + Xcode ortamında `tauri ios init`, iOS ICMP ve ağ bilgisi, cihaz testi.
 
 ## 3. Ekran Boyutları (Responsive Breakpoints)
 
