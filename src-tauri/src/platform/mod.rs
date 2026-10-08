@@ -1,6 +1,7 @@
 // Platform sınırı: işletim sistemine göre değişen kod yalnızca bu modülde yaşar.
 // Diğer modüller (network, diagnostics, report_id) platformdan bağımsızdır ve buradaki
 // arayüzleri kullanır. Tauri'nin `desktop` / `mobile` cfg takma adları kullanılır.
+pub mod device;
 pub mod icmp;
 
 use serde::Serialize;

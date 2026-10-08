@@ -133,9 +133,9 @@ fn unique_strings(addrs: &[IpAddr]) -> Vec<String> {
     out
 }
 
+/// Cihaz adı platform katmanından gelir (masaüstü: hostname, Android: cihaz adı).
 pub fn hostname() -> Option<String> {
-    let name = gethostname::gethostname().to_string_lossy().trim().to_string();
-    (!name.is_empty()).then_some(name)
+    crate::platform::device::name()
 }
 
 /// Varsayılan IPv4 gateway (varsa). Tanılama testleri de bu fonksiyonu kullanır.
