@@ -1,7 +1,8 @@
 // Rust (Tauri IPC) çağrıları. Tarayıcıda (Tauri dışı) çalışırken sahte veri üretilmez;
-// NativeUnavailableError fırlatılır ve arayüz bunu "yalnızca masaüstü uygulamasında" olarak gösterir.
+// NativeUnavailableError fırlatılır ve arayüz bunu "yalnızca NetCheck uygulamasında" olarak gösterir.
+// Platform farkları (masaüstü/mobil) Rust tarafında `src-tauri/src/platform` içinde çözülür.
 import { invoke, isTauri } from "@tauri-apps/api/core";
-import type { DiagnosticKind, DiagnosticOutcome, NetworkSnapshot } from "../types/netcheck";
+import type { DiagnosticKind, DiagnosticOutcome, NetworkSnapshot, PlatformInfo } from "../types/netcheck";
 
 export class NativeUnavailableError extends Error {
   constructor() {
@@ -24,6 +25,11 @@ export function getNetworkSnapshot(): Promise<NetworkSnapshot> {
 
 export function runDiagnostic(kind: DiagnosticKind): Promise<DiagnosticOutcome> {
   return call<DiagnosticOutcome>("run_diagnostic", { kind });
+}
+
+/** Çalışma ortamı: işletim sistemi, masaüstü/mobil ailesi ve ping yöntemi. */
+export function getPlatformInfo(): Promise<PlatformInfo> {
+  return call<PlatformInfo>("get_platform_info");
 }
 
 /** Rapor kimliği yalnızca Rust tarafında üretilir (NCHK-YYYY-XXXXXXXX). */

@@ -3,7 +3,8 @@
   import { onMount } from "svelte";
   import { tema, type TemaTercihi } from "$lib/tema.svelte";
   import { reports } from "$lib/reports.svelte";
-  import { hasNative } from "$lib/native";
+  import { getPlatformInfo, hasNative } from "$lib/native";
+  import { icmpBackendLabel, platformLabel } from "$lib/labels";
   import pkg from "../../package.json";
   import ExternalLink from "./ExternalLink.svelte";
 
@@ -16,10 +17,23 @@
   // localStorage ve Tauri tespiti yalnızca istemcide anlamlıdır.
   let mounted = $state(false);
   let ortam = $state("—");
+  let ping = $state("—");
 
   onMount(() => {
     mounted = true;
-    ortam = hasNative() ? "Masaüstü uygulaması (Tauri)" : "Tarayıcı önizlemesi";
+    if (!hasNative()) {
+      ortam = "Tarayıcı önizlemesi";
+      return;
+    }
+    // Çalışma ortamı Rust'tan okunur (masaüstü/mobil, işletim sistemi, ping yöntemi).
+    getPlatformInfo()
+      .then((info) => {
+        ortam = platformLabel(info);
+        ping = icmpBackendLabel[info.icmp];
+      })
+      .catch(() => {
+        ortam = "Bilinmiyor";
+      });
   });
 </script>
 
@@ -70,6 +84,7 @@
       <div><dt>Açıklama</dt><dd>Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması</dd></div>
       <div><dt>Sürüm</dt><dd class="mono">{pkg.version}</dd></div>
       <div><dt>Çalışma ortamı</dt><dd>{ortam}</dd></div>
+      <div><dt>Ping yöntemi</dt><dd>{ping}</dd></div>
       <div><dt>Ders</dt><dd>İstinye Üniversitesi · MYO063 Mobil Programlama</dd></div>
     </dl>
     <div class="baglantilar">

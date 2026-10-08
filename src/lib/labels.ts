@@ -1,5 +1,5 @@
 // Kullanıcıya görünen Türkçe metinler — kod tanımlayıcıları İngilizce kalır.
-import type { ConnectionType, DiagnosticKind, DiagnosticOutcome, DiagnosticStatus } from "../types/netcheck";
+import type { ConnectionType, DiagnosticKind, DiagnosticOutcome, DiagnosticStatus, IcmpBackend, PlatformInfo } from "../types/netcheck";
 import { NativeUnavailableError } from "./native";
 
 export const UNAVAILABLE = "Kullanılamıyor";
@@ -8,11 +8,32 @@ export const NOT_FOUND = "Bulunamadı";
 export const connectionTypeLabel: Record<ConnectionType, string> = {
   ethernet: "Ethernet (kablolu)",
   wifi: "Wi-Fi (kablosuz)",
+  cellular: "Mobil veri (hücresel)",
   unknown: "Bilinmiyor",
 };
 
 export const DESKTOP_ONLY =
-  "Ağ bilgileri yalnızca NetCheck masaüstü uygulamasında alınabilir. Tarayıcı önizlemesinde gerçek ağ verisine erişilemez.";
+  "Ağ bilgileri yalnızca NetCheck uygulamasında alınabilir. Tarayıcı önizlemesinde gerçek ağ verisine erişilemez.";
+
+const osName: Record<string, string> = {
+  windows: "Windows",
+  macos: "macOS",
+  linux: "Linux",
+  android: "Android",
+  ios: "iOS",
+};
+
+/** Ör. "Masaüstü uygulaması · Windows", "Mobil uygulama · Android". */
+export function platformLabel(info: PlatformInfo): string {
+  const family = info.family === "mobile" ? "Mobil uygulama" : "Masaüstü uygulaması";
+  return `${family} · ${osName[info.os] ?? info.os}`;
+}
+
+export const icmpBackendLabel: Record<IcmpBackend, string> = {
+  "icmp-api": "Windows ICMP API",
+  "system-ping": "Sistem ping komutu",
+  unavailable: "Bu platformda kullanılamıyor",
+};
 
 export const statusLabel: Record<DiagnosticStatus, string> = {
   pending: "Bekliyor",
