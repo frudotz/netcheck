@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- NetCheck: ConnectivityManager üzerinden gateway, DNS sunucuları ve bağlantı türü (netdev JNI).
+         Normal (kurulum anı) izin; çalışma zamanında kullanıcıya sorulmaz. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- AndroidTV support -->
     <uses-feature android:name="android.software.leanback" android:required="false" />
