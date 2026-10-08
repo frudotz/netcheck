@@ -1,5 +1,6 @@
 mod diagnostics;
 mod network;
+mod platform;
 mod report_id;
 
 // NetCheck: ağ anlık görüntüsü — invoke("get_network_snapshot")
@@ -26,6 +27,12 @@ fn generate_report_id() -> String {
     report_id::generate()
 }
 
+// NetCheck: çalışma ortamı — invoke("get_platform_info") → { os, family: "desktop" | "mobile", icmp }
+#[tauri::command]
+fn get_platform_info() -> platform::PlatformInfo {
+    platform::info()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -33,7 +40,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             get_network_snapshot,
             run_diagnostic,
-            generate_report_id
+            generate_report_id,
+            get_platform_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

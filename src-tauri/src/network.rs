@@ -11,6 +11,8 @@ use serde::Serialize;
 pub enum ConnectionType {
     Ethernet,
     Wifi,
+    /// Hücresel / mobil geniş bant (Android `rmnet*`, Windows WWAN).
+    Cellular,
     Unknown,
 }
 
@@ -58,6 +60,7 @@ fn connection_type(kind: InterfaceType) -> ConnectionType {
         | InterfaceType::FastEthernetT
         | InterfaceType::FastEthernetFx => ConnectionType::Ethernet,
         InterfaceType::Wireless80211 => ConnectionType::Wifi,
+        InterfaceType::Wwan | InterfaceType::Wwanpp | InterfaceType::Wwanpp2 => ConnectionType::Cellular,
         _ => ConnectionType::Unknown,
     }
 }
@@ -93,10 +96,14 @@ fn first_ipv4(iface: &Interface) -> Option<Ipv4Addr> {
     iface.ipv4_addrs().into_iter().find(|a| !a.is_loopback() && !a.is_unspecified())
 }
 
+/// Android 6+ ve iOS 7+ gerçek MAC yerine sabit `02:00:00:00:00:00` döndürür; bu bir yer tutucudur,
+/// gerçek veri gibi gösterilmez ("Kullanılamıyor").
+const PLACEHOLDER_MAC: [u8; 6] = [0x02, 0, 0, 0, 0, 0];
+
 fn mac_string(iface: &Interface) -> Option<String> {
     iface
         .mac_addr
-        .filter(|m| m.octets() != [0u8; 6])
+        .filter(|m| m.octets() != [0u8; 6] && m.octets() != PLACEHOLDER_MAC)
         .map(|m| m.to_string().to_uppercase())
 }
 
@@ -185,6 +192,13 @@ mod tests {
         let snap = snapshot();
         println!("{}", serde_json::to_string_pretty(&snap).unwrap());
         assert!(snap.interfaces.iter().all(|i| i.is_up));
+    }
+
+    #[test]
+    fn cellular_interfaces_map_to_cellular() {
+        assert_eq!(connection_type(InterfaceType::Wwanpp), ConnectionType::Cellular);
+        assert_eq!(connection_type(InterfaceType::Wireless80211), ConnectionType::Wifi);
+        assert_eq!(connection_type(InterfaceType::Tunnel), ConnectionType::Unknown);
     }
 
     #[test]

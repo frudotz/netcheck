@@ -8,6 +8,7 @@ use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 
 use crate::network;
+use crate::platform::{self, icmp::EchoError};
 
 const TIMEOUT: Duration = Duration::from_secs(4);
 const CLOUDFLARE: Ipv4Addr = Ipv4Addr::new(1, 1, 1, 1);
@@ -95,81 +96,13 @@ pub fn run(kind: DiagnosticKind) -> DiagnosticOutcome {
 
 // ---------------------------------------------------------------- ICMP
 
-/// Windows: iphlpapi `IcmpSendEcho` — yönetici yetkisi gerektirmez, gerçek RTT döner.
-#[cfg(windows)]
+/// Platform arka ucu (`platform::icmp`) sonucunu tanılama durum/kod modeline çevirir.
 fn ping(addr: IpAddr) -> Result<f64, Failure> {
-    use std::mem::size_of;
-    use std::ptr;
-    use windows_sys::Win32::Foundation::{GetLastError, INVALID_HANDLE_VALUE};
-    use windows_sys::Win32::NetworkManagement::IpHelper::{
-        IcmpCloseHandle, IcmpCreateFile, IcmpSendEcho, ICMP_ECHO_REPLY, IP_REQ_TIMED_OUT, IP_SUCCESS,
-    };
-
-    // IPv6 hedefler (yalnızca IPv6 gateway) bu sürümde desteklenmez.
-    let IpAddr::V4(v4) = addr else { return Err(UNSUPPORTED) };
-
-    let payload = *b"NetCheck";
-    // Yanıt arabelleği: yanıt yapısı + veri + ICMP hata mesajı için pay (MS belgelerindeki öneri).
-    let mut reply = vec![0u8; size_of::<ICMP_ECHO_REPLY>() + payload.len() + 8 + 64];
-
-    unsafe {
-        let handle = IcmpCreateFile();
-        if handle == INVALID_HANDLE_VALUE {
-            return Err((Status::Unavailable, "ping_unsupported"));
-        }
-        let count = IcmpSendEcho(
-            handle,
-            u32::from_ne_bytes(v4.octets()), // ağ bayt sırası
-            payload.as_ptr().cast(),
-            payload.len() as u16,
-            ptr::null(),
-            reply.as_mut_ptr().cast(),
-            reply.len() as u32,
-            TIMEOUT.as_millis() as u32,
-        );
-        let last_error = GetLastError();
-        IcmpCloseHandle(handle);
-
-        if count == 0 {
-            return Err((Status::Failed, if last_error == IP_REQ_TIMED_OUT { "timeout" } else { "unreachable" }));
-        }
-        // Vec<u8> hizalı değildir; yapı hizasız okunur.
-        let echo = ptr::read_unaligned(reply.as_ptr().cast::<ICMP_ECHO_REPLY>());
-        match echo.Status {
-            IP_SUCCESS => Ok(echo.RoundTripTime as f64),
-            IP_REQ_TIMED_OUT => Err((Status::Failed, "timeout")),
-            _ => Err((Status::Failed, "unreachable")),
-        }
-    }
-}
-
-/// Diğer platformlar: sistem `ping` ikilisi; kabuk kullanılmaz, hedef yalnızca doğrulanmış `IpAddr`.
-#[cfg(not(windows))]
-fn ping(addr: IpAddr) -> Result<f64, Failure> {
-    use std::process::Command;
-
-    let IpAddr::V4(v4) = addr else { return Err(UNSUPPORTED) };
-    let secs = TIMEOUT.as_secs().max(1).to_string();
-    let mut cmd = Command::new("ping");
-    cmd.args(["-n", "-c", "1"]);
-    if cfg!(target_os = "macos") {
-        cmd.args(["-t", &secs]);
-    } else {
-        cmd.args(["-W", &secs]);
-    }
-    cmd.arg(v4.to_string());
-
-    let output = cmd.output().map_err(|_| UNSUPPORTED)?;
-    if !output.status.success() {
-        return Err((Status::Failed, "timeout"));
-    }
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    stdout
-        .split("time=")
-        .nth(1)
-        .and_then(|rest| rest.split(|c: char| !(c.is_ascii_digit() || c == '.')).next())
-        .and_then(|ms| ms.parse::<f64>().ok())
-        .ok_or((Status::Failed, "unreachable"))
+    platform::icmp::echo(addr, TIMEOUT).map_err(|e| match e {
+        EchoError::Timeout => (Status::Failed, "timeout"),
+        EchoError::Unreachable => (Status::Failed, "unreachable"),
+        EchoError::Unsupported => UNSUPPORTED,
+    })
 }
 
 // ---------------------------------------------------------------- DNS
@@ -256,12 +189,5 @@ mod tests {
                 assert!(out.latency_ms.is_some());
             }
         }
-    }
-
-    #[test]
-    fn unroutable_address_fails_cleanly() {
-        // TEST-NET-1 (RFC 5737) — yanıt vermemesi beklenir.
-        let result = ping(IpAddr::V4(Ipv4Addr::new(192, 0, 2, 1)));
-        assert!(matches!(result, Err((Status::Failed, _))));
     }
 }
