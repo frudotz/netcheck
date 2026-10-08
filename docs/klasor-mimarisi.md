@@ -21,6 +21,7 @@ netcheck/
 ├── public/                  # Statik varlıklar (Derlenmeyen logolar, favicon, görseller)
 ├── src-tauri/               # Rust Tauri çekirdeği (Pencere, yetkiler, native komutlar)
 │   ├── tauri.conf.json      # Masaüstü/mobil pencere ayarları ve frontendDist hedefi
+│   ├── gen/android/         # Tauri Android projesi (Gradle, AndroidManifest, MainActivity)
 │   ├── Cargo.toml           # Rust kütüphaneleri ve bağımlılıkları
 │   └── src/                 # lib.rs (komut kaydı), platformdan bağımsız modüller + platform/ (OS'e özgü kod)
 │

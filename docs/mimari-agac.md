@@ -48,20 +48,15 @@ Tauri v2 ile tek kod tabanından aşağıdaki platformlar **hedeflenir**. Hedef 
 | **Masaüstü** | macOS (Apple Silicon / Intel) | `.dmg`, `.app` | Rust kodu CI'da **derleniyor ve testleri geçiyor** (sistem `ping` yolu dahil); uygulama paketi ve çalıştırma **doğrulanmadı** |
 | **Masaüstü** | Linux (Ubuntu / Debian) | `.deb`, `.AppImage` | Rust kodu CI'da **derleniyor ve testleri geçiyor** (sistem `ping` yolu dahil); uygulama paketi ve çalıştırma **doğrulanmadı** |
 | **Mobil** | iOS / iPadOS | `.ipa` (Xcode) | **Planlanan hedef** — Rust kütüphanesi CI'da `aarch64-apple-ios` için derleniyor; mobil proje (`gen/apple`) yok, ping "kullanılamıyor" |
-| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | **Planlanan hedef** — Rust kütüphanesi CI'da `aarch64-linux-android` için derleniyor; mobil proje (`gen/android`) yok, ping "kullanılamıyor" |
+| **Mobil** | Android (Telefon & Tablet) | `.apk`, `.aab` | **Emülatörde doğrulandı** (Android 16 / API 36, x86_64 debug APK): ağ bilgisi, ICMP soketi ile ping, DNS, HTTPS, rapor, geçmiş, 4 dil + RTL. Sürüm `aarch64` APK derlendi (imzasız). **Fiziksel cihazda doğrulanmadı.** |
 
 Tarayıcı (`bun run dev`) yalnızca arayüz önizlemesidir; ağ tanılama Tauri uygulaması gerektirir.
 
-### Mobil yol haritası (planlanan)
-Temel aşama (`feature/mobile-foundation`) tamamlandı: platform sınırı `src-tauri/src/platform/`, `get_platform_info`, hücresel bağlantı türü, `TAURI_DEV_HOST`, 44 px dokunma hedefleri, CI derleme kontrolü. Sonraki aşamalar kendi dallarında (ör. `feature/android`, `feature/ios`):
-1. Tauri Android/iOS projelerinin üretilmesi ve yapılandırılması.
-2. Platform izinleri ve capability'ler (Android'de ağ izinleri doğrulanarak eklenecek).
-3. Android ağ bilgisi (IP, IPv6, gateway, DNS, hostname, arayüzler) — kullanılabilir API'ler doğrulanarak.
-4. iOS ağ bilgisi — Apple kısıtları ve API'leri doğrulanarak.
-5. Mobil tanılama — süreç tabanlı ping mobilde uygun değilse platforma özgü alternatif.
-6. Android APK/AAB derleme doğrulaması.
-7. iOS derleme/arşiv doğrulaması (macOS ortamında).
-8. Gerçek cihaz testleri.
+### Mobil yol haritası
+1. ✅ Mobil temel (`feature/mobile-foundation`): platform sınırı `src-tauri/src/platform/`, `get_platform_info`, CI.
+2. ✅ Android (`feature/android`): Tauri Android projesi (`src-tauri/gen/android`), ICMP datagram soketi, JNI ile cihaz adı, `ACCESS_NETWORK_STATE`; emülatörde doğrulandı.
+3. ⏳ Android fiziksel cihaz testi; imzalı sürüm (AAB/APK).
+4. ⏳ iOS (`feature/ios`): macOS + Xcode ortamında `tauri ios init`, iOS ICMP ve ağ bilgisi, cihaz testi.
 
 ## 3. Ekran Boyutları (Responsive Breakpoints)
 

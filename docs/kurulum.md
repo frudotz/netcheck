@@ -36,7 +36,15 @@ bun run build
 ```
 > Çıktılar `dist/` klasörüne üretilir ve Tauri tarafından paketlenir. Kurulum paketi için: `bun run tauri build`.
 
-6. **Rust testleri (isteğe bağlı):**
+6. **Android (isteğe bağlı):** ek gereksinimler — JDK 17, Android SDK (platform-tools, `platforms;android-37.0`, build-tools), Android NDK (r27+; doğrulanan: 29.0.14206865), `JAVA_HOME`, `ANDROID_HOME`, `NDK_HOME` ortam değişkenleri ve Rust hedefleri (`rustup target add aarch64-linux-android x86_64-linux-android`). Android projesi depoda hazırdır (`src-tauri/gen/android`); `tauri android init` gerekmez.
+```bash
+bun run tauri android build --target aarch64 --apk           # telefon için sürüm APK'sı (imzasız)
+bun run tauri android build --debug --target x86_64 --apk    # emülatör için debug APK
+bun run tauri android dev                                    # bağlı cihaz/emülatörde geliştirme
+```
+> Debug APK: `src-tauri/gen/android/app/build/outputs/apk/universal/debug/`. Yükleme: `adb install -r <apk>`.
+
+7. **Rust testleri (isteğe bağlı):**
 ```bash
 cd src-tauri
 cargo test
