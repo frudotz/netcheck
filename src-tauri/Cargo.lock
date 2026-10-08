@@ -2125,9 +2125,12 @@ name = "netcheck"
 version = "0.1.0"
 dependencies = [
  "gethostname",
+ "jni",
+ "ndk-context",
  "netdev",
  "serde",
  "serde_json",
+ "socket2",
  "tauri",
  "tauri-build",
  "tauri-plugin-opener",

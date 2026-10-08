@@ -152,7 +152,9 @@ const t = ui[lang];
   .diger a {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-height: 44px;
+    min-width: 44px; /* kısa çeviriler (ör. Farsça "تماس") için de 44 px dokunma alanı */
     font-size: 14px;
     font-weight: 600;
     color: var(--renk-ana);

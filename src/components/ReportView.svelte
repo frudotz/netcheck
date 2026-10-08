@@ -69,7 +69,7 @@
     <section class="kart">
       <h2 class="bolum">Ağ Bilgileri</h2>
       <dl class="liste">
-        <div><dt>Hostname</dt><dd>{report.network.hostname ?? UNAVAILABLE}</dd></div>
+        <div><dt>Cihaz adı</dt><dd>{report.network.hostname ?? UNAVAILABLE}</dd></div>
         <div><dt>Bağlantı türü</dt><dd>{connectionTypeLabel[report.network.connectionType]}</dd></div>
         <div><dt>Yerel IPv4</dt><dd class="mono">{report.network.localIPv4 ?? UNAVAILABLE}</dd></div>
         <div><dt>IPv6</dt><dd class="mono">{report.network.localIPv6 ?? UNAVAILABLE}</dd></div>

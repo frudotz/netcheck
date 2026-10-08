@@ -32,6 +32,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 - Derleme ve doğrulama: `bun run build`
 - Rust testleri: `cd src-tauri && cargo test`
 - Tip kontrolü: `bunx svelte-check --tsconfig ./tsconfig.json` (0 hata / 0 uyarı beklenir)
+- Android: `bun run tauri android build --target aarch64 --apk` (önkoşullar: [`docs/kurulum.md`](docs/kurulum.md))
 - CI: [`.github/workflows/cross-platform.yml`](.github/workflows/cross-platform.yml) — PR'larda Windows/Linux/macOS derleme + test ve Android/iOS Rust derleme kontrolü
 
 ## 3. Geliştirme ve Git Kuralları
@@ -63,6 +64,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 - Gerçek IPC'yi test etmek için Tauri penceresine bağlanılır:
   1. `WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9222` ile `bun run tauri dev` (Windows/WebView2).
   2. `http://127.0.0.1:9222/json/version` içindeki `webSocketDebuggerUrl` ile `agent-browser connect <ws-url>`.
+- Android'de WebView, debug APK'da `adb forward tcp:<port> localabstract:webview_devtools_remote_<pid>` ile aynı CDP yöntemiyle denetlenir. Emülatör ve `adb` iş bitince kapatılır.
 - `bun run dev` (tarayıcı) yalnızca Tauri dışı hata yolunu ("yalnızca masaüstü uygulamasında") test eder.
 - Ekran görüntüsü, kayıt ve geçici otomasyon dosyaları depoya commit edilmez.
 

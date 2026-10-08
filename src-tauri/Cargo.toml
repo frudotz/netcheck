@@ -37,3 +37,10 @@ strip = true
 
 [target."cfg(windows)".dependencies]
 windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_NetworkManagement_IpHelper"] }
+
+# Android platform katmanı (src/platform): cihaz adı (JNI) ve ICMP datagram soketi.
+# Üçü de netdev/tao/tokio üzerinden bağımlılık ağacında zaten var; yeni crate indirilmez.
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.21"
+ndk-context = "0.1"
+socket2 = "0.6"

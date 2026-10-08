@@ -102,7 +102,7 @@
             value: snapshot.dnsServers.length ? snapshot.dnsServers.join(", ") : NOT_FOUND,
             mono: true,
           },
-          { label: "Hostname", value: snapshot.hostname ?? UNAVAILABLE, mono: false },
+          { label: "Cihaz adı", value: snapshot.hostname ?? UNAVAILABLE, mono: false },
           { label: "Bağlantı türü", value: connectionTypeLabel[snapshot.connectionType], mono: false },
         ]
       : [],

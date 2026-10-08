@@ -32,6 +32,7 @@ export function platformLabel(info: PlatformInfo): string {
 export const icmpBackendLabel: Record<IcmpBackend, string> = {
   "icmp-api": "Windows ICMP API",
   "system-ping": "Sistem ping komutu",
+  "icmp-socket": "ICMP soketi (ayrıcalıksız)",
   unavailable: "Bu platformda kullanılamıyor",
 };
 
