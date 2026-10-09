@@ -15,6 +15,9 @@ Uygulamanızı web sayfasından ayıran taraf Rust çekirdeğidir. Arayüz Rust'
 - Sonuç ve hata tipleri `src/lib/types/` içinde, Rust tarafındaki yapıyla aynı alanlarla.
 - Hata arayüzde Görev 13'teki `HataDurumu` ile gösterilir.
 - Rust tarafında komutun en az 2 otomatik testi; `cargo test` geçer.
+- **Platform kuralı:** uygulama beş platformun hepsinde çalışır (Android, iOS, macOS, Windows, Linux). Bir özellik bir platformda farklı bir yolla destekleniyorsa o platformda o yolla yapılır. Bir platformda hiç desteklenmiyorsa o platformda arayüzde hiç görünmez; bozuk düğme ya da hata mesajı bırakılmaz.
+- `docs/platform-destegi.md`: özellik × platform tablosu (destekleniyor / farklı yolla / yok) ve her "farklı yolla" ile "yok" satırı için ne yapıldığı; `AGENTS.md` indeksinde.
+- `native.ts` çalışılan platformu bildirir (`platform()` ve özellik bazında `destekleniyorMu(...)`); bileşenler platform adını kendileri sorgulamaz.
 
 ## 2. Yapay zekaya verilecek istem
 
@@ -30,6 +33,8 @@ Uygulamamın Rust tarafında şu işi yapan bir komut istiyorum: [KOMUTUN İŞİ
 6. Hatayı arayüzde HataDurumu bileşeniyle göster.
 7. Rust tarafına en az 2 test yaz (bir başarılı, bir hatalı girdi) ve `cargo test` çalıştır.
 8. Komutu, girdilerini, çıktısını ve hata türlerini `docs/komutlar.md` içine yaz; `AGENTS.md` indeksine ekle.
+9. Platform kuralı: uygulamam Android, iOS, macOS, Windows ve Linux'ta çalışmalı. Uygulamadaki her özelliği (bu komut dahil) beş platform için değerlendir: destekleniyor / farklı yolla destekleniyor / desteklenmiyor. Farklı yolla desteklenenleri o platformun yoluyla yap (Rust tarafında `#[cfg(target_os = ...)]` ya da `cfg!(mobile)`, uygun Tauri eklentisi). Hiç desteklenmeyenleri o platformda arayüzden tamamen kaldır; devre dışı düğme ya da hata mesajı bırakma.
+10. `native.ts` içine `platform()` ve `destekleniyorMu(ozellik)` ekle; bileşenler platform adını kendileri sorgulamasın. Sonucu `docs/platform-destegi.md` içine özellik × platform tablosu olarak yaz ve `AGENTS.md`'ye şu kuralı ekle: yeni özellik eklenirken bu tablo güncellenir.
 
 Son olarak: `bun run build` 0 hata vermeli. Bitince hangi dosyaları neden değiştirdiğini madde madde özetle ve benim elle denemem gereken adımları yaz.
 ```
@@ -50,6 +55,7 @@ Sonra yalnız "kısmen" ve "eksik" çıkan maddeleri yaptırın.
 3. Aynı ekranı tarayıcıda (`bun run dev`) açın: çökme yok, yedek sonuç ya da açıklama var mı?
 4. `src-tauri` klasöründe `cargo test` çalıştırın; çıktıyı günlüğe yapıştırın.
 5. Araca sorun: "`native.ts` dışında Tauri çağrısı yapan dosya var mı?" Yanıt boş olmalı.
+6. `docs/platform-destegi.md` tablosunu okuyun: "yok" yazan her özellik için o platformda arayüzde gerçekten görünmediğini araca kanıtlatın (hangi koşulla gizlendiğini göstersin). Elinizdeki her cihazda (bilgisayar, telefon) uygulamayı bir kez açın.
 
 ## 4. Projenize göre
 
@@ -69,7 +75,7 @@ Ağ tanılama: ağ bilgisini okuma, tanılama çalıştırma · Usta çağırma:
 |---|---|---|
 | Komut | 5 | Projeye özgü; tipli sonuç ve tipli hata; panik yok |
 | Tek giriş noktası | 4 | Bütün çağrılar `native.ts` üzerinden |
-| Tarayıcı yedeği | 3 | Rust yokken ekran çökmüyor |
+| Platform kuralı ve tarayıcı yedeği | 3 | Platform tablosu var; desteklenmeyen özellik o platformda görünmüyor; Rust yokken ekran çökmüyor |
 | Tipler ve hata gösterimi | 3 | Tipler `types/` içinde; hata arayüzde görünüyor |
 | Testler | 3 | En az 2 Rust testi; `cargo test` geçiyor |
 | Belge | 2 | `docs/komutlar.md` |

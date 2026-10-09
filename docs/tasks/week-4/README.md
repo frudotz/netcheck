@@ -6,12 +6,13 @@ Hafta 03 görevlerini tamamladığınız için Hafta 04 görevlerinin ilk bölü
 
 ## Bu hafta nasıl çalışıyoruz
 
-Kod yazmıyorsunuz. Her görevde yapay zeka aracınıza ne istediğinizi tarif eder, önerdiği planı okur, çıkan değişikliği inceler ve sonucu kendiniz denersiniz. Düzen Görev 10'da kurulur; önce onu yapın.
+Kod yazmıyorsunuz. Her görevde yapay zeka aracınıza ne istediğinizi tarif eder, önerdiği planı okur, çıkan değişikliği inceler ve sonucu kendiniz denersiniz. Önce Görev 09.1 ile `master` dalını koruyun; çalışma düzeni Görev 10'da kurulur.
 
 ## Görevler
 
 | No | Görev | Dosya |
 |---|---|---|
+| 09.1 | Master dalını koruma ve PR güvenliği (ön koşul) | [09-1-master-korumasi.task.md](09-1-master-korumasi.task.md) |
 | 10 | Çalışma yöntemi: şartname, istem günlüğü, doğrulama | [10-calisma-yontemi.task.md](10-calisma-yontemi.task.md) |
 | 11 | Veri sözleşmesi: tipler ve örnek veri | [11-veri-sozlesmesi.task.md](11-veri-sozlesmesi.task.md) |
 | 12 | Kart bileşeni | [12-kart-bileseni.task.md](12-kart-bileseni.task.md) |
@@ -25,6 +26,8 @@ Kod yazmıyorsunuz. Her görevde yapay zeka aracınıza ne istediğinizi tarif e
 - Her görev için `docs/istemler/NN-kisa-ad.md` kaydı: istem, plan, düzelttiğiniz yerler, doğrulama sonucu.
 - Uygulamanızda bir görevin istediği şey zaten varsa, görev dosyasındaki denetim istemini çalıştırın ve yalnız eksikleri yaptırın.
 - `bun run build` 0 hata vermeden görev bitmiş sayılmaz.
+- **Platform kuralı:** uygulama beş platformun hepsinde çalışır (Android, iOS, macOS, Windows, Linux). Bir özellik bir platformda farklı yolla destekleniyorsa o yolla yapılır; hiç desteklenmiyorsa o platformda arayüzde hiç görünmez. Ayrıntı Görev 15'te.
+- **Master koruması:** Hafta 04 görevlerine başlamadan önce Görev 09.1'i yapın; `master` dalı kural setiyle korunur ve her değişiklik PR ile girer.
 - Görev dosyalarında anlaşılmayan ya da uygulamanıza uymayan bir yer olursa Telegram grubunda sorun.
 
 ---
