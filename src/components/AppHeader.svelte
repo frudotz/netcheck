@@ -30,24 +30,28 @@
 </header>
 
 <style>
+  /* Yükseklik = --ust-yukseklik (0.75 + 2.75 + 0.75 rem + üst güvenli alan); menü rayı buna yaslanır. */
   .ust {
+    --odak: var(--renk-vurgu);
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 10;
-    padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+    padding: calc(0.75rem + env(safe-area-inset-top)) var(--sayfa-bosluk) 0.75rem;
+    padding-left: max(var(--sayfa-bosluk), env(safe-area-inset-left));
+    padding-right: max(var(--sayfa-bosluk), env(safe-area-inset-right));
     background: var(--renk-koyu);
   }
 
   .logo {
     display: flex;
     align-items: center;
-    min-height: 44px;
-    gap: 8px;
+    min-height: var(--dokunma);
+    gap: var(--bosluk-2);
     color: #fff;
-    font-size: 22px;
+    font-size: var(--yazi-baslik);
     font-weight: 800;
     letter-spacing: -0.5px;
     text-decoration: none;
@@ -59,8 +63,8 @@
   }
 
   .isaret {
-    width: 28px;
-    height: 28px;
+    width: 1.75rem;
+    height: 1.75rem;
     fill: none;
     stroke: var(--renk-vurgu);
     stroke-width: 2.2;
@@ -73,8 +77,8 @@
   }
 
   .tema-dugme {
-    width: 44px;
-    height: 44px;
+    width: var(--dokunma);
+    height: var(--dokunma);
     border: 1px solid #ffffff33;
     border-radius: 50%;
     background: #ffffff14;
@@ -86,8 +90,8 @@
   }
 
   .tema-dugme svg {
-    width: 18px;
-    height: 18px;
+    width: 1.125rem;
+    height: 1.125rem;
     fill: none;
     stroke: currentColor;
     stroke-width: 2;

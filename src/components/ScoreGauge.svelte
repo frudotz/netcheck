@@ -2,6 +2,7 @@
   // Bağlantı Skoru halkası (inline SVG)
   import { scoreLevel, scoreLevelLabel } from "$lib/score";
 
+  // size: 16 px kök yazıdaki piksel karşılığı; rem'e çevrilir, büyük ekranda ölçeklenir.
   let { score, size = 112 }: { score: number; size?: number } = $props();
 
   const R = 52;
@@ -10,7 +11,7 @@
   const dash = $derived((Math.max(0, Math.min(100, score)) / 100) * CIRC);
 </script>
 
-<div class="gauge {level}" style="width:{size}px;height:{size}px" role="img" aria-label="Bağlantı Skoru {score} / 100, {scoreLevelLabel[level]}">
+<div class="gauge {level}" style="width:{size / 16}rem;height:{size / 16}rem" role="img" aria-label="Bağlantı Skoru {score} / 100, {scoreLevelLabel[level]}">
   <svg viewBox="0 0 120 120" aria-hidden="true">
     <circle cx="60" cy="60" r={R} class="iz" />
     <circle cx="60" cy="60" r={R} class="dolu" stroke-dasharray="{dash} {CIRC}" />
@@ -70,12 +71,12 @@
   }
 
   strong {
-    font-size: 30px;
+    font-size: 1.875rem;
     font-weight: 800;
   }
 
   span {
-    font-size: 12px;
+    font-size: var(--yazi-kucuk);
     color: var(--yazi-soluk);
   }
 </style>

@@ -52,14 +52,17 @@
 </nav>
 
 <style>
+  /* Dar ekran: sabit alt sekme çubuğu. Geniş / kısa yatay ekran: Layout ızgarasında dikey ray.
+     Kesme noktası Layout.astro ile aynıdır (docs/mimari-agac.md §3). */
   .alt-menu {
     position: fixed;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     bottom: 0;
     display: flex;
     justify-content: center;
     padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
     background: var(--kart);
     border-top: 1px solid var(--kenar);
     z-index: 20;
@@ -67,13 +70,16 @@
 
   .alt-menu a {
     flex: 1;
-    max-width: 200px;
+    max-width: 12.5rem;
+    min-height: var(--alt-menu-yukseklik);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
-    padding: 10px 0;
-    font-size: 11px;
+    justify-content: center;
+    gap: 0.1875rem;
+    padding: var(--bosluk-2) var(--bosluk-1);
+    font-size: var(--yazi-mini);
+    text-align: center;
     color: var(--yazi-soluk);
     text-decoration: none;
   }
@@ -83,13 +89,65 @@
     font-weight: 600;
   }
 
+  .alt-menu a:focus-visible {
+    outline-offset: -3px;
+  }
+
   svg {
-    width: 22px;
-    height: 22px;
+    width: 1.375rem;
+    height: 1.375rem;
+    flex-shrink: 0;
     fill: none;
     stroke: currentColor;
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
+  }
+
+  @media (min-width: 64em), (orientation: landscape) and (min-width: 33em) and (max-height: 31.25em) {
+    .alt-menu {
+      position: sticky;
+      top: var(--ust-yukseklik);
+      align-self: start;
+      height: calc(100vh - var(--ust-yukseklik));
+      height: calc(100dvh - var(--ust-yukseklik));
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: var(--bosluk-1);
+      padding: var(--bosluk-3) var(--bosluk-2) env(safe-area-inset-bottom);
+      border-top: 0;
+      border-inline-end: 1px solid var(--kenar);
+      overflow-y: auto;
+    }
+
+    /* Çentik yalnız ekranın fiziksel kenarındadır: ray LTR'de solda, RTL'de sağda. */
+    :global([dir="ltr"]) .alt-menu {
+      padding-left: max(var(--bosluk-2), env(safe-area-inset-left));
+    }
+
+    :global([dir="rtl"]) .alt-menu {
+      padding-right: max(var(--bosluk-2), env(safe-area-inset-right));
+    }
+
+    .alt-menu a {
+      flex: 0 0 auto;
+      max-width: none;
+      min-height: 4rem;
+      border-radius: var(--radius);
+      font-size: var(--yazi-kucuk);
+    }
+
+    .alt-menu a.aktif {
+      background: var(--zemin);
+    }
+  }
+
+  /* Kısa yatay ekranda (telefon yatay) ray öğeleri sıkışır; ekran yüksekliğine sığar. */
+  @media (orientation: landscape) and (max-height: 31.25em) {
+    .alt-menu a {
+      min-height: var(--dokunma);
+      gap: 0.125rem;
+      padding-block: var(--bosluk-1);
+    }
   }
 </style>

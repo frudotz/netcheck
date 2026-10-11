@@ -47,16 +47,52 @@ const currentPath = Astro.url.pathname;
   </head>
   <body>
     <AppHeader client:load />
+    <!-- Menü içerikten önce: klavye sırası görsel sırayla aynı (ray solda/sağda; alt menü sabit konumlu). -->
+    <AppNav client:load currentPath={currentPath} />
     <main>
       <slot />
     </main>
-    <AppNav client:load currentPath={currentPath} />
   </body>
 </html>
 
 <style>
-  main {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  /* Uygulama kabuğu — tek kaynak: docs/mimari-agac.md §3.
+     Dar ekran: üst başlık + içerik + sabit alt menü.
+     Geniş ekran (≥ 64em) veya kısa yatay ekran (telefon yatay): menü içerik yanında dikey ray olur.
+     Sütun sırası yazı yönünü izler; RTL'de ray sağa geçer. */
+  body {
     min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  main {
+    min-width: 0;
+    padding-bottom: calc(var(--alt-menu-yukseklik) + env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 64em), (orientation: landscape) and (min-width: 33em) and (max-height: 31.25em) {
+    body {
+      grid-template-columns: var(--ray-genislik) minmax(0, 1fr);
+      grid-template-areas:
+        "ust ust"
+        "menu icerik";
+    }
+
+    /* Svelte adaları <astro-island> (display: contents) içindedir; ızgara öğesi başlık ve menünün kendisidir. */
+    body :global(.ust) {
+      grid-area: ust;
+    }
+
+    body :global(.alt-menu) {
+      grid-area: menu;
+    }
+
+    main {
+      grid-area: icerik;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 </style>

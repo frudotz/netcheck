@@ -20,7 +20,7 @@
 </script>
 
 <div class="sayfa">
-  <a class="geri" href="/gecmis">← Geçmiş</a>
+  <a class="satir-link geri" href="/gecmis">← Geçmiş</a>
 
   {#if !ready}
     <p class="kart bilgi" role="status">Rapor yükleniyor...</p>
@@ -31,6 +31,7 @@
       <a class="btn" href="/tanilama">Yeni tanılama başlat</a>
     </div>
   {:else}
+    <div class="izgara iki rapor">
     <section class="kart kimlik">
       <span class="etiket">Tanılama Raporu</span>
       <code class="kod">{report.id}</code>
@@ -68,7 +69,7 @@
 
     <section class="kart">
       <h2 class="bolum">Ağ Bilgileri</h2>
-      <dl class="liste">
+      <dl class="anahtar-deger ag">
         <div><dt>Cihaz adı</dt><dd>{report.network.hostname ?? UNAVAILABLE}</dd></div>
         <div><dt>Bağlantı türü</dt><dd>{connectionTypeLabel[report.network.connectionType]}</dd></div>
         <div><dt>Yerel IPv4</dt><dd class="mono">{report.network.localIPv4 ?? UNAVAILABLE}</dd></div>
@@ -80,87 +81,87 @@
         </div>
       </dl>
     </section>
+    </div>
   {/if}
 </div>
 
 <style>
+  /* Bölümler .izgara içinde: dar ekranda tek sütun, ≥ ~45rem içerik genişliğinde iki sütun. */
+  .rapor {
+    --kart-min: 22rem;
+  }
+
   .geri {
     align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    margin-bottom: -6px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--renk-ana);
+    margin-bottom: -0.375rem;
   }
 
   .bilgi {
     margin: 0;
-    padding: 16px;
+    padding: var(--bosluk-4);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--bosluk-2);
   }
 
   .bilgi p {
     margin: 0;
     color: var(--yazi-soluk);
-    font-size: 14px;
+    font-size: var(--yazi-govde);
   }
 
   .kimlik {
-    padding: 18px 16px;
+    align-self: stretch;
+    padding: 1.125rem var(--bosluk-4);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 0.375rem;
     text-align: center;
     border-top: 4px solid var(--renk-ana);
   }
 
-  .etiket {
-    font-size: 12px;
-    font-weight: 600;
+  .kimlik .etiket {
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--yazi-soluk);
   }
 
   .kod {
     font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-    font-size: 22px;
+    font-size: 1.375rem;
     font-weight: 800;
     letter-spacing: 1px;
     overflow-wrap: anywhere;
   }
 
   .tarih {
-    font-size: 13px;
+    font-size: var(--yazi-ince);
     color: var(--yazi-soluk);
   }
 
   .skor {
-    padding: 16px;
+    align-self: stretch;
+    padding: var(--bosluk-4);
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--bosluk-4);
   }
 
   .skor h2 {
     margin: 0;
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .not {
-    margin: 4px 0 8px;
-    font-size: 12px;
+    margin: var(--bosluk-1) 0 var(--bosluk-2);
+    font-size: var(--yazi-kucuk);
     color: var(--yazi-soluk);
   }
 
   .sayac {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--yazi-govde);
     font-weight: 600;
   }
 
@@ -174,66 +175,39 @@
 
   .bolum {
     margin: 0;
-    padding: 14px 16px 6px;
-    font-size: 15px;
+    padding: 0.875rem var(--bosluk-4) 0.375rem;
+    font-size: var(--yazi-orta);
   }
 
   .liste {
     list-style: none;
     margin: 0;
-    padding: 0 16px 8px;
+    padding: 0 var(--bosluk-4) var(--bosluk-2);
   }
 
-  .liste li,
-  .liste div {
-    padding: 10px 0;
+  .liste li {
+    padding: 0.625rem 0;
     border-top: 1px solid var(--kenar);
   }
 
-  .liste li:first-child,
-  .liste > div:first-child {
+  .liste li:first-child {
     border-top: 0;
+  }
+
+  .ag {
+    padding: 0 var(--bosluk-4) var(--bosluk-2);
   }
 
   .satir {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-  }
-
-  .liste .satir {
-    padding: 0;
-    border: 0;
+    gap: var(--bosluk-3);
   }
 
   .alt {
-    margin-top: 4px;
-    font-size: 13px;
+    margin-top: var(--bosluk-1);
+    font-size: var(--yazi-ince);
     color: var(--yazi-soluk);
-  }
-
-  dl.liste div {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-  }
-
-  dt {
-    color: var(--yazi-soluk);
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
-  dd {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: right;
-    overflow-wrap: anywhere;
-  }
-
-  .mono {
-    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
   }
 </style>

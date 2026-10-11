@@ -40,6 +40,7 @@
 <div class="sayfa">
   <h1>Ayarlar</h1>
 
+  <div class="izgara iki ayarlar">
   <section class="kart bolum">
     <h2 id="tema-baslik">Tema</h2>
     <div class="secim" role="radiogroup" aria-labelledby="tema-baslik">
@@ -59,7 +60,7 @@
 
   <section class="kart bolum">
     <h2>Yerel Veri</h2>
-    <dl>
+    <dl class="anahtar-deger">
       <div><dt>Kayıtlı rapor</dt><dd>{mounted ? reports.list.length : "—"}</dd></div>
       <div><dt>Depolama</dt><dd>Bu cihaz (localStorage)</dd></div>
     </dl>
@@ -79,7 +80,7 @@
 
   <section class="kart bolum">
     <h2>Uygulama Bilgisi</h2>
-    <dl>
+    <dl class="anahtar-deger">
       <div><dt>Uygulama</dt><dd>NetCheck</dd></div>
       <div><dt>Açıklama</dt><dd>Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması</dd></div>
       <div><dt>Sürüm</dt><dd class="mono">{pkg.version}</dd></div>
@@ -91,43 +92,44 @@
       <ExternalLink href="https://github.com/frudotz/netcheck">Kaynak kod (GitHub) ↗</ExternalLink>
     </div>
   </section>
+  </div>
 </div>
 
 <style>
-  h1 {
-    margin: 0;
-    font-size: 22px;
+  /* Bölümler .izgara içinde: geniş ekranda iki sütun. */
+  .ayarlar {
+    --kart-min: 22rem;
   }
 
   .bolum {
-    padding: 14px 16px;
+    padding: 0.875rem var(--bosluk-4);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0.625rem;
   }
 
   h2 {
     margin: 0;
-    font-size: 15px;
+    font-size: var(--yazi-orta);
   }
 
   .secim {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-    padding: 4px;
-    border-radius: 12px;
+    gap: var(--bosluk-1);
+    padding: var(--bosluk-1);
+    border-radius: 0.75rem;
     background: var(--zemin);
     border: 1px solid var(--kenar);
   }
 
   .secim button {
-    padding: 10px 0;
-    min-height: 44px;
+    padding: 0.625rem 0;
+    min-height: var(--dokunma);
     border: 0;
-    border-radius: 9px;
+    border-radius: 0.5625rem;
     background: transparent;
-    font-size: 14px;
+    font-size: var(--yazi-govde);
     font-weight: 600;
     color: var(--yazi-soluk);
   }
@@ -139,37 +141,12 @@
 
   .not {
     margin: 0;
-    font-size: 12px;
+    font-size: var(--yazi-kucuk);
     color: var(--yazi-soluk);
   }
 
-  dl {
-    margin: 0;
-  }
-
-  dl div {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 8px 0;
-    border-top: 1px solid var(--kenar);
-  }
-
-  dl div:first-child {
-    border-top: 0;
-  }
-
-  dt {
-    color: var(--yazi-soluk);
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
-  dd {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: right;
+  .anahtar-deger > div {
+    padding-block: var(--bosluk-2);
   }
 
   .bilgi-listesi {
@@ -178,28 +155,19 @@
     padding: 0;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px 16px;
+    gap: var(--bosluk-2) var(--bosluk-4);
   }
 
   .baglantilar :global(a) {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
+    min-height: var(--dokunma);
   }
 
   .baglantilar {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 20px;
-    font-size: 14px;
-  }
-
-  .satir-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--renk-ana);
+    gap: var(--bosluk-2) 1.25rem;
+    font-size: var(--yazi-govde);
   }
 </style>

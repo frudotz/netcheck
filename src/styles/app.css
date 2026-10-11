@@ -18,6 +18,31 @@
   --durum-hata-zemin: #fee2e2;
   --durum-uyari: #92400e;
   --durum-uyari-zemin: #fef3c7;
+  /* Klavye / uzaktan kumanda odağı */
+  --odak: var(--renk-ana);
+
+  /* Düzen token'ları — tek kaynak: docs/mimari-agac.md §3. rem cinsindendir; büyük ekranda kök yazı
+     boyutu büyüdüğünde (aşağıda) hepsi orantılı ölçeklenir. */
+  --yazi-mini: 0.6875rem; /* 11 px */
+  --yazi-kucuk: 0.75rem; /* 12 px */
+  --yazi-ince: 0.8125rem; /* 13 px */
+  --yazi-govde: 0.875rem; /* 14 px */
+  --yazi-orta: 0.9375rem; /* 15 px */
+  --yazi-baslik: 1.375rem; /* 22 px */
+  --bosluk-1: 0.25rem;
+  --bosluk-2: 0.5rem;
+  --bosluk-3: 0.75rem;
+  --bosluk-4: 1rem;
+  --bosluk-5: 1.5rem;
+  --bosluk-6: 2rem;
+  --dokunma: 2.75rem; /* 44 px en küçük dokunma / odak hedefi */
+  --sayfa-bosluk: var(--bosluk-4);
+  --icerik-genislik: 75rem; /* çok sütunlu ekranlar */
+  --okuma-genislik: 48rem; /* metin ağırlıklı sayfalar */
+  --kart-min: 20rem; /* .izgara içinde bir kartın en dar hâli */
+  --ust-yukseklik: calc(4.25rem + env(safe-area-inset-top));
+  --alt-menu-yukseklik: 3.75rem;
+  --ray-genislik: 6rem;
   color-scheme: light;
 
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -44,6 +69,33 @@
   color-scheme: dark;
 }
 
+/* Büyük ekran / TV: kök yazı boyutu kademeli büyür (rem tabanlı her şey ölçeklenir).
+   Yüzde kullanılır; kullanıcının yazı boyutu tercihi korunur. 1920×1080 ≈ 18 px, 4K ≈ 32 px.
+   Her kademenin dikey (portre) eşi de vardır: 1080×1920, 2160×3840. */
+@media (min-width: 100em) and (min-height: 50em), (min-width: 50em) and (min-height: 100em) {
+  :root {
+    font-size: 112.5%;
+  }
+}
+
+@media (min-width: 160em) and (min-height: 87.5em), (min-width: 87.5em) and (min-height: 160em) {
+  :root {
+    font-size: 150%;
+  }
+}
+
+@media (min-width: 200em) and (min-height: 112.5em), (min-width: 112.5em) and (min-height: 200em) {
+  :root {
+    font-size: 200%;
+  }
+}
+
+@media (min-width: 48em) {
+  :root {
+    --sayfa-bosluk: var(--bosluk-5);
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -67,20 +119,61 @@ button {
   cursor: pointer;
 }
 
-.sayfa {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Klavye, uzaktan kumanda ve D-pad gezinmesi için görünür odak (fare tıklamasında görünmez). */
+:focus-visible {
+  outline: 3px solid var(--odak);
+  outline-offset: 2px;
 }
 
-/* Tablet ve üzeri: içerik ortalanır (bkz. docs/mimari-agac.md breakpoint'leri) */
-@media (min-width: 768px) {
-  .sayfa {
-    max-width: 1040px;
-    margin: 0 auto;
-    padding: 24px;
-  }
+/* Sayfa kapsayıcısı: telefonda tam genişlik, geniş ekranda ortalanır. Yatay güvenli alan (çentik) korunur. */
+.sayfa {
+  width: 100%;
+  max-width: var(--icerik-genislik);
+  margin-inline: auto;
+  padding-block: var(--sayfa-bosluk);
+  padding-left: max(var(--sayfa-bosluk), env(safe-area-inset-left));
+  padding-right: max(var(--sayfa-bosluk), env(safe-area-inset-right));
+  display: flex;
+  flex-direction: column;
+  gap: var(--bosluk-4);
+}
+
+/* Metin ağırlıklı sayfalar (bilgi sayfaları) okunabilir satır uzunluğunda kalır. */
+.sayfa.okuma {
+  max-width: var(--okuma-genislik);
+}
+
+.sayfa h1 {
+  margin: 0;
+  font-size: var(--yazi-baslik);
+  line-height: 1.2;
+}
+
+.sayfa .aciklama {
+  margin: var(--bosluk-1) 0 0;
+  font-size: var(--yazi-govde);
+  color: var(--yazi-soluk);
+}
+
+/* Duyarlı kart ızgarası: sütun sayısı kullanılabilir genişlikten gelir (kesme noktası gerekmez). */
+.izgara {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--kart-min)), 1fr));
+  gap: var(--bosluk-4);
+  align-items: start;
+}
+
+.izgara > .tam {
+  grid-column: 1 / -1;
+}
+
+/* En fazla iki sütun: bölümleri çiftler hâlinde olan ekranlar (Rapor, Ayarlar) çok geniş ekranda
+   3 + 1 gibi dengesiz satırlara bölünmez. */
+.izgara.iki {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, max(var(--kart-min), calc((100% - var(--bosluk-4)) / 2))), 1fr)
+  );
 }
 
 .mono {
@@ -93,9 +186,20 @@ button {
   border-radius: var(--radius);
 }
 
+.etiket {
+  display: block;
+  font-size: var(--yazi-kucuk);
+  font-weight: 600;
+  color: var(--yazi-soluk);
+}
+
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 14px 18px;
+  min-height: var(--dokunma);
+  padding: var(--bosluk-3) 1.125rem;
   border: 0;
   border-radius: var(--radius);
   background: var(--renk-ana);
@@ -104,13 +208,61 @@ button {
   text-align: center;
 }
 
+.btn.ikincil {
+  background: var(--kart);
+  color: var(--yazi);
+  border: 1px solid var(--kenar);
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: default;
 }
 
+/* Satır içi bağlantı (ör. "Raporu görüntüle →"): metin kadar geniş, dokunma yüksekliğinde. */
+.satir-link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--dokunma);
+  font-size: var(--yazi-govde);
+  font-weight: 600;
+  color: var(--renk-ana);
+}
+
+/* Anahtar–değer listesi (<dl>): etiket başta, değer sonda (RTL'de yer değiştirir). */
+.anahtar-deger {
+  margin: 0;
+}
+
+.anahtar-deger > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--bosluk-4);
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--kenar);
+}
+
+.anahtar-deger > div:first-child {
+  border-top: 0;
+}
+
+.anahtar-deger dt {
+  flex-shrink: 0;
+  font-size: var(--yazi-govde);
+  color: var(--yazi-soluk);
+}
+
+.anahtar-deger dd {
+  margin: 0;
+  font-size: var(--yazi-govde);
+  font-weight: 600;
+  text-align: end;
+  overflow-wrap: anywhere;
+}
+
 .bos {
-  padding: 48px 16px;
+  padding: 3rem var(--bosluk-4);
   text-align: center;
   color: var(--yazi-soluk);
 }

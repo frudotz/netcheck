@@ -130,7 +130,7 @@
       <button class="btn ikincil" onclick={load}>Tekrar dene</button>
     </div>
   {:else if snapshot}
-    <div class="izgara">
+    <div class="pano">
       <section class="kart durum {linkState}" aria-live="polite">
         <div class="durum-ust">
           <span class="nokta" aria-hidden="true"></span>
@@ -158,7 +158,7 @@
           <div class="skor-metin">
             <span class="etiket">Bağlantı Skoru</span>
             <p class="not">{SCORE_NOTE}</p>
-            <a href={reportHref(latest.id)}>Son rapor · {formatDateTime(latest.createdAt)} →</a>
+            <a class="satir-link" href={reportHref(latest.id)}>Son rapor · {formatDateTime(latest.createdAt)} →</a>
           </div>
         {:else}
           <div class="skor-metin">
@@ -171,7 +171,7 @@
 
       <section class="kart bilgiler-kart">
         <h2>Ağ Bilgileri</h2>
-        <dl class="bilgiler">
+        <dl class="anahtar-deger bilgiler">
           {#each rows as r (r.label)}
             <div>
               <dt>{r.label}</dt>
@@ -183,6 +183,7 @@
 
       <section class="kart arayuzler">
         <h2>Ağ Arayüzleri</h2>
+        <div class="arayuz-liste">
         <!-- Arayüz adı benzersiz değildir (macOS'ta iki "iPhone" arayüzü görüldü); anahtar sıra + ad. -->
         {#each snapshot.interfaces as i, n (`${n}:${i.name}`)}
           <div class="arayuz">
@@ -196,6 +197,7 @@
         {:else}
           <p class="bos-metin">Etkin ağ arayüzü bulunamadı.</p>
         {/each}
+        </div>
       </section>
     </div>
   {/if}
@@ -204,37 +206,34 @@
 <style>
   .baslik {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-  }
-
-  h1 {
-    margin: 0;
-    font-size: 22px;
+    gap: var(--bosluk-2);
   }
 
   h2 {
     margin: 0;
-    padding: 14px 16px 6px;
-    font-size: 15px;
+    padding: 0.875rem var(--bosluk-4) 0.375rem;
+    font-size: var(--yazi-orta);
   }
 
   .yenile {
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    gap: 6px;
-    padding: 8px 14px;
+    min-height: var(--dokunma);
+    gap: 0.375rem;
+    padding: var(--bosluk-2) 0.875rem;
     border: 1px solid var(--kenar);
     border-radius: 999px;
     background: var(--kart);
-    font-size: 13px;
+    font-size: var(--yazi-ince);
     font-weight: 600;
   }
 
   .yenile svg {
-    width: 14px;
-    height: 14px;
+    width: 0.875rem;
+    height: 0.875rem;
     fill: none;
     stroke: currentColor;
     stroke-width: 2.4;
@@ -260,11 +259,11 @@
 
   .durum-metin {
     margin: 0;
-    padding: 16px;
+    padding: var(--bosluk-4);
     color: var(--yazi-soluk);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--bosluk-3);
   }
 
   .durum-metin p {
@@ -272,78 +271,69 @@
     color: var(--yazi);
   }
 
-  .ikincil {
-    background: var(--kart);
-    color: var(--yazi);
-    border: 1px solid var(--kenar);
-  }
-
-  /* Telefon: tek sütun · Tablet: 2 sütun · Masaüstü: 3 sütun */
-  .izgara {
+  /* Telefon: tek sütun. Tablet ve üzeri (≥ 48em): durum + skor solda, ağ bilgileri sağda,
+     arayüzler tam genişlikte. Sütunlar yazı yönünü izler (RTL'de yer değiştirir). */
+  .pano {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--bosluk-4);
   }
 
-  @media (min-width: 768px) {
-    .izgara {
-      grid-template-columns: repeat(2, 1fr);
+  @media (min-width: 48em) {
+    .pano {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-areas:
+        "durum bilgi"
+        "skor bilgi"
+        "arayuz arayuz";
+      align-items: start;
     }
 
-    .arayuzler {
-      grid-column: 1 / -1;
+    .durum {
+      grid-area: durum;
     }
-  }
 
-  @media (min-width: 1200px) {
-    .izgara {
-      grid-template-columns: repeat(3, 1fr);
+    .skor {
+      grid-area: skor;
     }
 
     .bilgiler-kart {
-      grid-column: auto;
+      grid-area: bilgi;
     }
 
     .arayuzler {
-      grid-column: 1 / -1;
+      grid-area: arayuz;
     }
   }
 
-  .etiket {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--yazi-soluk);
-  }
-
   .durum {
-    padding: 16px;
+    padding: var(--bosluk-4);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    border-left: 4px solid var(--kenar);
+    gap: 0.625rem;
+    border-inline-start: 4px solid var(--kenar);
   }
 
   .durum-ust {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--bosluk-3);
   }
 
   .durum-ust strong {
-    font-size: 20px;
+    font-size: 1.25rem;
   }
 
   .nokta {
-    width: 14px;
-    height: 14px;
+    width: 0.875rem;
+    height: 0.875rem;
     border-radius: 50%;
     background: var(--yazi-soluk);
     flex-shrink: 0;
   }
 
   .online {
-    border-left-color: var(--durum-basarili);
+    border-inline-start-color: var(--durum-basarili);
   }
 
   .online .nokta {
@@ -352,7 +342,7 @@
   }
 
   .no-internet {
-    border-left-color: var(--durum-uyari);
+    border-inline-start-color: var(--durum-uyari);
   }
 
   .no-internet .nokta {
@@ -361,7 +351,7 @@
   }
 
   .offline {
-    border-left-color: var(--durum-hata);
+    border-inline-start-color: var(--durum-hata);
   }
 
   .offline .nokta {
@@ -375,7 +365,7 @@
 
   .ipucu {
     margin: 0;
-    font-size: 13px;
+    font-size: var(--yazi-ince);
     color: var(--yazi-soluk);
     overflow-wrap: anywhere;
   }
@@ -383,109 +373,83 @@
   .olcu {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding-top: 10px;
+    gap: var(--bosluk-3);
+    padding-top: 0.625rem;
     border-top: 1px solid var(--kenar);
   }
 
   .olcu strong {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .skor {
-    padding: 16px;
+    padding: var(--bosluk-4);
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--bosluk-4);
   }
 
   .skor-metin {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--bosluk-1);
     flex: 1;
+    min-width: 0;
   }
 
   .skor-metin .not {
-    margin: 0 0 6px;
-    font-size: 12px;
+    margin: 0 0 0.375rem;
+    font-size: var(--yazi-kucuk);
     color: var(--yazi-soluk);
   }
 
-  .skor-metin a:not(.btn) {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--renk-ana);
+  .skor-metin .satir-link {
+    font-size: var(--yazi-ince);
   }
 
   .bilgiler {
-    margin: 0;
-    padding: 0 16px 8px;
+    padding: 0 var(--bosluk-4) var(--bosluk-2);
   }
 
-  .bilgiler div {
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 10px 0;
-    border-top: 1px solid var(--kenar);
-  }
-
-  .bilgiler div:first-child {
-    border-top: 0;
-  }
-
-  dt {
-    color: var(--yazi-soluk);
-    font-size: 14px;
-    flex-shrink: 0;
-  }
-
-  dd {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: right;
-    overflow-wrap: anywhere;
+  /* Arayüz listesi: geniş ekranda birden çok sütuna yayılır. */
+  .arayuz-liste {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    column-gap: var(--bosluk-4);
+    padding: 0 var(--bosluk-4) 0.375rem;
   }
 
   .arayuz {
-    padding: 10px 16px;
+    min-width: 0;
+    padding: 0.625rem 0;
     border-top: 1px solid var(--kenar);
-  }
-
-  .arayuz:last-child {
-    padding-bottom: 14px;
   }
 
   .arayuz .ad {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--bosluk-2);
   }
 
   .arayuz p {
-    margin: 2px 0 0;
-    font-size: 13px;
+    margin: 0.125rem 0 0;
+    font-size: var(--yazi-ince);
     color: var(--yazi-soluk);
     overflow-wrap: anywhere;
   }
 
   .rozet {
-    padding: 1px 8px;
+    padding: 1px var(--bosluk-2);
     border-radius: 999px;
     background: var(--renk-ana);
     color: var(--renk-ana-yazi);
-    font-size: 11px;
+    font-size: var(--yazi-mini);
     font-weight: 600;
   }
 
   .bos-metin {
     margin: 0;
-    padding: 8px 16px 16px;
+    padding: var(--bosluk-2) 0 var(--bosluk-4);
     color: var(--yazi-soluk);
   }
 </style>
