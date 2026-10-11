@@ -83,7 +83,6 @@ targets:
       - sdk: QuartzCore.framework
       - sdk: Security.framework
       - sdk: UIKit.framework
-      - sdk: SystemConfiguration.framework
       - sdk: WebKit.framework
     preBuildScripts:
       - script: |

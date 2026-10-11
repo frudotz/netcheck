@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03C369D5524613D826A21E65 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FDA0755896F944AA57F0D71 /* SystemConfiguration.framework */; };
 		21E68434C886D9D82375A808 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B1900004B215043E68B51BB7 /* WebKit.framework */; };
 		292A935F8FF5B31BF8A9D6CF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 77CCC4D4B0DFD9DEE62388FF /* Assets.xcassets */; };
 		2B4BE18D3DF5FAE3E15E5371 /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E3ABFFBF63C3347CDF5C521 /* libapp.a */; };
@@ -37,7 +36,6 @@
 		90A5730F4C1587EF3B32EE4A /* report_id.rs */ = {isa = PBXFileReference; path = report_id.rs; sourceTree = "<group>"; };
 		97E645DC0AEC5B144A430323 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = SOURCE_ROOT; };
 		99CCB5F3760837E87818D7EA /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		9FDA0755896F944AA57F0D71 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		A031569D2F3CD39AB32B5D27 /* icmp.rs */ = {isa = PBXFileReference; path = icmp.rs; sourceTree = "<group>"; };
 		A47B9885D1DFCB5772513631 /* netcheck_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = netcheck_iOS.entitlements; sourceTree = "<group>"; };
 		B1900004B215043E68B51BB7 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -62,7 +60,6 @@
 				D6F70FD584A99808E189D75C /* QuartzCore.framework in Frameworks */,
 				805EECB686393109DB2281D6 /* Security.framework in Frameworks */,
 				9C5B94DE67AD16FF3C0DDDDD /* UIKit.framework in Frameworks */,
-				03C369D5524613D826A21E65 /* SystemConfiguration.framework in Frameworks */,
 				21E68434C886D9D82375A808 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,7 +98,6 @@
 				858EA7291D0EF05E6559A476 /* MetalKit.framework */,
 				99CCB5F3760837E87818D7EA /* QuartzCore.framework */,
 				767523D5616BA7A85E51FB96 /* Security.framework */,
-				9FDA0755896F944AA57F0D71 /* SystemConfiguration.framework */,
 				3BC8673E7FFBA9C1D5BC358F /* UIKit.framework */,
 				B1900004B215043E68B51BB7 /* WebKit.framework */,
 			);
