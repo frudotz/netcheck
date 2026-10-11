@@ -44,7 +44,13 @@ bun run tauri android dev                                    # bağlı cihaz/em�
 ```
 > Debug APK: `src-tauri/gen/android/app/build/outputs/apk/universal/debug/`. Yükleme: `adb install -r <apk>`.
 
-> **iOS:** henüz derlenmedi ve doğrulanmadı. `tauri ios` komutları yalnızca macOS'ta bulunur (Windows'ta yoktur). Tauri belgelerine göre gerekenler: macOS, Xcode (yalnız Command Line Tools yetmez), Homebrew + `brew install cocoapods`, `rustup target add aarch64-apple-ios x86_64-apple-ios aarch64-apple-ios-sim`; ilk kez `bun run tauri ios init` ile `src-tauri/gen/apple` üretilir.
+> **iOS (isteğe bağlı, yalnız macOS):** `tauri ios` komutları yalnızca macOS'ta bulunur (Windows'ta yoktur). Gerekenler: Xcode (yalnız Command Line Tools yetmez; lisans kabul edilmiş), Homebrew + `brew install cocoapods xcodegen`, Rust hedefleri (`rustup target add aarch64-apple-ios aarch64-apple-ios-sim`; Intel Mac simülatörü için ayrıca `x86_64-apple-ios`). iOS projesi depoda hazırdır (`src-tauri/gen/apple`); `tauri ios init` gerekmez. Doğrulanan ortam: macOS 26.6, Xcode 26.6, iOS 26.5 simülatörü.
+```bash
+bun run tauri ios build --debug --target aarch64-sim                 # Apple Silicon simülatörü için debug .app
+xcrun simctl install booted src-tauri/gen/apple/build/arm64-sim/NetCheck.app
+xcrun simctl launch booted edu.istinye.netcheck
+```
+> Gerçek iPhone için Xcode'da bir geliştirme ekibi (Apple ID / Personal Team) gerekir; cihaz derlemesi henüz doğrulanmadı.
 
 7. **Rust testleri (isteğe bağlı):**
 ```bash
