@@ -101,23 +101,24 @@
   .form {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-top: 12px;
+    gap: 0.875rem;
+    margin-top: var(--bosluk-3);
   }
 
   label {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 14px;
+    gap: 0.375rem;
+    font-size: var(--yazi-govde);
     font-weight: 600;
   }
 
   input,
   textarea {
-    padding: 12px;
+    min-height: var(--dokunma);
+    padding: var(--bosluk-3);
     border: 1px solid var(--kenar);
-    border-radius: 10px;
+    border-radius: 0.625rem;
     background: var(--zemin);
     color: var(--yazi);
     font: inherit;
@@ -142,16 +143,16 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 10px;
+    gap: var(--bosluk-3);
+    padding: var(--bosluk-3) 0.875rem;
+    border-radius: 0.625rem;
     background: var(--durum-basarili-zemin);
     color: var(--durum-basarili);
   }
 
   .bildirim p {
-    margin: 2px 0 0;
-    font-size: 13px;
+    margin: 0.125rem 0 0;
+    font-size: var(--yazi-ince);
   }
 
   .kapat {
@@ -161,15 +162,17 @@
     background: transparent;
     color: inherit;
     font-weight: 600;
-    font-size: 13px;
+    font-size: var(--yazi-ince);
+    min-height: var(--dokunma);
+    min-width: var(--dokunma);
   }
 
   .hata {
     margin: 0;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 0.625rem var(--bosluk-3);
+    border-radius: 0.625rem;
     background: var(--durum-hata-zemin);
     color: var(--durum-hata);
-    font-size: 13px;
+    font-size: var(--yazi-ince);
   }
 </style>

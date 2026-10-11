@@ -15,10 +15,10 @@
   .rozet {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px 10px;
+    gap: 0.375rem;
+    padding: 0.1875rem 0.625rem;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--yazi-kucuk);
     font-weight: 600;
     white-space: nowrap;
     border: 1px solid var(--kenar);
@@ -49,8 +49,8 @@
   }
 
   .donen {
-    width: 10px;
-    height: 10px;
+    width: 0.625rem;
+    height: 0.625rem;
     border: 2px solid currentColor;
     border-right-color: transparent;
     border-radius: 50%;

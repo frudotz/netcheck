@@ -59,33 +59,22 @@
         </div>
       </div>
     {:else}
-      <button class="btn ikincil" onclick={() => (confirming = true)}>Geçmişi Temizle</button>
+      <button class="btn ikincil temizle" onclick={() => (confirming = true)}>Geçmişi Temizle</button>
     {/if}
   {/if}
 </div>
 
 <style>
-  h1 {
-    margin: 0;
-    font-size: 22px;
-  }
-
-  .aciklama {
-    margin: 4px 0 0;
-    font-size: 14px;
-    color: var(--yazi-soluk);
-  }
-
   .durum {
     margin: 0;
-    padding: 16px;
+    padding: var(--bosluk-4);
     color: var(--yazi-soluk);
   }
 
   .bos {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--bosluk-3);
   }
 
   .bos p {
@@ -105,13 +94,19 @@
   li a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: var(--bosluk-3);
+    min-height: var(--dokunma);
+    padding: var(--bosluk-3) var(--bosluk-4);
+    border-radius: var(--radius);
+  }
+
+  li a:focus-visible {
+    outline-offset: -3px;
   }
 
   .skor {
-    width: 44px;
-    height: 44px;
+    width: var(--dokunma);
+    height: var(--dokunma);
     flex-shrink: 0;
     display: grid;
     place-items: center;
@@ -143,13 +138,13 @@
 
   code {
     font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-    font-size: 14px;
+    font-size: var(--yazi-govde);
     font-weight: 700;
     overflow-wrap: anywhere;
   }
 
   .tarih {
-    font-size: 12px;
+    font-size: var(--yazi-kucuk);
     color: var(--yazi-soluk);
   }
 
@@ -157,7 +152,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    font-size: 12px;
+    font-size: var(--yazi-kucuk);
     font-weight: 600;
     white-space: nowrap;
   }
@@ -170,28 +165,45 @@
     color: var(--durum-hata);
   }
 
-  .ikincil {
-    background: var(--kart);
-    color: var(--yazi);
-    border: 1px solid var(--kenar);
-  }
-
   .onay {
-    padding: 16px;
+    padding: var(--bosluk-4);
   }
 
   .onay p {
-    margin: 0 0 12px;
+    margin: 0 0 var(--bosluk-3);
     font-weight: 600;
   }
 
   .dugmeler {
     display: flex;
-    gap: 8px;
+    gap: var(--bosluk-2);
   }
 
   .tehlike {
     background: var(--durum-hata);
     color: var(--durum-hata-zemin);
+  }
+
+  /* Tablet ve üzeri: sayaçlar yan yana; eylem düğmeleri tam genişlik yerine içerik kadar. */
+  @media (min-width: 48em) {
+    li a {
+      gap: var(--bosluk-4);
+    }
+
+    .sayac {
+      flex-direction: row;
+      gap: var(--bosluk-4);
+      font-size: var(--yazi-ince);
+    }
+
+    .temizle,
+    .dugmeler .btn {
+      width: auto;
+      min-width: 12rem;
+    }
+
+    .temizle {
+      align-self: flex-start;
+    }
   }
 </style>
