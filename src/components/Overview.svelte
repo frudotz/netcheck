@@ -183,7 +183,8 @@
 
       <section class="kart arayuzler">
         <h2>Ağ Arayüzleri</h2>
-        {#each snapshot.interfaces as i (i.name)}
+        <!-- Arayüz adı benzersiz değildir (macOS'ta iki "iPhone" arayüzü görüldü); anahtar sıra + ad. -->
+        {#each snapshot.interfaces as i, n (`${n}:${i.name}`)}
           <div class="arayuz">
             <div class="ad">
               <strong>{i.name}</strong>
