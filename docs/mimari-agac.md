@@ -61,11 +61,22 @@ Tarayıcı (`bun run dev`) yalnızca arayüz önizlemesidir; ağ tanılama Tauri
 
 ## 3. Ekran Boyutları (Responsive Breakpoints)
 
-| Aralık | Düzen | Gezinme |
-|---|---|---|
-| **Telefon (< 768 px)** | Tek sütun, `padding: 16px` | Sabit alt menü (`alt-menu`) |
-| **Tablet (768–1199 px)** | `.sayfa` ortalanır (`max-width: 1040px`); Genel Bakış 2 sütun | Alt menü, sekmeler en fazla 200 px |
-| **Masaüstü (1200–1599 px)** | Genel Bakış 3 sütun; arayüz listesi tam genişlik | Alt menü ortalanmış |
-| **Büyük ekran (≥ 1600 px)** | Düzen masaüstüyle aynı; içerik `max-width: 1040px` ile ortalanır, kenar boşlukları genişler (satır uzunluğu sınırlı kalır) | Alt menü ortalanmış, sekmeler en fazla 200 px |
+Tek kod tabanı, tek sayfa kümesi: telefon, tablet, masaüstü ve büyük ekran (TV / tarayıcı) için ayrı uygulama yoktur. Düzen **kullanılabilir genişlik ve yükseklikten** seçilir; en-boy oranı tespiti yapılmaz. En-boy oranları (9:16, 9:20, 3:4, 4:3, 16:9, 16:10, 21:9, 4K) yalnızca doğrulama hedefidir.
 
-Varsayılan Tauri penceresi: 420 × 820 (telefon düzeni).
+| Kesme noktası | Koşul | Düzen | Gezinme |
+|---|---|---|---|
+| **Telefon** | `< 48em` (768 px) | Tek sütun; sayfa boşluğu `1rem` | Sabit alt menü (`.alt-menu`) |
+| **Tablet** | `≥ 48em` | Genel Bakış 2 sütun (durum + skor │ ağ bilgileri); Rapor ve Ayarlar kart ızgarası 2 sütun; sayfa boşluğu `1.5rem` | Alt menü |
+| **Masaüstü** | `≥ 64em` (1024 px) | Tanılama 2 sütun (denetimler │ test listesi); içerik en fazla `--icerik-genislik` (75rem) | Dikey ray (satır başı tarafında; RTL'de sağda) |
+| **Kısa yatay ekran** | `landscape`, genişlik `≥ 33em`, yükseklik `≤ 31.25em` (500 px) | Telefon yatay: dikey alan içeriğe kalır | Dikey ray (sıkı öğeler) |
+| **Büyük ekran / TV** | `≥ 100em × 50em` · `≥ 160em × 87.5em` · `≥ 200em × 112.5em` (genişlik × yükseklik; her kademenin portre eşi de geçerli) | Kök yazı boyutu `112.5%` · `150%` · `200%`; tüm `rem` ölçüleri (yazı, boşluk, dokunma hedefi, içerik genişliği) orantılı büyür. 1920×1080 ≈ 18 px, 3840×2160 ≈ 32 px kök | Dikey ray |
+
+- **Token'lar** (`src/styles/app.css`): `--yazi-*`, `--bosluk-*`, `--dokunma` (44 px), `--sayfa-bosluk`, `--icerik-genislik`, `--okuma-genislik` (bilgi sayfaları, 48rem), `--kart-min`, `--ust-yukseklik`, `--alt-menu-yukseklik`, `--ray-genislik`, `--odak`.
+- **Paylaşılan sınıflar:** `.sayfa` (ortalanmış kapsayıcı, yatay güvenli alan), `.sayfa.okuma`, `.izgara` (`auto-fit` kart ızgarası; sütun sayısı genişlikten gelir) ve `.izgara.iki` (en fazla iki sütun), `.anahtar-deger` (etiket–değer listesi), `.btn` / `.btn.ikincil`, `.satir-link`, `.etiket`, `:focus-visible` odak halkası.
+- **Kabuk:** `Layout.astro` gövde ızgarası (başlık / menü / içerik); `AppNav` aynı işaretlemeyle alt menü ya da ray olur. Kesme noktası `Layout.astro` ve `AppNav.svelte` içinde aynıdır.
+- **RTL:** yöne bağlı kenarlar mantıksal özelliklerle yazılır (`border-inline-start`, `text-align: end`, `inset-inline`); `direction` bileşen bazında zorlanmaz.
+- **Kapsayıcı sorgusu (`@container`) kullanılmaz:** iOS dağıtım hedefi 15.0; WKWebView iOS 16 öncesinde desteklemez.
+- **Dil:** uygulama ekranları Türkçedir; bilgi sayfaları TR / EN / AR / FA (AR ve FA sağdan sola).
+- **Odak / TV:** üzerine gelmeye (hover) bağlı etkileşim yoktur; klavye ve uzaktan kumanda için `:focus-visible` halkası vardır.
+
+Varsayılan Tauri penceresi: 420 × 820 (telefon düzeni). Pencere genişletildiğinde masaüstü düzenine geçilir.
