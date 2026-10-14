@@ -1,0 +1,67 @@
+@import "./tokens.css";
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font);
+  background-color: var(--zemin);
+  color: var(--yazi);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid var(--renk-vurgu);
+  outline-offset: 2px;
+}
+
+/* LTR forced fields for RTL locales (IP, MAC, emails, identifiers, latencies) */
+[dir="rtl"] .force-ltr,
+.force-ltr {
+  direction: ltr !important;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+
+/* Scrollbar styles matching theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--kenar);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--yazi-soluk);
+}
+
+/* Skip link for keyboard accessibility */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  background: var(--renk-ana);
+  color: var(--renk-ana-yazi);
+  padding: 8px 16px;
+  z-index: 100;
+  border-radius: var(--radius);
+  transition: top 0.2s ease;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-to-content:focus {
+  top: 12px;
+}
