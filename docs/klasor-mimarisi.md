@@ -77,3 +77,9 @@ netcheck/
 
 ### 10. `docs/` (Dokümantasyon)
 - **Ne konur?** Mimari kararlar, marka renkleri, görev kılavuzları ve proje planları.
+
+---
+
+## 🗄️ Geçici Yerel Arka Uç (`src-tauri/src/backend/`)
+
+SQLite tabanlı geçici arka uç (migration, rol/izin, kaynak denetleyicileri, iş işlevleri) `src-tauri/src/backend/` altındadır; ayrıntı, tablolar ve komut listesi tek kaynakta: [`docs/backend.md`](backend.md).
