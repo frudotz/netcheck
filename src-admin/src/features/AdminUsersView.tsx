@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
+import { api } from "../api/nativeAdapter";
 import { AdminUser, AdminRole } from "../domain/types";
 import { DataTable, Column } from "../components/DataTable";
 import { Modal } from "../components/Modal";
@@ -30,6 +30,7 @@ export const AdminUsersView: React.FC = () => {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
+  const [invitePassword, setInvitePassword] = useState("");
   const [inviteRole, setInviteRole] = useState<AdminRole>("support");
   const [inviting, setInviting] = useState(false);
 
@@ -60,15 +61,17 @@ export const AdminUsersView: React.FC = () => {
         email: inviteEmail.trim(),
         role: inviteRole,
         active: true,
+        password: invitePassword,
       });
-      addToast("Yönetici daveti başarıyla gönderildi.", "success");
+      addToast("Yönetici hesabı oluşturuldu.", "success");
       setInviteName("");
       setInviteEmail("");
+      setInvitePassword("");
       setInviteRole("support");
       setInviteModalOpen(false);
       fetchAdmins();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (caught) {
+      addToast(caught instanceof Error ? caught.message : t("toastActionError"), "error");
     } finally {
       setInviting(false);
     }
@@ -225,7 +228,7 @@ export const AdminUsersView: React.FC = () => {
           }}
         >
           <UserPlus className="w-3.5 h-3.5" />
-          <span>{t("adminInvite")}</span>
+          <span>Yönetici Ekle</span>
         </button>
       </div>
 
@@ -337,7 +340,7 @@ export const AdminUsersView: React.FC = () => {
       <Modal
         isOpen={inviteModalOpen}
         onClose={() => setInviteModalOpen(false)}
-        title={t("adminInvite")}
+        title="Yönetici Hesabı Oluştur"
         maxWidth="md"
         footer={
           <>
@@ -357,7 +360,7 @@ export const AdminUsersView: React.FC = () => {
             <button
               type="submit"
               form="invite-form"
-              disabled={inviting || !inviteName.trim() || !inviteEmail.trim()}
+              disabled={inviting || !inviteName.trim() || !inviteEmail.trim() || invitePassword.length < 8}
               className="cursor-pointer px-4 py-2 text-xs font-semibold rounded-lg disabled:opacity-40 hover:opacity-90 transition-opacity"
               style={{
                 backgroundColor: "var(--renk-ana)",
@@ -365,18 +368,40 @@ export const AdminUsersView: React.FC = () => {
                 borderRadius: "var(--radius)",
               }}
             >
-              {inviting ? "Davet Gönderiliyor..." : "Davetiye Gönder"}
+              {inviting ? "Hesap Oluşturuluyor..." : "Yönetici Hesabı Oluştur"}
             </button>
           </>
         }
       >
         <form id="invite-form" onSubmit={handleInvite} className="space-y-4">
+          <p className="text-xs leading-relaxed" style={{ color: "var(--yazi-soluk)" }}>
+            Hesap bu yerel veritabanına kaydedilir; parola güvenli biçimde özetlenerek saklanır.
+          </p>
           <FormField label={t("adminName")} required>
             <input
               type="text"
               value={inviteName}
               onChange={e => setInviteName(e.target.value)}
               placeholder="Örn: Ayşe Kaya"
+              className="p-2.5 text-xs sm:text-sm rounded-lg border focus-visible:outline-none"
+              style={{
+                backgroundColor: "var(--zemin)",
+                borderColor: "var(--kenar)",
+                color: "var(--yazi)",
+                borderRadius: "var(--radius)",
+              }}
+              required
+            />
+          </FormField>
+
+          <FormField label="İlk parola (en az 8 karakter)" required>
+            <input
+              type="password"
+              autoComplete="new-password"
+              minLength={8}
+              maxLength={128}
+              value={invitePassword}
+              onChange={e => setInvitePassword(e.target.value)}
               className="p-2.5 text-xs sm:text-sm rounded-lg border focus-visible:outline-none"
               style={{
                 backgroundColor: "var(--zemin)",

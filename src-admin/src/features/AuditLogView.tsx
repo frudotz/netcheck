@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { AuditLogEntry } from "../domain/types";
+import { api } from "../api/nativeAdapter";
+import { AdminUser, AuditLogEntry } from "../domain/types";
 import { DataTable, Column } from "../components/DataTable";
 import { FilterBar, FilterConfig } from "../components/FilterBar";
 import { Drawer } from "../components/Drawer";
@@ -21,6 +21,7 @@ export const AuditLogView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<AuditLogEntry[]>([]);
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [total, setTotal] = useState(0);
 
   const [page, setPage] = useState(1);
@@ -35,14 +36,13 @@ export const AuditLogView: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.getAuditLogs({
-        page,
-        pageSize,
-        search,
-        filters,
-      });
+      const [res, users] = await Promise.all([
+        api.getAuditLogs({ page, pageSize, search, filters }),
+        api.getAdmins(),
+      ]);
       setLogs(res.items);
       setTotal(res.total);
+      setAdmins(users);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("errorDesc"));
     } finally {
@@ -59,36 +59,26 @@ export const AuditLogView: React.FC = () => {
       key: "actorId",
       label: t("auditActor"),
       type: "select",
-      options: [
-        { value: "adm-001", label: "adm-001 (Emre Yılmaz)" },
-        { value: "adm-002", label: "adm-002 (Selin Karaca)" },
-        { value: "adm-003", label: "adm-003 (Mert Aydın)" },
-      ],
+      options: admins.map(admin => ({
+        value: admin.id,
+        label: `${admin.id} (${admin.name})`,
+      })),
     },
     {
       key: "action",
       label: t("auditAction"),
       type: "select",
-      options: [
-        { value: "pii.reveal", label: "pii.reveal (Hassas Veri Görme)" },
-        { value: "report.disable_sharing", label: "report.disable_sharing" },
-        { value: "rule.publish", label: "rule.publish" },
-        { value: "rule.save_draft", label: "rule.save_draft" },
-        { value: "message.reply", label: "message.reply" },
-        { value: "target.update", label: "target.update" },
-      ],
+      options: Array.from(new Set(logs.map(log => log.action)))
+        .sort()
+        .map(action => ({ value: action, label: action })),
     },
     {
       key: "entity",
       label: t("auditEntity"),
       type: "select",
-      options: [
-        { value: "Report", label: "Report" },
-        { value: "ScoreRule", label: "ScoreRule" },
-        { value: "DiagnosticTarget", label: "DiagnosticTarget" },
-        { value: "ContactMessage", label: "ContactMessage" },
-        { value: "Device", label: "Device" },
-      ],
+      options: Array.from(new Set(logs.map(log => log.entity)))
+        .sort()
+        .map(entity => ({ value: entity, label: entity })),
     },
   ];
 

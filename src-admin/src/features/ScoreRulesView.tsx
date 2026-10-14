@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
+import { api } from "../api/nativeAdapter";
 import { ScoreRule, ReportRecord } from "../domain/types";
 import { WeightsEditor } from "../components/WeightsEditor";
 import { LatencyBandsEditor } from "../components/LatencyBandsEditor";
@@ -99,8 +99,8 @@ export const ScoreRulesView: React.FC = () => {
       const saved = await api.saveDraftScoreRule(activeRule);
       addToast(t("toastRuleDraftSaved"), "info");
       fetchRulesAndSamples();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -110,8 +110,8 @@ export const ScoreRulesView: React.FC = () => {
       addToast(t("toastRulePublished"), "success");
       setConfirmPublish(false);
       fetchRulesAndSamples();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -122,8 +122,8 @@ export const ScoreRulesView: React.FC = () => {
       addToast(`v${rollbackTargetVersion} sürümüne başarıyla geri dönüldü.`, "success");
       setRollbackTargetVersion(null);
       fetchRulesAndSamples();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 

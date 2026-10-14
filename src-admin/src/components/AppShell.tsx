@@ -17,10 +17,13 @@ import {
   ChevronRight,
   ShieldCheck,
   User,
+  LogOut,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LangSwitch } from "./LangSwitch";
 import { useI18n } from "../i18n";
+import { useAdminAuth } from "../context/AdminAuthContext";
+import { useToast } from "../context/ToastContext";
 
 export interface NavItem {
   to: string;
@@ -35,6 +38,8 @@ export interface AppShellProps {
 
 export const AppShell: React.FC<AppShellProps> = ({ children }) => {
   const { t, isRtl } = useI18n();
+  const { session, logout } = useAdminAuth();
+  const { addToast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -53,18 +58,56 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
     { to: "/denetim", label: t("navAudit"), icon: <ShieldAlert className="w-4 h-4" /> },
     { to: "/ayarlar", label: t("navSettings"), icon: <Settings className="w-4 h-4" /> },
   ];
+  const permissionsByRoute: Record<string, string | null> = {
+    "/": "ViewAny:Report",
+    "/raporlar": "ViewAny:Report",
+    "/cihazlar": "ViewAny:Device",
+    "/mesajlar": "ViewAny:ContactMessage",
+    "/skor-kurallari": "ViewAny:ScoreRule",
+    "/hedefler": "ViewAny:DiagnosticTarget",
+    "/icerik": "ViewAny:ContentPage",
+    "/yoneticiler": "ViewAny:User",
+    "/denetim": "ViewAny:AuditLog",
+    "/ayarlar": null,
+  };
+  const visibleNavItems = navItems.filter(item => {
+    const permission = permissionsByRoute[item.to];
+    return permission === null || Boolean(session?.superAdmin || session?.permissions.includes(permission));
+  });
 
   const handleGlobalSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!globalSearch.trim()) return;
     const term = globalSearch.trim();
     if (term.toUpperCase().startsWith("NCHK-")) {
-      navigate(`/raporlar/${term.toUpperCase()}`);
+      navigate(`/raporlar?id=${encodeURIComponent(term.toUpperCase())}`);
     } else {
       navigate(`/raporlar?q=${encodeURIComponent(term)}`);
     }
     setGlobalSearch("");
   };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : "Oturum kapatılamadı.", "error");
+    }
+  };
+
+  const activeRole = session?.roles[0] === "admin"
+    ? "Sistem Sahibi"
+    : session?.roles[0] === "support"
+      ? "Destek Uzmanı"
+      : session?.roles[0] === "content"
+        ? "İçerik Yöneticisi"
+        : "Salt Okunur İzleyici";
+  const initials = session?.user.name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(part => part[0]?.toLocaleUpperCase())
+    .join("") ?? "";
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--zemin)" }}>
@@ -138,7 +181,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         </div>
 
         {/* Global Quick Search */}
-        <form
+        {session?.superAdmin || session?.permissions.includes("ViewAny:Report") ? <form
           onSubmit={handleGlobalSearchSubmit}
           className="hidden md:flex items-center relative max-w-xs lg:max-w-md w-full mx-6"
         >
@@ -153,26 +196,31 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
             placeholder={t("searchPlaceholder")}
             className="w-full text-xs sm:text-sm pl-9 pr-4 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-white placeholder-slate-400 focus-visible:outline-none focus:border-cyan-400 transition-colors"
           />
-        </form>
+        </form> : null}
 
         {/* Header Right Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
           <LangSwitch />
 
-          {/* Current Admin User Badge */}
-          <div
-            className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-700 text-xs"
-            title="Aktif Yönetici: Emre Yılmaz (Owner)"
-          >
+          <div className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-700 text-xs">
             <div className="w-7 h-7 rounded-full bg-cyan-600/30 border border-cyan-400 flex items-center justify-center font-bold text-cyan-300">
-              EY
+              {initials}
             </div>
             <div className="flex flex-col text-left">
-              <span className="font-semibold leading-tight text-white">Emre Yılmaz</span>
-              <span className="text-[10px] text-cyan-300 leading-tight">Sistem Sahibi</span>
+              <span className="font-semibold leading-tight text-white">{session?.user.name}</span>
+              <span className="text-[10px] text-cyan-300 leading-tight">{activeRole}</span>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => void handleLogout()}
+            className="cursor-pointer rounded-lg p-2 text-white hover:bg-white/10"
+            title="Oturumu kapat"
+            aria-label="Oturumu kapat"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </header>
 
@@ -191,7 +239,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
         >
           {/* Navigation Links */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            {navItems.map(item => {
+            {visibleNavItems.map(item => {
               const isActive =
                 item.to === "/"
                   ? location.pathname === "/"
@@ -282,7 +330,7 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               </div>
 
               <nav className="flex-1 space-y-1 overflow-y-auto">
-                {navItems.map(item => {
+                {visibleNavItems.map(item => {
                   const isActive =
                     item.to === "/"
                       ? location.pathname === "/"

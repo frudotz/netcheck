@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
+import { api } from "../api/nativeAdapter";
 import { ContentPage, Lang } from "../domain/types";
 import { RichTextLite } from "../components/RichTextLite";
 import { StatusBadge } from "../components/StatusBadge";
@@ -99,7 +99,7 @@ export const ContentPagesView: React.FC = () => {
     try {
       setSaving(true);
       const updatedPage: ContentPage = {
-        id: activePage?.id || `cnt-${Math.random().toString(36).substring(2, 7)}`,
+        id: activePage?.id ?? "",
         slug: selectedSlug,
         lang: selectedLang,
         title: editTitle,
@@ -110,8 +110,8 @@ export const ContentPagesView: React.FC = () => {
       await api.updateContentPage(updatedPage);
       addToast(t("toastSuccessSave"), "success");
       fetchPages();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     } finally {
       setSaving(false);
     }

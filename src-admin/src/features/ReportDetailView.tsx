@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { api } from "../api/mockAdapter";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { api } from "../api/nativeAdapter";
 import { ReportRecord } from "../domain/types";
 import { ScoreGauge } from "../components/ScoreGauge";
 import { TestCard } from "../components/TestCard";
@@ -24,7 +24,8 @@ import {
 } from "lucide-react";
 
 export const ReportDetailView: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id") ?? undefined;
   const navigate = useNavigate();
   const { t } = useI18n();
   const { addToast } = useToast();
@@ -59,18 +60,24 @@ export const ReportDetailView: React.FC = () => {
     fetchReport();
   }, [id]);
 
-  const handleRevealSensitive = async (field: string, val: string) => {
+  const handleRevealSensitive = async (field: string, _value: string): Promise<string | void> => {
+    if (!report) return;
     try {
-      await api.logAuditEvent({
-        actorId: "adm-001",
-        action: "pii.reveal",
-        entity: "Report",
-        entityId: report?.id ?? "unknown",
-        reason: `${field} hassas alanı yönetici tarafından görüntülendi`,
-      });
+      const revealed = await api.getReportById(report.id, true);
+      if (!revealed) throw new Error("Rapor bulunamadı.");
+      setReport(revealed);
       addToast(t("toastPiiRevealed"), "info");
+      const dnsMatch = /^dnsServer\[(\d+)\]$/.exec(field);
+      if (dnsMatch) return revealed.network.dnsServers[Number(dnsMatch[1])];
+      const interfaceMatch = /^(.+)\.(ipv4|mac)$/.exec(field);
+      if (interfaceMatch) {
+        const iface = revealed.network.interfaces.find(item => item.name === interfaceMatch[1]);
+        return interfaceMatch[2] === "ipv4" ? iface?.ipv4 : iface?.mac;
+      }
+      const fieldValue = Reflect.get(revealed.network, field);
+      return typeof fieldValue === "string" ? fieldValue : undefined;
     } catch (err) {
-      console.error(err);
+      addToast(err instanceof Error ? err.message : t("toastActionError"), "error");
     }
   };
 
@@ -85,8 +92,8 @@ export const ReportDetailView: React.FC = () => {
         nextState ? "Rapor paylaşımı açıldı." : "Rapor paylaşımı kapatıldı.",
         "success"
       );
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -96,8 +103,8 @@ export const ReportDetailView: React.FC = () => {
       await api.deleteReport(report.id, reason || "Yönetici tarafından silindi");
       addToast(t("toastSuccessDelete"), "success");
       navigate("/raporlar");
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -201,14 +208,18 @@ export const ReportDetailView: React.FC = () => {
                 <Layers className="w-3.5 h-3.5" />
                 {t("reportRuleVersion")}: v{report.ruleVersion}
               </span>
-              <Link
-                to={`/cihazlar?q=${report.deviceId}`}
-                className="flex items-center gap-1 font-mono hover:underline"
-                style={{ color: "var(--renk-ana)" }}
-              >
-                <Smartphone className="w-3.5 h-3.5" />
-                {report.deviceId}
-              </Link>
+              {report.deviceId ? (
+                <Link
+                  to={`/cihazlar?q=${report.deviceId}`}
+                  className="flex items-center gap-1 font-mono hover:underline"
+                  style={{ color: "var(--renk-ana)" }}
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  {report.deviceId}
+                </Link>
+              ) : (
+                <span>Cihaz bilgisi bulunamadı</span>
+              )}
             </div>
           </div>
         </div>

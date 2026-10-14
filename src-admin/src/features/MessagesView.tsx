@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { ContactMessage, AdminUser } from "../domain/types";
+import { api } from "../api/nativeAdapter";
+import { ContactMessage, AdminAssignee } from "../domain/types";
 import { StatusBadge, StatusTone } from "../components/StatusBadge";
 import { FilterBar, FilterConfig } from "../components/FilterBar";
 import { ConfirmDialog } from "../components/ConfirmDialog";
@@ -27,7 +27,7 @@ export const MessagesView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [admins, setAdmins] = useState<AdminAssignee[]>([]);
 
   // Selected message for thread
   const [selectedMsgId, setSelectedMsgId] = useState<string | null>(null);
@@ -51,7 +51,7 @@ export const MessagesView: React.FC = () => {
       setError(null);
       const [msgData, adminData] = await Promise.all([
         api.getMessages({ search, filters, pageSize: 50 }),
-        api.getAdmins(),
+        api.getMessageAssignees(),
       ]);
       setMessages(msgData.items);
       setAdmins(adminData);
@@ -79,9 +79,14 @@ export const MessagesView: React.FC = () => {
       const updated = await api.replyMessage(activeMessage.id, replyBody.trim(), isInternalNote);
       setMessages(prev => prev.map(m => (m.id === updated.id ? updated : m)));
       setReplyBody("");
-      addToast(isInternalNote ? "Dahili not kaydedildi." : "Yanıt başarıyla gönderildi.", "success");
-    } catch {
-      addToast(t("toastActionError"), "error");
+      addToast(
+        isInternalNote
+          ? "Dahili not veritabanına kaydedildi."
+          : "Yanıt veritabanına kaydedildi. E-posta gönderimi yapılandırılmadı.",
+        "success",
+      );
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     } finally {
       setSubmittingReply(false);
     }
@@ -93,8 +98,8 @@ export const MessagesView: React.FC = () => {
       const updated = await api.updateMessageStatus(activeMessage.id, newStatus);
       setMessages(prev => prev.map(m => (m.id === updated.id ? updated : m)));
       addToast(`Mesaj durumu '${newStatus}' olarak güncellendi.`, "success");
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -104,8 +109,8 @@ export const MessagesView: React.FC = () => {
       const updated = await api.assignMessage(activeMessage.id, assigneeId || undefined);
       setMessages(prev => prev.map(m => (m.id === updated.id ? updated : m)));
       addToast("Atanan kişi güncellendi.", "success");
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -116,8 +121,8 @@ export const MessagesView: React.FC = () => {
       setSelectedIds([]);
       setConfirmBulkSpam(false);
       fetchMessagesAndAdmins();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -507,7 +512,7 @@ export const MessagesView: React.FC = () => {
                     }}
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>{submittingReply ? "Kaydediliyor..." : isInternalNote ? "Dahili Not Ekle" : "Yanıtı Gönder"}</span>
+                    <span>{submittingReply ? "Kaydediliyor..." : isInternalNote ? "Dahili Not Ekle" : "Yanıtı Kaydet"}</span>
                   </button>
                 </div>
               </form>

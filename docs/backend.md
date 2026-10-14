@@ -23,7 +23,9 @@ Rol ve izin düzeni, eğitmenin Laravel projelerindeki `spatie/laravel-permissio
 
 - Dosya: uygulama veri klasörü / `app.sqlite` (Tauri `app_data_dir`). Depoya girmez.
 - Açılışta migration'lar sırayla çalışır; roller, izinler ve başlangıç verisi **veri migration'larıyla** gelir (seeder gerekmez).
-- **İlk kayıt olan kullanıcı `admin` olur.** Sonraki kayıtlar rolsüz kalır; yönetici rol atar.
+- Veritabanında kullanıcı yokken admin paneli ilk yönetici hesabını oluşturur; bu ilk kullanıcı `admin` olur. Sonraki genel kayıtlar kapalıdır. Yeni yöneticiler, yetkili panelinden rol ve parola atanarak eklenir.
+- Admin paneli `/admin/` rotasında Tauri uygulaması içinden açılır ve aynı yerel `app.sqlite` veritabanına bağlanır. Tarayıcı önizlemesinde SQLite erişimi veya sahte veri yedeği yoktur.
+- Rapor, cihaz ve mesaj örnekleri veritabanına otomatik eklenmez; listeler gerçek kayıt yoksa boş görünür. Skor kuralları ve tanılama hedefleri başlangıç migration'ından gelir.
 
 ## 3. Tablolar
 
@@ -61,7 +63,9 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 
 | Komut | Parametreler | Ne yapar |
 |---|---|---|
-| `auth_register` | name, email, password | Kayıt (ilk kullanıcı admin olur; diğerleri varsayılan rolü alır) |
+| `auth_setup_required` | — | Veritabanında henüz kullanıcı yoksa `true` döner |
+| `auth_register` | name, email, password | Yalnız ilk yönetici hesabını oluşturur; sonraki kayıtları reddeder |
+| `contact_message_assignees` | — | İleti yetkisi olan kullanıcılar için etkin yönetici adları ve kimlikleri |
 | `auth_login` | email, password | Giriş |
 | `auth_logout` | — | Çıkış |
 | `auth_me` | — | Oturumdaki kullanıcı + roller + izinler (yoksa null) |
@@ -94,19 +98,14 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 |---|---|---|
 | `report_submit` | input | Cihazdan gelen rapor (oturum gerekmez). `input`: `{ network, tests, createdAt?, shared?, device?: { id, platform, appVersion, locale } }` Kimliği Rust üretir (`report_id::generate`), skoru geçerli kuraldan hesaplar. |
 | `report_show` | id, reveal | Bir raporu gösterir; hassas alanlar varsayılan maskelidir. `reveal` için `Reveal:PII` gerekir ve denetim kaydına yazılır. |
+| `report_set_sharing` | id, shared, reason? | Rapor paylaşımını günceller ve gerekçeyi denetim kaydına yazar. |
 | `score_rule_publish` | version, note | Taslak kuralı yayınlar (`Publish:ScoreRule`). Eski raporlar kendi `ruleVersion` değerini korur. |
 | `score_rule_preview` | version, reportIds | Kuralı seçili raporlarda dener: `[{ id, oldScore, newScore, oldLevel, newLevel }]` |
-| `report_dashboard` | from, to | Panel özeti: toplam, ortalama skor, seviye dağılımı, test başarı oranları, platform dağılımı, günlük eğilim. |
+| `report_dashboard` | from, to | Panel özeti ve o anki yayınlanmış skor kuralının seviyelendirme eşikleri. |
 
 ## 6. Ön yüzden çağırma
 
-```ts
-import { invoke } from "@tauri-apps/api/core";
-
-await invoke("auth_login", { email, password });
-const sayfa = await invoke("crud_index", { resource: "Device", query: { page: 1, pageSize: 25, search: "", filters: {}, sort: { key: "id", dir: "desc" } } });
-// sayfa = { items, total, page, pageSize }
-```
+Admin paneli çağrıları `src-admin/src/api/nativeAdapter.ts` üzerinden `src/lib/native.ts` sınırına gider. Yeni bir panel API işlemi eklerken IPC çağrısını doğrudan bileşene koyma; Tauri dışındaki ortamda bu çağrılar veri üretmeden açık hata verir.
 
 Hatalar `{ code, message, errors? }` olarak döner. `code`: `unauthenticated` (oturum yok), `forbidden` (izin yok), `not_found`, `validation` (`errors[]` alan bazlı), `conflict`, `db`, `internal`.
 
@@ -131,4 +130,3 @@ Süzgeç anahtarı bir sütun adıysa tam eşleşme, dizi ise `IN`; `<sütun>Min
 - Parolalar Argon2id ile özetlenir; yine de bu bir **eğitim ve geliştirme altyapısıdır**, gerçek kullanıcı verisi için denetlenmiş bir sunucu gerekir.
 - İzin önbelleği yoktur; her denetim veritabanından okunur.
 - Arama SQLite `LIKE` ile yapılır (Türkçe büyük/küçük harf duyarlılığı sınırlıdır).
-

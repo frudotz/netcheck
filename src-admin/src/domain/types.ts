@@ -43,6 +43,11 @@ export interface AdminUser {
   lastLoginAt?: string;
 }
 
+export interface AdminAssignee {
+  id: string;
+  name: string;
+}
+
 export interface AuditLogEntry {
   id: string;
   at: string;                 // ISO
@@ -121,7 +126,7 @@ export interface Device {
 }
 
 export interface ReportRecord extends DiagnosticReport {
-  deviceId: string;
+  deviceId?: string | null;
   shared: boolean;            // kullanıcı paylaşımı açık mı
   receivedAt: string;
   ruleVersion: number;        // skoru hesaplayan kural sürümü

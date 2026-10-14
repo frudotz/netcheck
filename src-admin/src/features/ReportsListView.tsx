@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { api } from "../api/mockAdapter";
+import { api } from "../api/nativeAdapter";
 import { ReportRecord } from "../domain/types";
 import { DataTable, Column } from "../components/DataTable";
 import { FilterBar, FilterConfig } from "../components/FilterBar";
@@ -33,6 +33,7 @@ export const ReportsListView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [reports, setReports] = useState<ReportRecord[]>([]);
   const [total, setTotal] = useState(0);
+  const [scoreThresholds, setScoreThresholds] = useState({ iyi: 80, orta: 50 });
 
   // Pagination & Sort & Filters
   const [page, setPage] = useState(1);
@@ -52,15 +53,13 @@ export const ReportsListView: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.getReports({
-        page,
-        pageSize,
-        sort,
-        search,
-        filters,
-      });
+      const [res, thresholds] = await Promise.all([
+        api.getReports({ page, pageSize, sort, search, filters }),
+        api.getScoreThresholds(),
+      ]);
       setReports(res.items);
       setTotal(res.total);
+      setScoreThresholds(thresholds);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("errorDesc"));
     } finally {
@@ -81,8 +80,8 @@ export const ReportsListView: React.FC = () => {
       setSelectedIds([]);
       setConfirmBulkDisableShare(false);
       fetchReports();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -92,9 +91,9 @@ export const ReportsListView: React.FC = () => {
       label: "Skor Seviyesi",
       type: "select",
       options: [
-        { value: "iyi", label: `${t("scoreGood")} (≥ 80)` },
-        { value: "orta", label: `${t("scoreMedium")} (50-79)` },
-        { value: "zayif", label: `${t("scoreWeak")} (< 50)` },
+        { value: "iyi", label: `${t("scoreGood")} (≥ ${scoreThresholds.iyi})` },
+        { value: "orta", label: `${t("scoreMedium")} (${scoreThresholds.orta}-${scoreThresholds.iyi - 1})` },
+        { value: "zayif", label: `${t("scoreWeak")} (< ${scoreThresholds.orta})` },
       ],
     },
     {
@@ -321,7 +320,7 @@ export const ReportsListView: React.FC = () => {
         columns={columns}
         rows={reports}
         rowKey={r => r.id}
-        onRowClick={r => navigate(`/raporlar/${r.id}`)}
+        onRowClick={r => navigate(`/raporlar?id=${encodeURIComponent(r.id)}`)}
         loading={loading}
         error={error}
         onRetry={fetchReports}

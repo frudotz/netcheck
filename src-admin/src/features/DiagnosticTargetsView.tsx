@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
+import { api } from "../api/nativeAdapter";
 import { DiagnosticTarget } from "../domain/types";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { StatusBadge } from "../components/StatusBadge";
@@ -71,8 +71,8 @@ export const DiagnosticTargetsView: React.FC = () => {
       setSavingIndex(index);
       await api.updateTarget(target);
       addToast(`${target.kind} hedefi başarıyla güncellendi.`, "success");
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     } finally {
       setSavingIndex(null);
     }
@@ -84,8 +84,8 @@ export const DiagnosticTargetsView: React.FC = () => {
       setTargets(reset);
       setConfirmReset(false);
       addToast("Tanılama hedefleri varsayılan değerlere sıfırlandı.", "success");
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 

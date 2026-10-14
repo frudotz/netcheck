@@ -1,10 +1,11 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useSearchParams } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { I18nProvider } from "./i18n";
 import { DensityProvider } from "./context/DensityContext";
 import { ToastProvider } from "./context/ToastContext";
 import { AppShell } from "./components/AppShell";
+import { AdminAuthBoundary, AdminAuthProvider, useAdminAuth } from "./context/AdminAuthContext";
 
 // Feature Views
 import { DashboardView } from "./features/DashboardView";
@@ -24,6 +25,24 @@ interface AppProps {
   basename?: string;
 }
 
+const ReportsRoute: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  return searchParams.has("id") ? <ReportDetailView /> : <ReportsListView />;
+};
+
+const HomeRoute: React.FC = () => {
+  const { session } = useAdminAuth();
+  if (
+    session &&
+    !session.superAdmin &&
+    !session.permissions.includes("ViewAny:Report") &&
+    session.permissions.includes("ViewAny:ContentPage")
+  ) {
+    return <Navigate to="/icerik" replace />;
+  }
+  return <DashboardView />;
+};
+
 export default function App({ basename = "/" }: AppProps) {
   return (
     <ThemeProvider>
@@ -31,22 +50,25 @@ export default function App({ basename = "/" }: AppProps) {
         <DensityProvider>
           <ToastProvider>
             <BrowserRouter basename={basename}>
-              <AppShell>
-                <Routes>
-                  <Route path="/" element={<DashboardView />} />
-                  <Route path="/raporlar" element={<ReportsListView />} />
-                  <Route path="/raporlar/:id" element={<ReportDetailView />} />
-                  <Route path="/cihazlar" element={<DevicesListView />} />
-                  <Route path="/mesajlar" element={<MessagesView />} />
-                  <Route path="/skor-kurallari" element={<ScoreRulesView />} />
-                  <Route path="/hedefler" element={<DiagnosticTargetsView />} />
-                  <Route path="/icerik" element={<ContentPagesView />} />
-                  <Route path="/yoneticiler" element={<AdminUsersView />} />
-                  <Route path="/denetim" element={<AuditLogView />} />
-                  <Route path="/ayarlar" element={<SettingsView />} />
-                  <Route path="*" element={<NotFoundView />} />
-                </Routes>
-              </AppShell>
+              <AdminAuthProvider>
+                <AdminAuthBoundary>
+                  <AppShell>
+                    <Routes>
+                      <Route path="/" element={<HomeRoute />} />
+                      <Route path="/raporlar" element={<ReportsRoute />} />
+                      <Route path="/cihazlar" element={<DevicesListView />} />
+                      <Route path="/mesajlar" element={<MessagesView />} />
+                      <Route path="/skor-kurallari" element={<ScoreRulesView />} />
+                      <Route path="/hedefler" element={<DiagnosticTargetsView />} />
+                      <Route path="/icerik" element={<ContentPagesView />} />
+                      <Route path="/yoneticiler" element={<AdminUsersView />} />
+                      <Route path="/denetim" element={<AuditLogView />} />
+                      <Route path="/ayarlar" element={<SettingsView />} />
+                      <Route path="*" element={<NotFoundView />} />
+                    </Routes>
+                  </AppShell>
+                </AdminAuthBoundary>
+              </AdminAuthProvider>
             </BrowserRouter>
           </ToastProvider>
         </DensityProvider>

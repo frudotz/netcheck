@@ -19,6 +19,7 @@ export const MaskedValue: React.FC<MaskedValueProps> = ({
   className = "",
 }) => {
   const [revealed, setRevealed] = useState(false);
+  const [revealedValue, setRevealedValue] = useState<string | null>(null);
   const { t } = useI18n();
 
   if (!value) {
@@ -29,12 +30,12 @@ export const MaskedValue: React.FC<MaskedValueProps> = ({
     );
   }
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     if (!revealed) {
+      const nextValue = onReveal ? await onReveal(value) : value;
+      if (typeof nextValue !== "string") return;
+      setRevealedValue(nextValue);
       setRevealed(true);
-      if (onReveal) {
-        onReveal(value);
-      }
     } else {
       setRevealed(false);
     }
@@ -46,7 +47,7 @@ export const MaskedValue: React.FC<MaskedValueProps> = ({
     <span className={`inline-flex items-center gap-1.5 force-ltr ${className}`}>
       {revealed ? (
         allowCopy ? (
-          <CopyText value={value} />
+          <CopyText value={revealedValue ?? value} />
         ) : (
           <code
             className="font-mono text-xs sm:text-sm px-1.5 py-0.5 rounded"
@@ -56,7 +57,7 @@ export const MaskedValue: React.FC<MaskedValueProps> = ({
               color: "var(--yazi)",
             }}
           >
-            {value}
+            {revealedValue ?? value}
           </code>
         )
       ) : (
@@ -75,7 +76,7 @@ export const MaskedValue: React.FC<MaskedValueProps> = ({
 
       <button
         type="button"
-        onClick={handleToggle}
+        onClick={() => void handleToggle()}
         className="cursor-pointer inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded transition-colors focus-visible:outline-none"
         style={{
           color: "var(--renk-ana)",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
+import { api } from "../api/nativeAdapter";
 import { ReportRecord, Device } from "../domain/types";
 import { StatCard } from "../components/StatCard";
 import { Chart } from "../components/Chart";
@@ -26,17 +26,16 @@ export const DashboardView: React.FC = () => {
   // Filters
   const [dateRange, setDateRange] = useState<string>("all");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("");
+  const [scoreThresholds, setScoreThresholds] = useState({ iyi: 80, orta: 50 });
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const [reportsData, devicesData] = await Promise.all([
-        api.getReports({ pageSize: 50, filters: { dateRange: dateRange !== "all" ? dateRange : undefined, platform: selectedPlatform || undefined } }),
-        api.getDevices({ pageSize: 50 }),
-      ]);
-      setReports(reportsData.items);
-      setDevices(devicesData.items);
+      const data = await api.getDashboardData(dateRange, selectedPlatform);
+      setReports(data.reports);
+      setDevices(data.devices);
+      setScoreThresholds(data.scoreThresholds);
     } catch (err) {
       setError(err instanceof Error ? err.message : t("errorDesc"));
     } finally {
@@ -51,9 +50,9 @@ export const DashboardView: React.FC = () => {
   // KPIs
   const totalReports = reports.length;
   const avgScore = totalReports > 0 ? Math.round(reports.reduce((s, r) => s + r.score, 0) / totalReports) : 0;
-  const goodReports = reports.filter(r => r.score >= 80).length;
-  const mediumReports = reports.filter(r => r.score >= 50 && r.score < 80).length;
-  const weakReports = reports.filter(r => r.score < 50).length;
+  const goodReports = reports.filter(r => r.score >= scoreThresholds.iyi).length;
+  const mediumReports = reports.filter(r => r.score >= scoreThresholds.orta && r.score < scoreThresholds.iyi).length;
+  const weakReports = reports.filter(r => r.score < scoreThresholds.orta).length;
   const goodRatio = totalReports > 0 ? Math.round((goodReports / totalReports) * 100) : 0;
   const activeDevicesCount = devices.length;
 
@@ -124,11 +123,18 @@ export const DashboardView: React.FC = () => {
   }));
 
   // Chart data: Daily Report Trend (Line)
-  const last7DaysLabels = ["08 Eki", "09 Eki", "10 Eki", "11 Eki", "12 Eki", "13 Eki", "14 Eki"];
-  const trendData = last7DaysLabels.map((label, idx) => ({
-    label,
-    value: 3 + (idx * 2) + (idx % 3 === 0 ? 3 : 1),
-  }));
+  const reportsByDay = new Map<string, number>();
+  reports.forEach(report => {
+    const day = report.createdAt.slice(0, 10);
+    reportsByDay.set(day, (reportsByDay.get(day) ?? 0) + 1);
+  });
+  const trendData = Array.from(reportsByDay, ([day, value]) => ({
+    day,
+    value,
+    label: new Date(`${day}T00:00:00`).toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }),
+  }))
+    .sort((a, b) => a.day.localeCompare(b.day))
+    .slice(-14);
 
   const filterConfigs: FilterConfig[] = [
     {
@@ -264,31 +270,23 @@ export const DashboardView: React.FC = () => {
             <StatCard
               title={t("kpiTotalReports")}
               value={totalReports}
-              change={14.2}
-              sparkline={[12, 16, 14, 20, 24, 28, 33]}
               icon={<FileText className="w-4 h-4" />}
             />
             <StatCard
               title={t("kpiAvgScore")}
               value={`${avgScore} / 100`}
-              change={-2.1}
-              tone={avgScore >= 80 ? "success" : avgScore >= 50 ? "warning" : "danger"}
-              sparkline={[82, 85, 78, 80, 84, 82, avgScore]}
+              tone={avgScore >= scoreThresholds.iyi ? "success" : avgScore >= scoreThresholds.orta ? "warning" : "danger"}
               icon={<Activity className="w-4 h-4" />}
             />
             <StatCard
               title={t("kpiGoodRatio")}
               value={`%${goodRatio}`}
-              change={5.4}
               tone="success"
-              sparkline={[60, 64, 68, 65, 70, 72, goodRatio]}
               icon={<ShieldCheck className="w-4 h-4" />}
             />
             <StatCard
               title={t("kpiActiveDevices")}
               value={activeDevicesCount}
-              change={0}
-              sparkline={[8, 8, 8, 8, 8, 8, 8]}
               icon={<Smartphone className="w-4 h-4" />}
             />
           </div>

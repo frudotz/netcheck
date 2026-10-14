@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { api } from "../api/mockAdapter";
+import { api } from "../api/nativeAdapter";
 import { Device, ReportRecord } from "../domain/types";
 import { DataTable, Column } from "../components/DataTable";
 import { FilterBar, FilterConfig } from "../components/FilterBar";
@@ -76,8 +76,8 @@ export const DevicesListView: React.FC = () => {
       const allReports = await api.getReports({ pageSize: 50 });
       const filtered = allReports.items.filter(r => r.deviceId === device.id);
       setDeviceReports(filtered);
-    } catch {
-      addToast("Cihaz raporları yüklenirken hata oluştu", "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : "Cihaz raporları yüklenirken hata oluştu", "error");
     } finally {
       setLoadingDeviceReports(false);
     }
@@ -93,8 +93,8 @@ export const DevicesListView: React.FC = () => {
         setSelectedDevice(null);
       }
       fetchDevices();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (error) {
+      addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
     }
   };
 
@@ -417,7 +417,7 @@ export const DevicesListView: React.FC = () => {
                           {rep.score} Puan
                         </span>
                         <Link
-                          to={`/raporlar/${rep.id}`}
+                          to={`/raporlar?id=${encodeURIComponent(rep.id)}`}
                           className="p-1 rounded hover:opacity-80"
                           style={{ color: "var(--renk-ana)" }}
                         >
