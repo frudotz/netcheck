@@ -18,12 +18,25 @@ use crate::backend::util::{new_id, NOW_SQL};
 use rusqlite::params;
 use serde_json::{json, Value};
 
+fn mask_report_network(resource: &str, value: &mut Value) {
+    if resource == "Report" {
+        if let Some(network) = value.get("network").cloned() {
+            value["network"] = crate::backend::domain::mask_network(&network);
+        }
+    }
+}
+
 // ───────────────────────────── Auth ─────────────────────────────
 
 pub fn auth_register(app: &AppState, name: &str, email: &str, password: &str) -> AppResult<Value> {
-    let user = app.db.with(|c| auth::register(c, name, email, password))?;
-    app.set_user(Some(user.id));
-    app.db.with(|c| auth::user_with_access(c, user.id))
+    app.db.with(|c| {
+        if !auth::setup_required(c)? {
+            return Err(AppError::Conflict("İlk yönetici hesabı daha önce oluşturulmuş.".into()));
+        }
+        let user = auth::register(c, name, email, password)?;
+        app.set_user(Some(user.id));
+        auth::user_with_access(c, user.id)
+    })
 }
 
 pub fn auth_login(app: &AppState, email: &str, password: &str) -> AppResult<Value> {
@@ -44,13 +57,28 @@ pub fn auth_me(app: &AppState) -> AppResult<Value> {
     }
 }
 
+pub fn auth_setup_required(app: &AppState) -> AppResult<bool> {
+    app.db.with(auth::setup_required)
+}
+
+pub fn contact_message_assignees(app: &AppState) -> AppResult<Vec<Value>> {
+    app.db.with(|c| {
+        authorize(c, app.user(), &ability("ViewAny", "ContactMessage"))?;
+        auth::list_assignees(c)
+    })
+}
+
 // ─────────────────────── Kaynak denetleyicisi (CRUD) ───────────────────────
 
 pub fn crud_index(app: &AppState, resource: &str, query: ListQuery) -> AppResult<Paged> {
     let e = schema::entity(resource)?;
     app.db.with(|c| {
         authorize(c, app.user(), &ability("ViewAny", e.resource))?;
-        crud::list(c, e, &query)
+        let mut page = crud::list(c, e, &query)?;
+        for item in &mut page.items {
+            mask_report_network(e.resource, item);
+        }
+        Ok(page)
     })
 }
 
@@ -58,7 +86,9 @@ pub fn crud_show(app: &AppState, resource: &str, id: &Value) -> AppResult<Value>
     let e = schema::entity(resource)?;
     app.db.with(|c| {
         authorize(c, app.user(), &ability("View", e.resource))?;
-        crud::find(c, e, id)
+        let mut item = crud::find(c, e, id)?;
+        mask_report_network(e.resource, &mut item);
+        Ok(item)
     })
 }
 
@@ -66,7 +96,8 @@ pub fn crud_store(app: &AppState, resource: &str, data: &Value) -> AppResult<Val
     let e = schema::entity(resource)?;
     app.db.with(|c| {
         let uid = authorize(c, app.user(), &ability("Create", e.resource))?;
-        let created = crud::insert(c, e, data)?;
+        let mut created = crud::insert(c, e, data)?;
+        mask_report_network(e.resource, &mut created);
         audit::record(c, Some(uid), &format!("{}.create", e.resource), e.resource, &id_text(&created[e.pk]), None, None, Some(&created))?;
         Ok(created)
     })
@@ -76,8 +107,10 @@ pub fn crud_update(app: &AppState, resource: &str, id: &Value, data: &Value) -> 
     let e = schema::entity(resource)?;
     app.db.with(|c| {
         let uid = authorize(c, app.user(), &ability("Update", e.resource))?;
-        let before = crud::find(c, e, id)?;
-        let after = crud::update(c, e, id, data)?;
+        let mut before = crud::find(c, e, id)?;
+        let mut after = crud::update(c, e, id, data)?;
+        mask_report_network(e.resource, &mut before);
+        mask_report_network(e.resource, &mut after);
         audit::record(c, Some(uid), &format!("{}.update", e.resource), e.resource, &id_text(id), None, Some(&before), Some(&after))?;
         Ok(after)
     })
@@ -88,7 +121,8 @@ pub fn crud_destroy(app: &AppState, resource: &str, id: &Value, reason: Option<&
     let e = schema::entity(resource)?;
     app.db.with(|c| {
         let uid = authorize(c, app.user(), &ability("Delete", e.resource))?;
-        let before = crud::find(c, e, id)?;
+        let mut before = crud::find(c, e, id)?;
+        mask_report_network(e.resource, &mut before);
         crud::delete(c, e, id)?;
         audit::record(c, Some(uid), &format!("{}.delete", e.resource), e.resource, &id_text(id), reason, Some(&before), None)?;
         Ok(())

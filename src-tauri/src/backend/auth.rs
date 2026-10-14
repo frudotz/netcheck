@@ -74,6 +74,10 @@ fn row_to_user(r: &rusqlite::Row<'_>) -> rusqlite::Result<User> {
 
 const USER_COLS: &str = "id, name, email, status, last_login_at, created_at";
 
+pub fn setup_required(conn: &Connection) -> AppResult<bool> {
+    Ok(conn.query_row("SELECT NOT EXISTS(SELECT 1 FROM users)", [], |r| r.get(0))?)
+}
+
 pub fn user_by_id(conn: &Connection, id: i64) -> AppResult<User> {
     conn.query_row(&format!("SELECT {USER_COLS} FROM users WHERE id = ?1"), [id], row_to_user)
         .optional()?
@@ -194,6 +198,19 @@ pub fn list_users(conn: &Connection) -> AppResult<Vec<Value>> {
     Ok(out)
 }
 
+pub fn list_assignees(conn: &Connection) -> AppResult<Vec<Value>> {
+    let mut st = conn.prepare(
+        "SELECT u.id, u.name FROM users u
+         WHERE u.status = 'active' AND EXISTS (
+             SELECT 1 FROM model_has_roles mr
+             WHERE mr.model_id = u.id AND mr.model_type = 'User'
+         )
+         ORDER BY u.name",
+    )?;
+    let rows = st.query_map([], |r| Ok(json!({ "id": r.get::<_, i64>(0)?, "name": r.get::<_, String>(1)? })))?;
+    Ok(rows.collect::<Result<Vec<_>, _>>()?)
+}
+
 pub fn set_status(conn: &Connection, id: i64, status: &str) -> AppResult<User> {
     if !["active", "suspended", "banned"].contains(&status) {
         return Err(AppError::validation("status", "Durum active, suspended veya banned olmalı."));
@@ -217,6 +234,15 @@ pub fn set_status(conn: &Connection, id: i64, status: &str) -> AppResult<User> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn setup_is_required_only_without_users() {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch("CREATE TABLE users (id INTEGER PRIMARY KEY);").unwrap();
+        assert!(setup_required(&conn).unwrap());
+        conn.execute("INSERT INTO users (id) VALUES (1)", []).unwrap();
+        assert!(!setup_required(&conn).unwrap());
+    }
 
     #[test]
     fn email_checks() {

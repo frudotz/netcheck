@@ -1,0 +1,23 @@
+:root {
+  --renk-ana: #0e7490;        --renk-ana-yazi: #ffffff;
+  --renk-vurgu: #22d3ee;      --renk-koyu: #0b1f2a;
+  --zemin: #f4f7fa;           --kart: #ffffff;
+  --yazi: #0f172a;            --yazi-soluk: #556476;
+  --kenar: #e2e8f0;
+  --durum-basarili: #15803d;  --durum-basarili-zemin: #dcfce7;
+  --durum-hata: #b91c1c;      --durum-hata-zemin: #fee2e2;
+  --durum-uyari: #92400e;     --durum-uyari-zemin: #fef3c7;
+  --radius: 14px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+:root[data-tema="gece"] {
+  --renk-ana: #22d3ee;        --renk-ana-yazi: #062a33;
+  --zemin: #0b1220;           --kart: #131c2e;
+  --yazi: #e6edf6;            --yazi-soluk: #94a3b8;
+  --kenar: #23304a;
+  --durum-basarili: #4ade80;  --durum-basarili-zemin: #052e16;
+  --durum-hata: #fca5a5;      --durum-hata-zemin: #450a0a;
+  --durum-uyari: #fcd34d;     --durum-uyari-zemin: #451a03;
+}

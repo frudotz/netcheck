@@ -4,6 +4,28 @@
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import type { DiagnosticKind, DiagnosticOutcome, NetworkSnapshot, PlatformInfo } from "../types/netcheck";
 
+export type AdminCommand =
+  | "auth_setup_required"
+  | "auth_me"
+  | "auth_login"
+  | "auth_register"
+  | "auth_logout"
+  | "contact_message_assignees"
+  | "user_index"
+  | "user_store"
+  | "user_sync_roles"
+  | "user_set_status"
+  | "crud_index"
+  | "crud_show"
+  | "crud_store"
+  | "crud_update"
+  | "crud_destroy"
+  | "crud_destroy_many"
+  | "report_dashboard"
+  | "report_set_sharing"
+  | "score_rule_publish"
+  | "report_show";
+
 export class NativeUnavailableError extends Error {
   constructor() {
     super("native_unavailable");
@@ -17,6 +39,11 @@ export function hasNative(): boolean {
 async function call<T>(command: string, args?: Record<string, unknown>): Promise<T> {
   if (!hasNative()) throw new NativeUnavailableError();
   return invoke<T>(command, args);
+}
+
+/** Yönetim paneli de dahil tüm SQLite erişimi bu Tauri IPC sınırından geçer. */
+export function invokeAdmin<T>(command: AdminCommand, args?: Record<string, unknown>): Promise<T> {
+  return call<T>(command, args);
 }
 
 export function getNetworkSnapshot(): Promise<NetworkSnapshot> {
