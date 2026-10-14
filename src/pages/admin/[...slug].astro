@@ -1,0 +1,23 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { seedReports } from '../../../src-admin/src/api/seedData';
+
+export function getStaticPaths() {
+  const routes = [
+    'raporlar',
+    ...seedReports.map((report) => `raporlar/${report.id}`),
+    'cihazlar',
+    'mesajlar',
+    'skor-kurallari',
+    'hedefler',
+    'icerik',
+    'yoneticiler',
+    'denetim',
+    'ayarlar',
+  ];
+
+  return routes.map((slug) => ({ params: { slug } }));
+}
+---
+
+<AdminLayout />

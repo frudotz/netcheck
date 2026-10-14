@@ -20,13 +20,17 @@ import { AuditLogView } from "./features/AuditLogView";
 import { SettingsView } from "./features/SettingsView";
 import { NotFoundView } from "./features/NotFoundView";
 
-export default function App() {
+interface AppProps {
+  basename?: string;
+}
+
+export default function App({ basename = "/" }: AppProps) {
   return (
     <ThemeProvider>
       <I18nProvider>
         <DensityProvider>
           <ToastProvider>
-            <BrowserRouter>
+            <BrowserRouter basename={basename}>
               <AppShell>
                 <Routes>
                   <Route path="/" element={<DashboardView />} />

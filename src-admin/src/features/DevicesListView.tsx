@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api } from "../api/mockAdapter";
 import { Device, ReportRecord } from "../domain/types";
 import { DataTable, Column } from "../components/DataTable";
@@ -416,13 +416,13 @@ export const DevicesListView: React.FC = () => {
                         >
                           {rep.score} Puan
                         </span>
-                        <a
-                          href={`/raporlar/${rep.id}`}
+                        <Link
+                          to={`/raporlar/${rep.id}`}
                           className="p-1 rounded hover:opacity-80"
                           style={{ color: "var(--renk-ana)" }}
                         >
                           <ArrowRight className="w-3.5 h-3.5" />
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   ))}

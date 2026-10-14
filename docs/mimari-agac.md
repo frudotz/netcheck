@@ -38,22 +38,22 @@ Toplam 21 rota: 5 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil).
 
 Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş; tüm bilgi sayfaları → Ayarlar sekmesi etkin).
 
-## 2. Bağımsız Yönetim Prototipi
+## 2. Yönetim Arayüzü
 
-`src-admin/` içindeki React arayüzü, aşağıdaki rotalara sahip ayrı bir prototiptir; ana uygulama rotalarına ve Tauri paketine dahil değildir. Örnek verileri prototip içindir.
+`/admin/` ve alt rotalar Astro tarafından sunulur; arayüz mevcut React kodunu kullanır. Bu ayrı yönetim alanı örnek veriyle çalışır, gerçek cihaz/sunucu verisine bağlı değildir.
 
 ```
-Yönetim prototipi (ayrı Vite uygulaması)
-├── / (Panel Özeti)
-├── /raporlar · /raporlar/:id
-├── /cihazlar
-├── /mesajlar
-├── /skor-kurallari
-├── /hedefler
-├── /icerik
-├── /yoneticiler
-├── /denetim
-└── /ayarlar
+Yönetim arayüzü (/admin/)
+├── /admin/ (Panel Özeti)
+├── /admin/raporlar · /admin/raporlar/:id
+├── /admin/cihazlar
+├── /admin/mesajlar
+├── /admin/skor-kurallari
+├── /admin/hedefler
+├── /admin/icerik
+├── /admin/yoneticiler
+├── /admin/denetim
+└── /admin/ayarlar
 ```
 
 ## 3. Hedef Platform Matrisi
