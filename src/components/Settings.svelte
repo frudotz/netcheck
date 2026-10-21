@@ -5,7 +5,7 @@
   import { dil } from "$lib/dil.svelte";
   import type { PlatformInfo, TemaTercihi } from "$lib/types";
   import { reports } from "$lib/reports.svelte";
-  import { getPlatformInfo, hasNative } from "$lib/native";
+  import { hasNative, platform } from "$lib/native";
   import { dirOf, infoHref, INFO_SLUGS, LOCALES, localeName, pageTitle } from "$lib/i18n";
   import { icmpEtiketi, platformEtiketi } from "$lib/sozluk";
   import pkg from "../../package.json";
@@ -32,7 +32,7 @@
       return;
     }
     // Çalışma ortamı Rust'tan okunur (masaüstü/mobil, işletim sistemi, ping yöntemi).
-    getPlatformInfo()
+    platform()
       .then((info) => {
         ortam = info;
       })

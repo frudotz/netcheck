@@ -1,16 +1,16 @@
 <script lang="ts">
   // Harici bağlantı — Tauri penceresinde WebView'den çıkmadan varsayılan tarayıcıda açar.
+  // Tauri çağrısı yalnız src/lib/native.ts üzerinden yapılır (Görev 15).
   import type { Snippet } from "svelte";
-  import { isTauri } from "@tauri-apps/api/core";
-  import { openUrl } from "@tauri-apps/plugin-opener";
+  import { hasNative, openExternal } from "$lib/native";
 
   let { href, children }: { href: string; children: Snippet } = $props();
 
   async function open(event: MouseEvent) {
-    if (typeof window === "undefined" || !isTauri()) return; // tarayıcıda normal bağlantı davranışı
+    if (!hasNative()) return; // tarayıcıda normal bağlantı davranışı
     event.preventDefault();
     try {
-      await openUrl(href);
+      await openExternal(href);
     } catch {
       // Açılamazsa sessizce yoksay; bağlantı metni görünür kalır.
     }

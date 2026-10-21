@@ -14,7 +14,7 @@ Every platform claim in this graph uses one of these levels, from strongest to w
 
 ## Support matrix
 
-Current state on `master` (`dbe4c91`).
+Current state on `master` (`dbe4c91`). The course's feature × platform table (Task 15) is [[docs/platform-destegi.md]]; it uses these evidence levels.
 
 | Platform | Level | Notes |
 |---|---|---|

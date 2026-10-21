@@ -34,6 +34,4 @@ export function scoreLevel(score: number): ScoreLevel {
   return "zayif";
 }
 
-// Seviye adları dört dilde src/lib/sozluk.ts içindedir (skorSeviyesiEtiketi).
-// Henüz sözlüğe geçmemiş ekranlar (Tanılama, Rapor) için Türkçe not:
-export const SCORE_NOTE = "Temel bağlantı ve tanılama sonuçlarına göre hesaplanan basit bir değerlendirmedir.";
+// Seviye adları ve skor notu dört dilde src/lib/sozluk.ts içindedir (skorSeviyesiEtiketi, skorNotu).

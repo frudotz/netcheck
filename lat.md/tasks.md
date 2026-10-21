@@ -73,10 +73,10 @@ The AGENTS.md documentation index must list every `docs/*.md`; [[docs/backend.md
 
 ### NC-14 Week 04 course tasks
 
-Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]]; Tasks 10–14 are in review.
+Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]]; all six are in review.
 
 - Priority P1 · Status `in progress` · Depends on: [[tasks#Open work#NC-15 Master protection ruleset]] (the Task 09.1 prerequisite) and, for Tasks 11, 13 and 14, [[tasks#Open work#NC-16 Conflicting course requirements]].
-- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Task 11 is on `feature/11-veri-sozlesmesi` with its log [[docs/istemler/11-veri-sozlesmesi.md]], Task 12 on `feature/12-kart-bileseni` with [[docs/istemler/12-kart-bileseni.md]], Task 13 on `feature/13-liste-ve-uc-durum` with [[docs/istemler/13-liste-ve-uc-durum.md]], and Task 14 on `feature/14-detay-ekrani` with [[docs/istemler/14-detay-ekrani.md]]. Parts of Task 15 are already met by existing code, for example typed IPC in [[src/lib/native.ts]] and 22 Rust tests.
+- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Task 11 is on `feature/11-veri-sozlesmesi` with its log [[docs/istemler/11-veri-sozlesmesi.md]], Task 12 on `feature/12-kart-bileseni` with [[docs/istemler/12-kart-bileseni.md]], Task 13 on `feature/13-liste-ve-uc-durum` with [[docs/istemler/13-liste-ve-uc-durum.md]], Task 14 on `feature/14-detay-ekrani` with [[docs/istemler/14-detay-ekrani.md]], and Task 15 on `feature/15-rust-komutu` with [[docs/istemler/15-rust-komutu.md]]. Open: the student's own runs and screenshots (R10-d, R13-e) and macOS, Linux and iOS runs (R15-h, deferred).
 - Acceptance: as defined in each task file, one branch, PR and prompt log per task. Deadline and grading are announced in class (Task 16).
 
 ### NC-04 iOS local network permission
