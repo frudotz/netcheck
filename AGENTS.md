@@ -8,7 +8,8 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 
 | Belge | Kapsam | Bağlayıcı Kural |
 |---|---|---|
-| [`docs/proje-fikri.md`](docs/proje-fikri.md) | Konsept, ekranlar, veri modeli, rapor kimliği | Veri modelleri, terimler ve ekran içerikleri bu konsepte sadık kalır. Kapsam dışı özellik eklenmez (aşağıdaki §6). |
+| [`docs/proje-fikri.md`](docs/proje-fikri.md) | Konsept, ekranlar, rapor kimliği | Veri modelleri, terimler ve ekran içerikleri bu konsepte sadık kalır. Kapsam dışı özellik eklenmez (aşağıdaki §6). |
+| [`docs/veri-modeli.md`](docs/veri-modeli.md) | Veri sözleşmesi: tipler, alanlar, ilişkiler, örnek veri | Alan tabloları yalnız burada; tiplerin kendisi `src/lib/types/` içinde. |
 | [`docs/klasor-mimarisi.md`](docs/klasor-mimarisi.md) | Dizin ve dosya mimarisi | Klasör yapısı yalnızca burada tanımlanır. Yeni dosya eklerken bu hiyerarşiye uy. |
 | [`docs/branding.md`](docs/branding.md) | Marka, renk token'ları, ikonlar | Ad-hoc renk yazılmaz; yalnızca `src/styles/app.css` içindeki CSS değişkenleri kullanılır. Yeni token önce burada tanımlanır. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa ağacı, platformlar, breakpoint'ler | Yeni rota veya sayfa eklerken bu ağaca uyulur ve ağaç güncellenir. |
@@ -35,7 +36,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 - Tauri uygulaması: `bun run tauri dev`
 - Derleme ve doğrulama: `bun run build`
 - Rust testleri: `cd src-tauri && cargo test`
-- Tip kontrolü: `bunx svelte-check --tsconfig ./tsconfig.json` (0 hata / 0 uyarı beklenir)
+- Tip kontrolü: `bun run check` (`astro check` ve `svelte-check`; 0 hata / 0 uyarı beklenir)
 - Android: `bun run tauri android build --target aarch64 --apk` (önkoşullar: [`docs/kurulum.md`](docs/kurulum.md))
 - CI: [`.github/workflows/cross-platform.yml`](.github/workflows/cross-platform.yml) — PR'larda Windows/Linux/macOS derleme + test ve Android/iOS Rust derleme kontrolü
 
@@ -69,8 +70,9 @@ Her görev bu sırayla yapılır: **şartname → plan → onay → değişiklik
 - **Svelte 5 Runes:** Yeni bileşenlerde yalnızca `$state`, `$derived`, `$props`; Svelte 4 sözdizimi (`export let`, `$:`) kullanılmaz.
 - **SSR güvenliği:** `window`, `document`, `localStorage` yalnızca istemcide (`onMount` içinde) veya `typeof … !== "undefined"` korumasıyla kullanılır. localStorage'dan gelen liste `onMount` sonrası çizilir.
 - **Platform sınırı:** İşletim sistemine göre değişen Rust kodu (`#[cfg(windows)]`, `cfg(mobile)` …) yalnızca [`src-tauri/src/platform/`](src-tauri/src/platform/) altında yazılır; diğer modüller platformdan bağımsız kalır. Bir platformda olmayan yetenek sahte değer yerine açıkça "kullanılamıyor" döner. Platform farkı ön yüzde `get_platform_info` ile okunur, tarayıcı/OS tahmini yapılmaz.
-- **Rust ↔ TS:** IPC çağrıları yalnızca [`src/lib/native.ts`](src/lib/native.ts) üzerinden yapılır; tipler [`src/types/netcheck.ts`](src/types/netcheck.ts) ile Rust serde yapıları (`camelCase`) birebir eşleşir.
-- **Sahte veri yasak:** IP, gateway, DNS, gecikme, bağlantı durumu veya arayüz bilgisi asla uydurulmaz. Değer alınamazsa "Kullanılamıyor" / "Bulunamadı" gösterilir. Tauri dışında (tarayıcı) JS ile yedek veri veya rapor kimliği üretilmez.
+- **Rust ↔ TS:** IPC çağrıları yalnızca [`src/lib/native.ts`](src/lib/native.ts) üzerinden yapılır; tipler [`src/lib/types/`](src/lib/types/index.ts) ile Rust serde yapıları (`camelCase`) birebir eşleşir.
+- **Veri sözleşmesi:** Yeni bir veri alanı önce `src/lib/types/` içinde tanımlanır ve [`docs/veri-modeli.md`](docs/veri-modeli.md) tablosuna eklenir; bileşen veya store içinde veri tipi tanımlanmaz (bileşenin kendi `Props` tanımı hariç). `any` kullanılmaz.
+- **Sahte veri yasak:** IP, gateway, DNS, gecikme, bağlantı durumu veya arayüz bilgisi asla uydurulmaz. Değer alınamazsa "Kullanılamıyor" / "Bulunamadı" gösterilir. Tauri dışında (tarayıcı) JS ile yedek veri veya rapor kimliği üretilmez. Görev 11 örnek verisi ([`src/lib/veri/ornek.ts`](src/lib/veri/ornek.ts)) yalnız tip örneğidir: belgeleme adresleri (RFC 5737/3849/7042) kullanır ve hiçbir ekran, store ya da komut onu içe aktarmaz.
 - **Rapor kimliği** yalnızca Rust'ta üretilir (`generate_report_id` → `NCHK-YYYY-XXXXXXXX`).
 - **Hata gösterimi:** Ham Rust/IPC hataları kullanıcıya gösterilmez; Rust makine kodu (`code`) döner, Türkçe mesaja ön yüzde çevrilir. Her asenkron işlemin yükleniyor / başarı / hata durumu vardır.
 

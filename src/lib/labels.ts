@@ -1,5 +1,14 @@
 // Kullanıcıya görünen Türkçe metinler — kod tanımlayıcıları İngilizce kalır.
-import type { ConnectionType, DiagnosticKind, DiagnosticOutcome, DiagnosticStatus, IcmpBackend, PlatformInfo } from "../types/netcheck";
+import type {
+  ConnectionType,
+  DiagnosticCode,
+  DiagnosticKind,
+  DiagnosticOutcome,
+  DiagnosticStatus,
+  IcmpBackend,
+  OsName,
+  PlatformInfo,
+} from "./types";
 import { NativeUnavailableError } from "./native";
 
 export const UNAVAILABLE = "Kullanılamıyor";
@@ -15,7 +24,7 @@ export const connectionTypeLabel: Record<ConnectionType, string> = {
 export const DESKTOP_ONLY =
   "Ağ bilgileri yalnızca NetCheck uygulamasında alınabilir. Tarayıcı önizlemesinde gerçek ağ verisine erişilemez.";
 
-const osName: Record<string, string> = {
+const osName: Record<OsName, string> = {
   windows: "Windows",
   macos: "macOS",
   linux: "Linux",
@@ -61,7 +70,7 @@ export const diagnosticTargetHint: Record<DiagnosticKind, string> = {
   internet: "www.cloudflare.com",
 };
 
-const failureMessages: Record<string, string> = {
+const failureMessages: Record<Exclude<DiagnosticCode, "ok">, string> = {
   no_gateway: "Gateway bulunamadı.",
   timeout: "Zaman aşımı: yanıt alınamadı.",
   unreachable: "Hedefe ulaşılamadı.",
@@ -84,6 +93,8 @@ export function outcomeMessage(kind: DiagnosticKind, outcome: DiagnosticOutcome)
         return "Hedef yanıt verdi.";
     }
   }
+  if (outcome.code === "ok") return "Test tamamlanamadı.";
+  // Tip dışı bir kod gelirse (Rust daha yeni olabilir) genel mesaja düşülür.
   return failureMessages[outcome.code] ?? "Test tamamlanamadı.";
 }
 

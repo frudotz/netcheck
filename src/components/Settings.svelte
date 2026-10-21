@@ -1,7 +1,8 @@
 <script lang="ts">
   // Ayarlar — tema seçimi, uygulama bilgisi ve yerel veri
   import { onMount } from "svelte";
-  import { tema, type TemaTercihi } from "$lib/tema.svelte";
+  import { tema } from "$lib/tema.svelte";
+  import type { TemaTercihi } from "$lib/types";
   import { reports } from "$lib/reports.svelte";
   import { getPlatformInfo, hasNative } from "$lib/native";
   import { icmpBackendLabel, platformLabel } from "$lib/labels";
