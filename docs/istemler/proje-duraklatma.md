@@ -157,4 +157,4 @@ Be factual and conservative. Do not claim the project is fully complete, release
 
 ## PR
 
-Açılacak (taban: #43'ün dalı).
+[#44](https://github.com/frudotz/netcheck/pull/44), taslak (taban: #43'ün dalı). Birleştirilmesi gerekmez.

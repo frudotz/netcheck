@@ -58,7 +58,7 @@ Doğrulama düzeyleri:
   - Her birleştirmeden sonra sıradaki dal `master` ile merge edilerek güncellenir (rebase yok) ve beş kontrol beklenir.
   - Squash kullanılmaz, zincirdeki dallar çakışır.
   - Komutlar: [`ilerleme-batch-02.md` § Birleştirme ve etiket](ilerleme-batch-02.md#birleştirme-ve-etiket).
-- **Bu belgenin PR'ı** zincirin en sonundadır ve yalnız bir anlık görüntü taşır. Birleştirilmesi gerekmez.
+- **Bu belgenin PR'ı (#44, taslak)** zincirin en sonundadır ve yalnız bir anlık görüntü taşır. Birleştirilmesi gerekmez.
 
 **PR #32 ile #42'nin farkı:**
 
