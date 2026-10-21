@@ -1,10 +1,7 @@
-// Kullanıcıya görünen Türkçe metinler — kod tanımlayıcıları İngilizce kalır.
-// Dört dile çevrilen metinler src/lib/sozluk.ts içindedir; buradakiler henüz taşınmadı.
+// Rapora kaydedilen Türkçe değerler ve dilden bağımsız biçimlendirme. Ekranda görünen metinler
+// dört dilde src/lib/sozluk.ts içindedir. Buradaki ad, hedef açıklaması ve mesaj rapor anında
+// `DiagnosticTest` içine yazılır; kodu olmayan eski raporlar bu Türkçe mesajı gösterir.
 import type { DiagnosticCode, DiagnosticKind, DiagnosticOutcome } from "./types";
-import { NativeUnavailableError } from "./native";
-
-export const DESKTOP_ONLY =
-  "Ağ bilgileri yalnızca NetCheck uygulamasında alınabilir. Tarayıcı önizlemesinde gerçek ağ verisine erişilemez.";
 
 export const diagnosticName: Record<DiagnosticKind, string> = {
   gateway: "Gateway",
@@ -55,10 +52,4 @@ export function formatLatency(ms?: number): string {
   if (ms === undefined) return "—";
   if (ms < 1) return "<1 ms";
   return `${ms < 10 ? ms.toFixed(1).replace(/\.0$/, "") : Math.round(ms)} ms`;
-}
-
-/** Ham Rust/IPC hatasını kullanıcıya göstermeden anlaşılır bir mesaja çevirir. */
-export function errorMessage(error: unknown, fallback: string): string {
-  if (error instanceof NativeUnavailableError) return DESKTOP_ONLY;
-  return fallback;
 }

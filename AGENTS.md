@@ -10,6 +10,8 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 |---|---|---|
 | [`docs/proje-fikri.md`](docs/proje-fikri.md) | Konsept, ekranlar, rapor kimliği | Veri modelleri, terimler ve ekran içerikleri bu konsepte sadık kalır. Kapsam dışı özellik eklenmez (aşağıdaki §6). |
 | [`docs/veri-modeli.md`](docs/veri-modeli.md) | Veri sözleşmesi: tipler, alanlar, ilişkiler, örnek veri | Alan tabloları yalnız burada; tiplerin kendisi `src/lib/types/` içinde. |
+| [`docs/komutlar.md`](docs/komutlar.md) | Uygulama Rust komutları: girdi, çıktı, tipli hata | Yeni ya da değişen komut burada belgelenir; ekranlar yalnız `src/lib/native.ts` üzerinden çağırır. |
+| [`docs/platform-destegi.md`](docs/platform-destegi.md) | Özellik × platform tablosu ve doğrulama düzeyleri | Yeni özellik eklenirken bu tablo güncellenir; desteklenmeyen özellik o platformda görünmez. |
 | [`docs/klasor-mimarisi.md`](docs/klasor-mimarisi.md) | Dizin ve dosya mimarisi | Klasör yapısı yalnızca burada tanımlanır. Yeni dosya eklerken bu hiyerarşiye uy. |
 | [`docs/branding.md`](docs/branding.md) | Marka, renk token'ları, ikonlar | Ad-hoc renk yazılmaz; yalnızca `src/styles/app.css` içindeki CSS değişkenleri kullanılır. Yeni token önce burada tanımlanır. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa ağacı, platformlar, breakpoint'ler | Yeni rota veya sayfa eklerken bu ağaca uyulur ve ağaç güncellenir. |
@@ -70,12 +72,12 @@ Her görev bu sırayla yapılır: **şartname → plan → onay → değişiklik
 - **Yazı sistemi:** Ajanın ürettiği hiçbir metinde (kod, yorum, belge, commit/PR mesajı, yanıt) Çince veya Japonca karakter (Han, Hiragana, Katakana) kullanılmaz. Kullanıcının verdiği ya da bir kaynaktan aynen aktarılan metin olduğu gibi korunur.
 - **Svelte 5 Runes:** Yeni bileşenlerde yalnızca `$state`, `$derived`, `$props`; Svelte 4 sözdizimi (`export let`, `$:`) kullanılmaz.
 - **SSR güvenliği:** `window`, `document`, `localStorage` yalnızca istemcide (`onMount` içinde) veya `typeof … !== "undefined"` korumasıyla kullanılır. localStorage'dan gelen liste `onMount` sonrası çizilir.
-- **Platform sınırı:** İşletim sistemine göre değişen Rust kodu (`#[cfg(windows)]`, `cfg(mobile)` …) yalnızca [`src-tauri/src/platform/`](src-tauri/src/platform/) altında yazılır; diğer modüller platformdan bağımsız kalır. Bir platformda olmayan yetenek sahte değer yerine açıkça "kullanılamıyor" döner. Platform farkı ön yüzde `get_platform_info` ile okunur, tarayıcı/OS tahmini yapılmaz.
+- **Platform sınırı:** İşletim sistemine göre değişen Rust kodu (`#[cfg(windows)]`, `cfg(mobile)` …) yalnızca [`src-tauri/src/platform/`](src-tauri/src/platform/) altında yazılır; diğer modüller platformdan bağımsız kalır. Bir platformda olmayan yetenek sahte değer yerine açıkça "kullanılamıyor" döner. Ön yüz platformu yalnız `native.ts` `platform()` ve `destekleniyorMu(ozellik)` ile öğrenir; bileşenler platform adını kendileri sorgulamaz, tarayıcı/OS tahmini yapılmaz. Desteklenmeyen özellik o platformda arayüzde hiç görünmez. Yeni özellik eklenirken [`docs/platform-destegi.md`](docs/platform-destegi.md) tablosu güncellenir.
 - **Rust ↔ TS:** IPC çağrıları yalnızca [`src/lib/native.ts`](src/lib/native.ts) üzerinden yapılır; tipler [`src/lib/types/`](src/lib/types/index.ts) ile Rust serde yapıları (`camelCase`) birebir eşleşir.
 - **Veri sözleşmesi:** Yeni bir veri alanı önce `src/lib/types/` içinde tanımlanır ve [`docs/veri-modeli.md`](docs/veri-modeli.md) tablosuna eklenir; bileşen veya store içinde veri tipi tanımlanmaz (bileşenin kendi `Props` tanımı hariç). `any` kullanılmaz.
 - **Sahte veri yasak:** IP, gateway, DNS, gecikme, bağlantı durumu veya arayüz bilgisi asla uydurulmaz. Değer alınamazsa "Kullanılamıyor" / "Bulunamadı" gösterilir. Tauri dışında (tarayıcı) JS ile yedek veri veya rapor kimliği üretilmez. Görev 11 örnek verisi ([`src/lib/veri/ornek.ts`](src/lib/veri/ornek.ts)) yalnız tip örneğidir: belgeleme adresleri (RFC 5737/3849/7042) kullanır ve hiçbir ekran, store ya da komut onu içe aktarmaz.
 - **Rapor kimliği** yalnızca Rust'ta üretilir (`generate_report_id` → `NCHK-YYYY-XXXXXXXX`).
-- **Hata gösterimi:** Ham Rust/IPC hataları kullanıcıya gösterilmez; Rust makine kodu (`code`) döner, Türkçe mesaja ön yüzde çevrilir. Her asenkron işlemin yükleniyor / başarı / hata durumu vardır.
+- **Hata gösterimi:** Ham Rust/IPC hataları kullanıcıya gösterilmez. Komutlar düz metin değil tipli hata (`CommandError`, [`docs/komutlar.md`](docs/komutlar.md)) döndürür; makine kodu ön yüzde seçili dilde mesaja çevrilir ve `HataDurumu` ile gösterilir. Her asenkron işlemin yükleniyor / başarı / hata durumu vardır.
 
 ## 5. Arayüz Doğrulama (Tarayıcı Otomasyonu)
 

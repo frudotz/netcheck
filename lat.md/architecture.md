@@ -6,12 +6,14 @@ The frontend never touches the network directly. Rust owns network discovery, di
 
 ## IPC contract
 
-The UI uses exactly four Tauri commands, wrapped in [[src/lib/native.ts]]; their names and payload shapes are the frontend–backend contract.
+The UI uses exactly four Tauri commands, wrapped in [[src/lib/native.ts]]; their names and payload shapes are the frontend–backend contract, documented in [[docs/komutlar.md]].
 
 - `get_network_snapshot` → [[src-tauri/src/lib.rs#get_network_snapshot]] returns a [[networking#Network snapshot]].
-- `run_diagnostic(kind)` runs one fixed test from [[networking#Diagnostics]]. Unknown `kind` values are rejected by serde, so the frontend cannot choose a target.
+- `run_diagnostic(kind)` runs one fixed test from [[networking#Diagnostics]]. `kind` arrives as a string and is parsed into [[src-tauri/src/diagnostics.rs#DiagnosticKind]]; an unknown value becomes a typed error, so the frontend cannot choose a target.
 - `generate_report_id` returns `NCHK-YYYY-XXXXXXXX` from [[src-tauri/src/report_id.rs#generate]] (see [[decisions#Report IDs come from Rust]]).
 - `get_platform_info` returns `{ os, family, icmp }` from [[src-tauri/src/platform/mod.rs#info]] so Settings can show the real platform and ping method.
+
+Failures are typed: commands return [[src-tauri/src/command_error.rs#CommandError]] (`unknown_diagnostic` with the received value, or `task_failed`), serialized as `{ "code": … }`. `native.ts` rethrows it as `CommandFailure`, and screens show a localized message through `HataDurumu` rather than raw errors. Components call no Tauri API directly (course Task 15). `native.ts` also exposes `platform()` and `destekleniyorMu(ozellik)`, and screens ask the latter instead of checking platform names; the feature table is [[docs/platform-destegi.md]].
 
 The TypeScript side of these payloads is the data contract in [[src/lib/types/index.ts]], one file per main type, with field tables in [[docs/veri-modeli.md]]. Rust's outcome codes are a closed union ([[src/lib/types/diagnostic.ts#DiagnosticCode]]), so a new code must be added to the contract before the UI can show it.
 

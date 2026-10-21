@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 36 | 8 | 3 | 2 | 49 |
-| **All** | **73** | **15** | **3** | **4** | **95** |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 44 | 3 | 0 | 2 | 49 |
+| **All** | **81** | **10** | **0** | **4** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method), 11 (data contract), 12 (card), 13 (list states) and 14 (detail screen), plus the app-language groundwork for Tasks 12–14, are on their branches; Tasks 15–16 have not started.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–15 and the app-language groundwork for Tasks 12–14 are on their branches. What remains in Week 4 is student-side evidence (R10-d, R13-e), macOS/Linux/iOS runs (R15-h, deferred by the instructor) and the announced Task 16 audit.
 
 ## Week 3 — Batch 01
 
@@ -203,22 +203,22 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
 | R15-a | At least one app-specific command; template example removed | PASS | `get_network_snapshot`, `run_diagnostic`, `generate_report_id`, `get_platform_info` in `src-tauri/src/lib.rs`; no `greet` |
-| R15-b | Typed success struct and typed error enum; no panic on invalid input | PARTIAL | Success values are typed structs. Errors are `String` codes (`Result<_, String>` in `lib.rs`). An invalid `kind` is rejected by serde without a panic. The backend's `AppError` is typed but no screen uses it — P1 |
-| R15-c | All Tauri calls go through `src/lib/native.ts` | PARTIAL | `src/components/ExternalLink.svelte` imports `isTauri` and `openUrl` directly — P1 |
+| R15-b | Typed success struct and typed error enum; no panic on invalid input | PASS (Task 15 branch) | Commands return `Result<_, CommandError>` (`src-tauri/src/command_error.rs`). In the running app, `run_diagnostic` with `"foo"` returned `{"code":"unknown_diagnostic","value":"foo"}` over IPC, with no panic |
+| R15-c | All Tauri calls go through `src/lib/native.ts` | PASS (Task 15 branch) | `ExternalLink.svelte` now uses `openExternal`; no file outside `native.ts` imports `@tauri-apps/*` |
 | R15-d | Browser fallback without crashing | PASS | `NativeUnavailableError` and `hasNative` in `src/lib/native.ts` |
-| R15-e | Result and error types in `src/lib/types/`, matching Rust fields | PARTIAL | Result types are in `src/lib/types/` since Task 11 and match Rust's camelCase fields; there is no typed error type yet (R15-b) — P1 |
-| R15-f | Error shown with `HataDurumu` | FAIL | Component absent; errors are inline messages — P1 |
-| R15-g | ≥2 automated Rust tests; `cargo test` passes | PASS | 22 tests: 21/21 on Windows and 22/22 on macOS CI (PR #33) |
-| R15-h | App works on all five platforms; unsupported features hidden on that platform | PARTIAL | Windows and Android verified. macOS: CI plus a partial run. Linux: CI only. iOS: simulator only ([`lat.md/platforms.md`](../lat.md/platforms.md)). Every platform has a ping backend, so nothing is hidden by platform — P1 |
-| R15-i | `docs/platform-destegi.md` feature × platform table and AGENTS.md rule | FAIL | Absent; `docs/mimari-agac.md` §2 is platform-level only — P1 |
-| R15-j | `native.ts` exposes `platform()` and `destekleniyorMu(...)` | PARTIAL | `getPlatformInfo()` exists; there is no per-feature support query — P1 |
-| R15-k | `docs/komutlar.md` documenting the commands | FAIL | Absent; [`docs/backend.md`](backend.md) covers only the backend commands — P1 |
+| R15-e | Result and error types in `src/lib/types/`, matching Rust fields | PASS (Task 15 branch) | `src/lib/types/command.ts` (`CommandError`, `Feature`); a Rust test checks the JSON shape. In the app, `native.ts` rethrew the IPC error as `CommandFailure` carrying it |
+| R15-f | Error shown with `HataDurumu` | PASS (Task 15 branch) | Tanılama and Genel Bakış show `HataDurumu` with "Tekrar dene"; checked without Rust in headless Edge |
+| R15-g | ≥2 automated Rust tests; `cargo test` passes | PASS | 25 tests, 3 for the command (`known_kinds_parse`, `unknown_kind_is_typed_error`, `errors_serialize_with_code`); 24/24 on Windows (the macOS-only loopback test runs in CI) |
+| R15-h | App works on all five platforms; unsupported features hidden on that platform | PARTIAL | Windows and Android verified. macOS: CI plus a partial run. Linux: CI only. iOS: simulator only. No feature is missing on any target, so nothing is hidden; the hiding path (`destekleniyorMu("ping")`) exists. **Missing:** macOS, Linux and iOS runs, deferred by the instructor on 21.10 — P1 |
+| R15-i | `docs/platform-destegi.md` feature × platform table and AGENTS.md rule | PASS (Task 15 branch) | [`docs/platform-destegi.md`](platform-destegi.md): table, how each "farklı yolla" row is handled, evidence levels; AGENTS.md §4 rule and index |
+| R15-j | `native.ts` exposes `platform()` and `destekleniyorMu(...)` | PASS (Task 15 branch) | In the app: `platform()` → `windows`/`desktop`/`icmp-api`; `destekleniyorMu("ping")` → true |
+| R15-k | `docs/komutlar.md` documenting the commands | PASS (Task 15 branch) | [`docs/komutlar.md`](komutlar.md): inputs, outputs, `CommandError` codes and tests; in the AGENTS.md index |
 
 ### General Week 4 rules
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled) and 10–14 follow it; Task 15 not started — P1, NC-14 |
+| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PASS (Task 10–15 branches) | Tasks 09.1 (PR #34, log backfilled) and 10–15 each have a `feature/NN-*` branch, a PR and a `docs/istemler/` log; the app-language groundwork has its own branch, PR and log |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
 
 ## Conflicts requiring an instructor decision
