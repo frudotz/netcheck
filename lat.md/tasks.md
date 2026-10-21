@@ -55,13 +55,14 @@ Record a reproducible physical-iPhone run; smoke tests are reported as successfu
 
 ### NC-16 Conflicting course requirements
 
-Three Week 4 requirements contradict binding project rules and need an instructor decision before implementation.
+Four course requirements contradict binding project rules and need an owner or instructor decision.
 
-- Priority P1 · Status `blocked` · Depends on: the instructor's answer for C-3, and confirmation of the C-1 and C-2 decisions.
-- Conflicts C-1 to C-3 in [[docs/course-compliance.md]]:
+- Priority P1 · Status `blocked` · Depends on: the instructor's answer for C-3, a decision on C-4, and confirmation of the C-1 and C-2 decisions.
+- Conflicts C-1 to C-4 in [[docs/course-compliance.md]]:
   - Task 11 sample data versus [[project#Product rules]] (no fake data). Decided on 2026-10-21 under the owner's general authorization: documentation-range records in [[src/lib/veri/ornek.ts]] that no screen imports, recorded in [[AGENTS.md]]; instructor confirmation pending.
   - Four-language state and detail texts versus Turkish-only app screens. Decided on 2026-10-21 under the same authorization: an app language setting with a dictionary ([[decisions#Turkish-first interface]]), recorded in [[AGENTS.md]]; instructor confirmation pending.
   - The AGENTS.md out-of-scope list versus [[architecture#Local SQLite backend]].
+  - C-4: the Task 03 README requires the student number, while the 2026-10-21 status report forbids personal data in the public repository; the number also stays in history and in the immutable Batch 01 tag. Undecided.
 - Acceptance: each decision is recorded once in [[AGENTS.md]] and reflected here.
 
 ### NC-17 Documentation index completeness
@@ -73,11 +74,11 @@ The AGENTS.md documentation index must list every `docs/*.md`; [[docs/backend.md
 
 ### NC-14 Week 04 course tasks
 
-Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]]; all six are in review.
+Course tasks 10–16 (method log, data contract, card, list states, detail screen, typed Rust command, Batch 02 audit) from [[docs/tasks/week-4/README.md]] and, for Task 16, the instructor's 2026-10-21 status report; all seven are in review as PRs #35–#43.
 
 - Priority P1 · Status `in progress` · Depends on: [[tasks#Open work#NC-15 Master protection ruleset]] (the Task 09.1 prerequisite) and, for Tasks 11, 13 and 14, [[tasks#Open work#NC-16 Conflicting course requirements]].
-- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Task 11 is on `feature/11-veri-sozlesmesi` with its log [[docs/istemler/11-veri-sozlesmesi.md]], Task 12 on `feature/12-kart-bileseni` with [[docs/istemler/12-kart-bileseni.md]], Task 13 on `feature/13-liste-ve-uc-durum` with [[docs/istemler/13-liste-ve-uc-durum.md]], Task 14 on `feature/14-detay-ekrani` with [[docs/istemler/14-detay-ekrani.md]], and Task 15 on `feature/15-rust-komutu` with [[docs/istemler/15-rust-komutu.md]]. Open: the student's own runs and screenshots (R10-d, R13-e) and macOS, Linux and iOS runs (R15-h, deferred).
-- Acceptance: as defined in each task file, one branch, PR and prompt log per task. Deadline and grading are announced in class (Task 16).
+- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Task 11 is on `feature/11-veri-sozlesmesi` with its log [[docs/istemler/11-veri-sozlesmesi.md]], Task 12 on `feature/12-kart-bileseni` with [[docs/istemler/12-kart-bileseni.md]], Task 13 on `feature/13-liste-ve-uc-durum` with [[docs/istemler/13-liste-ve-uc-durum.md]], Task 14 on `feature/14-detay-ekrani` with [[docs/istemler/14-detay-ekrani.md]], Task 15 on `feature/15-rust-komutu` with [[docs/istemler/15-rust-komutu.md]], and Task 16 on `feature/16-batch-02-denetimi` with [[docs/istemler/16-batch-02-denetimi.md]] and the release gate in [[docs/ilerleme-batch-02.md]]. Open: merging the PRs in order and the `v0.2.0-batch-02` tag (R16-c, owner's approval), the student's own runs and screenshots (R10-d, R13-e) and macOS, Linux and iOS runs (R15-h, deferred).
+- Acceptance: as defined in each task file, one branch, PR and prompt log per task, and the release gate in [[docs/ilerleme-batch-02.md]] passing on `master`. Deadline 27.10.2026 23:59; the Task 16 rubric is announced in class.
 
 ### NC-04 iOS local network permission
 

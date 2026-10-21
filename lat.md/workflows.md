@@ -44,6 +44,7 @@ Every change goes through a branch and a pull request into a protected `master`.
 Releases are annotated tags on `master`; the course baseline tag is immutable.
 
 - `v0.1.0-batch-01` → `b9fc299` is the Batch 01 submission baseline and must never be moved, deleted, or recreated. Submission steps are in [[docs/teslim.md]]; Blackboard submission is done by the student, not by tools.
+- `v0.2.0-batch-02` does not exist yet. [[docs/ilerleme-batch-02.md]] defines its release gate: every Batch 02 PR merged, then build, type check, Rust tests and `lat check` re-run on `master`, then the owner's approval. The same file gives the merge order and tag command.
 - A platform may be described as supported only at the evidence level actually reached ([[platforms#Evidence levels]]). Simulator results are not device results, and CI compilation is not runtime verification.
 - Mobile store releases are not set up. Android needs a keystore and AAB; iOS needs a development team, signing, and IPA export ([[tasks#Open work]]). Signing material and team IDs stay out of the repository.
 

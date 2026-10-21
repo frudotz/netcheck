@@ -3,7 +3,7 @@
 Traceable audit of every instructor requirement in [`docs/tasks/`](tasks/) and the instructor evaluation [`docs/k1/01.review.md`](k1/01.review.md), checked against the repository, GitHub settings and CI. It is not a statement of grades.
 
 - **Audited state:** `origin/master` at `dbe4c91` (2026-10-21), plus the documentation fixes in PR #33 (marked "fixed in PR #33"). GitHub repository settings were read through the API on the same day and re-read before the final update; they were unchanged. The Task 09.1 rows were re-checked later on 2026-10-21, after the owner changed the settings (ruleset saved at 20:16); its documentation rows are met on `feature/09-1-master-korumasi`.
-- **Sources:** the 18 files in [`docs/tasks/week-3/`](tasks/week-3/) and [`docs/tasks/week-4/`](tasks/week-4/), plus [`docs/k1/01.review.md`](k1/01.review.md).
+- **Sources:** the 18 files in [`docs/tasks/week-3/`](tasks/week-3/) and [`docs/tasks/week-4/`](tasks/week-4/), plus [`docs/k1/01.review.md`](k1/01.review.md). The instructor's status report of 2026-10-21 is kept out of the repository as it instructs; only its requirements are paraphrased here (rows R16-*, RA-*, conflict C-4).
 - **Not found:** `hoca-raporu.md` is not in this repository, its Git history, any fetched branch, the upstream `keyvanarasteh/hello-mobil` repository, GitHub PRs, or local folders. This matrix does not reconstruct it. The instructor-authored evaluation that does exist is `docs/k1/01.review.md` (Batch 01: 107/108 at `9992001`).
 - **Method:** each row was checked directly in code, files, Git, the GitHub API or CI output. A row marked "instructor-verified" relies on `01.review.md` because it cannot be checked from the repository; it was re-checked where possible.
 
@@ -24,10 +24,11 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
 | Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 44 | 3 | 0 | 2 | 49 |
+| Week 4 — Task 16 (from the 2026-10-21 status report) | 2 | 0 | 1 | 0 | 3 |
 | Instructor status report 2026-10-21 — admin panel | 4 | 0 | 0 | 2 | 6 |
-| **All** | **85** | **10** | **0** | **6** | **101** |
+| **All** | **87** | **10** | **1** | **6** | **104** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–15 and the app-language groundwork for Tasks 12–14 are on their branches. What remains in Week 4 is student-side evidence (R10-d, R13-e), macOS/Linux/iOS runs (R15-h, deferred by the instructor) and the announced Task 16 audit. The admin panel move from the instructor's status report is on its own branch as an interface without data; archiving the source repository (RA-e) follows its merge.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–15 and the app-language groundwork for Tasks 12–14 are on their branches. What remains in Week 4 is student-side evidence (R10-d, R13-e) and macOS/Linux/iOS runs (R15-h, deferred by the instructor). The admin panel move from the instructor's status report is on its own branch as an interface without data; archiving the source repository (RA-e) follows its merge. Task 16's window limits and progress document are on their branch. The only FAIL is the `v0.2.0-batch-02` tag (R16-c), which can only be created after the Batch 02 PRs are merged and the owner approves ([`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md)).
 
 ## Week 3 — Batch 01
 
@@ -220,7 +221,17 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
 | RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PASS (Task 10–15 branches) | Tasks 09.1 (PR #34, log backfilled) and 10–15 each have a `feature/NN-*` branch, a PR and a `docs/istemler/` log; the app-language groundwork has its own branch, PR and log |
-| RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
+| RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | Not in the repository. The 2026-10-21 status report names the deadline (27.10.2026 23:59) and Task 16's three outputs (R16-a to R16-c); the rubric itself is still to be announced |
+
+### Task 16 — Batch 02 audit
+
+No task file exists in the repository. The three outputs below come from the 2026-10-21 status report; progress and the release-gate evaluation are in [`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md).
+
+| ID | Requirement | Status | Evidence / missing work |
+|---|---|---|---|
+| R16-a | `minWidth` / `minHeight` in `tauri.conf.json` | PASS (Task 16 branch) | 320 × 480 (values not specified; chosen from the narrowest verified layout width). The running Windows app reports a minimum tracking size of 320 × 480 client pixels; all screens checked at that size |
+| R16-b | `docs/ilerleme-batch-02.md` | PASS (Task 16 branch) | Control matrix, verification table, release gate, merge and tag steps |
+| R16-c | `v0.2.0-batch-02` tag on `master` | FAIL | Not created: the Batch 02 PRs (#35–#43) are not merged yet, and the tag needs the owner's approval. Release gate is BLOCKED on these two items |
 
 ### Instructor status report (2026-10-21) — admin panel
 
@@ -246,6 +257,8 @@ These requirements contradict binding rules already in the project. Resolve them
   - Recorded in AGENTS.md §4. Instructor confirmation is still pending.
 - **C-3 — Out-of-scope list vs. merged backend.** AGENTS.md §6 excludes login, server and database, yet PR #31 (instructor-authored) merged a SQLite and auth backend that no screen uses. The admin panel moved in for RA-a manages devices, messages and users, which is "remote management" in the same list; it is therefore kept as an interface without data until this is decided. PR #32 (instructor-authored) connects the panel to SQLite and stays open.
 
+- **C-4 — Batch 01 student details vs. no personal data.** Task 03 requires the student's name and number in the README (rows R03-*), and they are in `README.md` and `docs/proje-fikri.md`. The 2026-10-21 status report says personal data such as the student number must not be in the public repository. Removing the number from the current files is possible on a branch. It would stay in Git history and in the immutable `v0.1.0-batch-01` tag, because rewriting either is forbidden. Not decided; the owner or the instructor chooses.
+
 ### Open questions recorded with provisional choices
 
 These are not contradictions, but the requirement does not settle them. Each choice is small and reversible and is recorded in [`docs/yonetim-paneli.md`](yonetim-paneli.md).
@@ -259,9 +272,10 @@ These are not contradictions, but the requirement does not settle them. Each cho
 Ordered by priority. Nothing in this plan is implemented by this audit.
 
 1. **Done except the self-test — Task 09.1 (NC-15).** The owner fixed the settings on 2026-10-21. The "PR güvenliği" section, its AGENTS.md link and `docs/kanit/master-korumasi.png` were merged in PR #34. **Remaining:** the direct-push self-test (R09.1-d), which the owner chose not to perform.
-2. **P1 — Decisions C-1 to C-3 (NC-16).** **Acceptance:** each decision is recorded in AGENTS.md, which is the single source for rules.
+2. **P1 — Decisions C-1 to C-4 (NC-16).** **Acceptance:** each decision is recorded in AGENTS.md, which is the single source for rules.
 3. **Done in PR #33 — Documentation index (NC-17).** `docs/backend.md` added to the AGENTS.md index.
 4. **P1 — Tasks 10 → 15 in order (NC-14).** One `feature/NN-*` branch, PR and `docs/istemler/` log per task. Run each task's own audit prompt first and implement only the PARTIAL and FAIL rows above. **Acceptance:** each task's "Görev bittiğinde repoda ne olacak" list and checklist are met, with `bun run build` at 0 errors.
 5. **P2 — Accuracy and hygiene.** iOS statements were fixed in PR #33. Still open: the macOS run status in README and Hakkında, and the README "no database" sentence after decision C-3 (NC-10). Confirm "Şube" (R03-f). Ad-hoc colors and the unused `src/app.css` (R05-f, NC-18). AI-task section in the descriptions of PRs #28–#30 (R01.2-c).
+6. **P0 — Merge the Batch 02 PRs and tag (R16-c).** PRs #35–#43 merge in order with merge commits, and each branch is updated with `master` before merging (strict checks). The release gate is then re-run on `master` and `v0.2.0-batch-02` is tagged with the owner's approval. Steps: [`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md). **Acceptance:** every gate criterion passes on `master`.
 
 Related current-state descriptions: [`lat.md/project.md`](../lat.md/project.md) (scope and rules), [`lat.md/architecture.md`](../lat.md/architecture.md) (IPC contract, SQLite backend), [`lat.md/platforms.md`](../lat.md/platforms.md) (evidence levels), [`lat.md/workflows.md`](../lat.md/workflows.md) (Git and CI rules).
