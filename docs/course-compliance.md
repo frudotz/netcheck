@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 33 | 10 | 4 | 2 | 49 |
-| **All** | **70** | **17** | **4** | **4** | **95** |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 36 | 8 | 3 | 2 | 49 |
+| **All** | **73** | **15** | **3** | **4** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method), 11 (data contract), 12 (card) and 13 (list states), plus the app-language groundwork for Tasks 12–14, are on their branches; Tasks 14–16 have not started.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method), 11 (data contract), 12 (card), 13 (list states) and 14 (detail screen), plus the app-language groundwork for Tasks 12–14, are on their branches; Tasks 15–16 have not started.
 
 ## Week 3 — Batch 01
 
@@ -192,11 +192,11 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R14-a | Detail screen opens from a card; the address contains the item ID | PASS | `/rapor?id=NCHK-…` (`src/components/ReportView.svelte`). History links to it. A query string is used because the build is static |
-| R14-b | Back navigation keeps the list's search and filter | PARTIAL | Back is plain page navigation (not tested); there is no search or filter to keep (depends on R13-c) — P1 |
-| R14-c | Unknown ID shows `HataDurumu` or a not-found screen | PARTIAL | Shows "Rapor bulunamadı", but not through `HataDurumu` (R13-a) — P1 |
-| R14-d | Detail screen in four languages; RTL for AR/FA | FAIL | Turkish only. **Conflict C-2** — P1 |
-| R14-e | Page tree in `docs/mimari-agac.md` updated | PASS | `/rapor?id=` listed in §1 |
+| R14-a | Detail screen opens from a card; the address contains the item ID | PASS | `/rapor?id=NCHK-…` (`src/components/ReportView.svelte`), opened from the Geçmiş cards (Task 13). A query string is used because the build is static; the reason is in `docs/mimari-agac.md`. Opening the address directly shows the same report |
+| R14-b | Back navigation keeps the list's search and filter | PASS (Task 14 branch) | Filters live in the URL. The "← Geçmiş" link, the browser back button and "Geçmişe dön" all returned to `/gecmis?seviye=zayif&ara=2026` with both inputs restored (headless Edge, sample reports in a test profile) |
+| R14-c | Unknown ID shows `HataDurumu` or a not-found screen | PASS (Task 14 branch) | `HataDurumu` (`role="alert"`) with "Rapor bulunamadı: … kayıtlı değil." and "Geçmişe dön"; a missing ID has its own message |
+| R14-d | Detail screen in four languages; RTL for AR/FA | PASS (Task 14 branch) | Title, labels, test names, statuses and messages in EN/AR/FA checked; `dir="rtl"` for AR/FA. Tests now store Rust's `code`/`detail`; older reports keep their Turkish message. Rests on decision C-2 |
+| R14-e | Page tree in `docs/mimari-agac.md` updated | PASS (Task 14 branch) | §1 now covers `/gecmis?ara=&seviye=`, the back link and the not-found state |
 
 ### Task 15 — Rust command with typed result and error
 
@@ -218,7 +218,7 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled) and 10–13 follow it; Tasks 14–15 not started — P1, NC-14 |
+| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled) and 10–14 follow it; Task 15 not started — P1, NC-14 |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
 
 ## Conflicts requiring an instructor decision

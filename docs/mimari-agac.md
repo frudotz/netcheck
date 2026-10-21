@@ -10,22 +10,27 @@
 NetCheck
 ├── / (Genel Bakış)
 │   ├── Bağlantı durumu (HTTPS hızlı kontrol) ve 1.1.1.1 gecikmesi
-│   ├── Son Bağlantı Skoru → son rapora bağlantı
-│   ├── Ağ bilgileri: genel IP, IPv4, IPv6, gateway, DNS, hostname, bağlantı türü
-│   └── Etkin ağ arayüzleri
+│   ├── Son Bağlantı Skoru → son rapora kart bağlantısı
+│   ├── Ağ bilgileri kartları: genel IP, IPv4, IPv6, gateway, DNS, cihaz adı, bağlantı türü
+│   └── Etkin ağ arayüzleri (kart; yükleniyor / hata / boş halleri)
 │
 ├── /tanilama (Tanılama)
 │   ├── 5 sabit test: Gateway · 1.1.1.1 · 8.8.8.8 · DNS · HTTPS
 │   └── "Tanılamayı Başlat" → [Rust: run_diagnostic ×5, get_network_snapshot, generate_report_id]
 │
-├── /rapor?id=NCHK-… (Tanılama Raporu)
-│   └── Rust tarafından üretilen kimlik, skor, test sonuçları, ağ anlık görüntüsü
+├── /gecmis?ara=…&seviye=… (Geçmiş)
+│   ├── localStorage raporları: kart listesi; yükleniyor / hata / boş / dolu
+│   ├── Arama (kimlik, tarih) ve skor seviyesi süzgeci; ikisi adreste tutulur
+│   ├── Karta tıklama → /rapor?id=…
+│   └── Geçmişi temizle (onaylı)
 │
-├── /gecmis (Geçmiş)
-│   └── localStorage raporları, rapora git, geçmişi temizle
+├── /rapor?id=NCHK-… (Tanılama Raporu)
+│   ├── Rust tarafından üretilen kimlik, skor, test sonuçları, ağ anlık görüntüsü
+│   ├── "← Geçmiş": listeye arama ve süzgeçle döner
+│   └── Bilinmeyen ya da eksik kimlik → HataDurumu ("Rapor bulunamadı", "Geçmişe dön")
 │
 ├── /ayarlar (Ayarlar)
-│   └── Tema (Sistem / Gündüz / Gece), yerel veri, bilgi sayfası bağlantıları, uygulama bilgisi
+│   └── Tema (Sistem / Gündüz / Gece), uygulama dili (TR / EN / AR / FA), yerel veri, bilgi sayfası bağlantıları, uygulama bilgisi
 │
 └── Bilgi Sayfaları (TR kökte; EN/AR/FA dil önekiyle — AR/FA `dir="rtl"`)
     ├── /hakkinda  · /en/hakkinda  · /ar/hakkinda  · /fa/hakkinda   (MDX + React bileşeni)
@@ -34,7 +39,9 @@ NetCheck
     └── /gizlilik  · /en/gizlilik  · /ar/gizlilik  · /fa/gizlilik   (MDX)
 ```
 
-Toplam 21 rota: 5 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil).
+Toplam 21 rota: 5 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil). Uygulama ekranları tek rotada dört dilde çizilir (Ayarlar → dil).
+
+Rapor kimliği yol yerine sorgu dizesindedir (`/rapor?id=`): uygulama statik derlenir ve raporlar yalnız cihazda bulunduğu için `/rapor/NCHK-…` gibi kimlikli yollar önceden üretilemez; Tauri paketinde böyle bir yol 404 verir. Adres yine kimliği içerir, doğrudan açılabilir ve geri tuşu çalışır.
 
 Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş; tüm bilgi sayfaları → Ayarlar sekmesi etkin).
 
