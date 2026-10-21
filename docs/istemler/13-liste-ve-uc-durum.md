@@ -78,4 +78,4 @@ Görüntüler araç tarafından çalışan Windows uygulamasından alındı (420
 
 ## PR
 
-Bu günlüğü içeren PR'ın bağlantısı PR açıldıktan sonra eklenir.
+[#39](https://github.com/frudotz/netcheck/pull/39) (taban: #38'in dalı).
