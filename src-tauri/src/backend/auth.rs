@@ -218,6 +218,7 @@ pub fn set_status(conn: &Connection, id: i64, status: &str) -> AppResult<User> {
 mod tests {
     use super::*;
 
+    // @lat: [[tests#Local backend#Email validation]]
     #[test]
     fn email_checks() {
         assert!(valid_email("ad@ornek.com"));
@@ -226,6 +227,7 @@ mod tests {
         assert!(!valid_email("@x.com"));
     }
 
+    // @lat: [[tests#Local backend#Password hash roundtrip]]
     #[test]
     fn hash_roundtrip() {
         let h = hash_password("gizli-parola").unwrap();

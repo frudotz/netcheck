@@ -14,3 +14,6 @@ vite.config.ts.timestamp-*
 # Raw task drafts
 docs/tasks/**/raw/
 **/raw/
+.lat-build
+.claude
+.mcp.json

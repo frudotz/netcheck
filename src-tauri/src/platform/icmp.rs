@@ -174,6 +174,7 @@ mod packet {
     }
 }
 
+// @lat: [[networking#Ping backends#Darwin ICMP socket]]
 /// Darwin (iOS; birim testi macOS'ta) ayrıcalıksız ICMP datagram soketi — Apple'ın SimplePing örneğiyle
 /// aynı genel BSD soket API'si; özel API, yetki (entitlement) veya süreç başlatma yok.
 #[cfg(any(target_os = "ios", all(test, target_os = "macos")))]
@@ -225,6 +226,7 @@ mod imp {
 
     pub const BACKEND: Backend = Backend::IcmpSocket;
 
+    // @lat: [[networking#Ping backends#Android ICMP socket]]
     /// Her istek kendi soketini kullanır ve çekirdek her sokete ayrı ICMP kimliği atar; sıra no 1 yeterli
     /// (iputils `ping` gibi). Süreç genelinde artan sayaç, eşzamanlı isteklerde emülatör NAT'ında yanıt kaybına yol açtı.
     const SEQ: u16 = 1;
@@ -274,6 +276,7 @@ mod tests {
     use std::net::{IpAddr, Ipv4Addr};
     use std::time::Duration;
 
+    // @lat: [[tests#ICMP#Echo request checksum]]
     #[test]
     fn echo_request_has_valid_checksum() {
         let p = packet::echo_request(0x1234, 7, b"NetCheck");
@@ -283,6 +286,7 @@ mod tests {
         assert_eq!(packet::checksum(&p), 0, "checksum over a packet including its checksum must be 0");
     }
 
+    // @lat: [[tests#ICMP#Echo reply matching]]
     #[test]
     fn echo_reply_matching() {
         let mut reply = packet::echo_request(0, 9, b"NetCheck");
@@ -293,6 +297,7 @@ mod tests {
         assert!(!packet::is_echo_reply(&[0, 0, 0], 9));
     }
 
+    // @lat: [[tests#ICMP#Darwin reply with IP header]]
     #[test]
     fn darwin_reply_with_ip_header_matching() {
         let mut icmp = packet::echo_request(0xbeef, 1, b"NetCheck");
@@ -307,6 +312,7 @@ mod tests {
     }
 
     /// iOS ile aynı XNU çekirdek yolu macOS CI'da gerçek soketle denenir (geri döngü adresine eşzamanlı ping).
+    // @lat: [[tests#ICMP#Darwin concurrent loopback]]
     #[cfg(target_os = "macos")]
     #[test]
     fn darwin_icmp_socket_concurrent_loopback() {
@@ -319,12 +325,14 @@ mod tests {
         }
     }
 
+    // @lat: [[tests#ICMP#IPv6 targets are unsupported]]
     #[test]
     fn ipv6_targets_are_unsupported() {
         let r = echo(IpAddr::V6("2001:db8::1".parse().unwrap()), Duration::from_secs(1));
         assert_eq!(r, Err(EchoError::Unsupported));
     }
 
+    // @lat: [[tests#ICMP#Unroutable address fails cleanly]]
     #[cfg(desktop)]
     #[test]
     fn unroutable_address_fails_cleanly() {

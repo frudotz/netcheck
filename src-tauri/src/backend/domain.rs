@@ -367,6 +367,7 @@ mod tests {
         TestResult { id: id.into(), status: if ok { "success".into() } else { "failed".into() }, latency_ms: ms }
     }
 
+    // @lat: [[tests#Local backend#Score vectors]]
     #[test]
     fn score_vectors() {
         let all = vec![t("gateway", true, Some(3.0)), t("cloudflare", true, Some(18.0)), t("google", true, Some(21.0)), t("dns", true, Some(12.0)), t("internet", true, Some(96.0))];
@@ -379,6 +380,7 @@ mod tests {
         assert_eq!(compute_score(&only_internet, &rule()), 35);
     }
 
+    // @lat: [[tests#Local backend#Levels and report IDs]]
     #[test]
     fn levels_and_ids() {
         let r = rule();
@@ -390,6 +392,7 @@ mod tests {
         assert!(!is_report_id("nchk-2026-3F9A0C71"));
     }
 
+    // @lat: [[tests#Local backend#Rule validation and masking]]
     #[test]
     fn rule_validation_and_masking() {
         let mut r = rule();
