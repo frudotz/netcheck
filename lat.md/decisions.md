@@ -70,6 +70,6 @@ The SQLite backend from PR #31 is a separate, temporary layer meant to keep comm
 
 ## Turkish-first interface
 
-App screens stay Turkish; multilingual support is limited to the four information pages, where Arabic and Persian are RTL.
+Turkish is the default app language; the user can switch app screens to English, Arabic or Persian, and Arabic and Persian are RTL.
 
-This follows the course's Turkish-first rule in [[AGENTS.md]] and keeps translation scope small; see [[frontend#Localization]].
+Originally only the information pages were multilingual. Course Tasks 12–14 require switching the app language and four-language state and detail texts, and [[AGENTS.md]] treats task files as binding, so on 2026-10-21 the owner authorized an app language setting (conflict C-2 in [[docs/course-compliance.md]]; instructor confirmation pending). To keep the change small, only texts moved into the dictionary are translated; see [[frontend#Localization]].

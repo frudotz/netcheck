@@ -1,0 +1,215 @@
+// Uygulama ekranlarının metin sözlüğü (TR / EN / AR / FA). Türkçe kaynaktır; diğer diller aynı
+// anahtarları taşımak zorundadır (eksik anahtar `bun run check` ile yakalanır).
+// Yeni ya da değiştirilen her görünür metin buraya dört dilde eklenir (AGENTS.md § 4, "Dil").
+// Henüz taşınmamış eski metinler src/lib/labels.ts ve bileşenlerde Türkçe durur.
+import type { IcmpBackend, Locale, OsName, PlatformFamily } from "./types";
+
+const tr = {
+  // Kabuk: başlık ve menü
+  menuAna: "Ana menü",
+  menuGenelBakis: "Genel Bakış",
+  menuTanilama: "Tanılama",
+  menuGecmis: "Geçmiş",
+  menuAyarlar: "Ayarlar",
+  logoEtiketi: "NetCheck — Genel Bakış",
+  gunduzeGec: "Gündüz moduna geç",
+  geceyeGec: "Gece moduna geç",
+
+  // Ayarlar
+  ayarlarBaslik: "Ayarlar",
+  temaBaslik: "Tema",
+  temaSistem: "Sistem",
+  temaGunduz: "Gündüz",
+  temaGece: "Gece",
+  temaNot: "\"Sistem\" seçildiğinde işletim sisteminin açık/koyu teması izlenir.",
+  dilBaslik: "Dil",
+  dilNot: "Uygulama ekranlarının dili. Henüz çevrilmemiş metinler Türkçe görünür.",
+  yerelVeriBaslik: "Yerel Veri",
+  kayitliRapor: "Kayıtlı rapor",
+  depolama: "Depolama",
+  depolamaDeger: "Bu cihaz (localStorage)",
+  gecmisBaglantisi: "Geçmişi görüntüle / temizle →",
+  bilgiSayfalariBaslik: "Bilgi Sayfaları",
+  bilgiSayfalariNot: "Bilgi sayfaları Türkçe, English, العربية ve فارسی dillerinde sunulur.",
+  uygulamaBilgisiBaslik: "Uygulama Bilgisi",
+  uygulama: "Uygulama",
+  aciklama: "Açıklama",
+  aciklamaDeger: "Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması",
+  surum: "Sürüm",
+  calismaOrtami: "Çalışma ortamı",
+  pingYontemi: "Ping yöntemi",
+  ders: "Ders",
+  dersDeger: "İstinye Üniversitesi · MYO063 Mobil Programlama",
+  kaynakKod: "Kaynak kod (GitHub) ↗",
+  tarayiciOnizlemesi: "Tarayıcı önizlemesi",
+  bilinmiyor: "Bilinmiyor",
+  masaustuUygulamasi: "Masaüstü uygulaması",
+  mobilUygulama: "Mobil uygulama",
+  icmpApi: "Windows ICMP API",
+  icmpSistemPing: "Sistem ping komutu",
+  icmpSoket: "ICMP soketi (ayrıcalıksız)",
+  icmpYok: "Bu platformda kullanılamıyor",
+};
+
+export type Metinler = { [K in keyof typeof tr]: string };
+
+const en: Metinler = {
+  menuAna: "Main menu",
+  menuGenelBakis: "Overview",
+  menuTanilama: "Diagnostics",
+  menuGecmis: "History",
+  menuAyarlar: "Settings",
+  logoEtiketi: "NetCheck — Overview",
+  gunduzeGec: "Switch to light mode",
+  geceyeGec: "Switch to dark mode",
+
+  ayarlarBaslik: "Settings",
+  temaBaslik: "Theme",
+  temaSistem: "System",
+  temaGunduz: "Light",
+  temaGece: "Dark",
+  temaNot: "\"System\" follows the operating system's light or dark theme.",
+  dilBaslik: "Language",
+  dilNot: "Language of the app screens. Texts not yet translated appear in Turkish.",
+  yerelVeriBaslik: "Local Data",
+  kayitliRapor: "Saved reports",
+  depolama: "Storage",
+  depolamaDeger: "This device (localStorage)",
+  gecmisBaglantisi: "View / clear history →",
+  bilgiSayfalariBaslik: "Information Pages",
+  bilgiSayfalariNot: "Information pages are available in Türkçe, English, العربية and فارسی.",
+  uygulamaBilgisiBaslik: "About the App",
+  uygulama: "App",
+  aciklama: "Description",
+  aciklamaDeger: "Local Network Diagnostics and Connection Analysis App",
+  surum: "Version",
+  calismaOrtami: "Environment",
+  pingYontemi: "Ping method",
+  ders: "Course",
+  dersDeger: "İstinye University · MYO063 Mobile Programming",
+  kaynakKod: "Source code (GitHub) ↗",
+  tarayiciOnizlemesi: "Browser preview",
+  bilinmiyor: "Unknown",
+  masaustuUygulamasi: "Desktop app",
+  mobilUygulama: "Mobile app",
+  icmpApi: "Windows ICMP API",
+  icmpSistemPing: "System ping command",
+  icmpSoket: "ICMP socket (unprivileged)",
+  icmpYok: "Not available on this platform",
+};
+
+const ar: Metinler = {
+  menuAna: "القائمة الرئيسية",
+  menuGenelBakis: "نظرة عامة",
+  menuTanilama: "التشخيص",
+  menuGecmis: "السجل",
+  menuAyarlar: "الإعدادات",
+  logoEtiketi: "NetCheck — نظرة عامة",
+  gunduzeGec: "التبديل إلى الوضع الفاتح",
+  geceyeGec: "التبديل إلى الوضع الداكن",
+
+  ayarlarBaslik: "الإعدادات",
+  temaBaslik: "المظهر",
+  temaSistem: "النظام",
+  temaGunduz: "فاتح",
+  temaGece: "داكن",
+  temaNot: "عند اختيار \"النظام\" يُتَّبع المظهر الفاتح أو الداكن لنظام التشغيل.",
+  dilBaslik: "اللغة",
+  dilNot: "لغة شاشات التطبيق. النصوص التي لم تُترجم بعد تظهر بالتركية.",
+  yerelVeriBaslik: "البيانات المحلية",
+  kayitliRapor: "التقارير المحفوظة",
+  depolama: "التخزين",
+  depolamaDeger: "هذا الجهاز (localStorage)",
+  gecmisBaglantisi: "عرض السجل / مسحه ←",
+  bilgiSayfalariBaslik: "صفحات المعلومات",
+  bilgiSayfalariNot: "صفحات المعلومات متاحة باللغات Türkçe وEnglish والعربية وفارسی.",
+  uygulamaBilgisiBaslik: "معلومات التطبيق",
+  uygulama: "التطبيق",
+  aciklama: "الوصف",
+  aciklamaDeger: "تطبيق لتشخيص الشبكة المحلية وتحليل الاتصال",
+  surum: "الإصدار",
+  calismaOrtami: "بيئة التشغيل",
+  pingYontemi: "طريقة ping",
+  ders: "المقرر",
+  dersDeger: "جامعة إستينيه · MYO063 برمجة الأجهزة المحمولة",
+  kaynakKod: "الشيفرة المصدرية (GitHub) ↗",
+  tarayiciOnizlemesi: "معاينة المتصفح",
+  bilinmiyor: "غير معروف",
+  masaustuUygulamasi: "تطبيق سطح المكتب",
+  mobilUygulama: "تطبيق الجوال",
+  icmpApi: "Windows ICMP API",
+  icmpSistemPing: "أمر ping في النظام",
+  icmpSoket: "مقبس ICMP (دون صلاحيات خاصة)",
+  icmpYok: "غير متاح على هذه المنصة",
+};
+
+const fa: Metinler = {
+  menuAna: "منوی اصلی",
+  menuGenelBakis: "نمای کلی",
+  menuTanilama: "عیب‌یابی",
+  menuGecmis: "تاریخچه",
+  menuAyarlar: "تنظیمات",
+  logoEtiketi: "NetCheck — نمای کلی",
+  gunduzeGec: "رفتن به حالت روشن",
+  geceyeGec: "رفتن به حالت تیره",
+
+  ayarlarBaslik: "تنظیمات",
+  temaBaslik: "پوسته",
+  temaSistem: "سیستم",
+  temaGunduz: "روشن",
+  temaGece: "تیره",
+  temaNot: "با انتخاب «سیستم»، پوستهٔ روشن یا تیرهٔ سیستم‌عامل دنبال می‌شود.",
+  dilBaslik: "زبان",
+  dilNot: "زبان صفحه‌های برنامه. متن‌هایی که هنوز ترجمه نشده‌اند به ترکی نمایش داده می‌شوند.",
+  yerelVeriBaslik: "داده‌های محلی",
+  kayitliRapor: "گزارش‌های ذخیره‌شده",
+  depolama: "ذخیره‌سازی",
+  depolamaDeger: "همین دستگاه (localStorage)",
+  gecmisBaglantisi: "مشاهده / پاک کردن تاریخچه ←",
+  bilgiSayfalariBaslik: "صفحات اطلاعات",
+  bilgiSayfalariNot: "صفحات اطلاعات به زبان‌های Türkçe، English، العربية و فارسی در دسترس است.",
+  uygulamaBilgisiBaslik: "اطلاعات برنامه",
+  uygulama: "برنامه",
+  aciklama: "توضیحات",
+  aciklamaDeger: "برنامهٔ عیب‌یابی شبکهٔ محلی و تحلیل اتصال",
+  surum: "نسخه",
+  calismaOrtami: "محیط اجرا",
+  pingYontemi: "روش پینگ",
+  ders: "درس",
+  dersDeger: "دانشگاه استینیه · MYO063 برنامه‌نویسی موبایل",
+  kaynakKod: "کد منبع (GitHub) ↗",
+  tarayiciOnizlemesi: "پیش‌نمایش مرورگر",
+  bilinmiyor: "نامشخص",
+  masaustuUygulamasi: "برنامهٔ دسکتاپ",
+  mobilUygulama: "برنامهٔ موبایل",
+  icmpApi: "Windows ICMP API",
+  icmpSistemPing: "فرمان ping سیستم",
+  icmpSoket: "سوکت ICMP (بدون دسترسی ویژه)",
+  icmpYok: "در این پلتفرم در دسترس نیست",
+};
+
+export const sozluk: Record<Locale, Metinler> = { tr, en, ar, fa };
+
+const isletimSistemi: Record<OsName, string> = {
+  windows: "Windows",
+  macos: "macOS",
+  linux: "Linux",
+  android: "Android",
+  ios: "iOS",
+};
+
+/** Ör. "Masaüstü uygulaması · Windows". */
+export function platformEtiketi(m: Metinler, family: PlatformFamily, os: OsName): string {
+  const aile = family === "mobile" ? m.mobilUygulama : m.masaustuUygulamasi;
+  return `${aile} · ${isletimSistemi[os] ?? os}`;
+}
+
+export function icmpEtiketi(m: Metinler, icmp: IcmpBackend): string {
+  const etiket: Record<IcmpBackend, string> = {
+    "icmp-api": m.icmpApi,
+    "system-ping": m.icmpSistemPing,
+    "icmp-socket": m.icmpSoket,
+    unavailable: m.icmpYok,
+  };
+  return etiket[icmp];
+}

@@ -6,6 +6,7 @@ Her görev için yapay zeka aracına ne istendiğinin, aracın ne önerdiğinin,
 
 - Her görev için tek dosya: `NN-kisa-ad.md`. `NN` görev numarasıdır, `kisa-ad` görev dalının son parçasıdır: `feature/10-calisma-yontemi` → `10-calisma-yontemi.md`.
 - Alt görevlerde nokta yerine tire: Görev 09.1 → `09-1-master-korumasi.md`.
+- Numarası olmayan bir iş (ör. bir göreve hazırlık) dal adının son parçasıyla kaydedilir: `feature/uygulama-dili` → `uygulama-dili.md`.
 - Dosya, görev dalında açılır ve aynı PR ile birleşir. Aynı görevde yeni bir istem verilirse yeni dosya açılmaz, aynı dosyaya eklenir.
 
 ## Bölümler
@@ -33,3 +34,4 @@ Her günlük bu sırayla şu başlıkları taşır:
 | 09.1 Master dalını koruma | [`09-1-master-korumasi.md`](09-1-master-korumasi.md) |
 | 10 Çalışma yöntemi | [`10-calisma-yontemi.md`](10-calisma-yontemi.md) |
 | 11 Veri sözleşmesi | [`11-veri-sozlesmesi.md`](11-veri-sozlesmesi.md) |
+| Uygulama dili (Görev 12–14 hazırlığı, karar C-2) | [`uygulama-dili.md`](uygulama-dili.md) |

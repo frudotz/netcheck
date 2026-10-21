@@ -1,6 +1,7 @@
 <script lang="ts">
   // Alt menü navigasyonu — NetCheck ana bölümleri
   import { onMount } from "svelte";
+  import { dil } from "$lib/dil.svelte";
 
   let { currentPath = "/" }: { currentPath?: string } = $props();
 
@@ -8,12 +9,12 @@
   let navPath = $state<string | null>(null);
   const yol = $derived(navPath ?? currentPath);
 
-  const menu = [
-    { href: "/", ad: "Genel Bakış", ikon: "M3 12h4l3-8 4 16 3-8h4", ek: [] as string[] },
-    { href: "/tanilama", ad: "Tanılama", ikon: "M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z", ek: ["M7.5 10.5h2l1-2 2 4 1-2h1"] },
-    { href: "/gecmis", ad: "Geçmiş", ikon: "M3 12a9 9 0 1 0 3-6.7L3 8", ek: ["M3 3v5h5", "M12 7v5l3 2"] },
-    { href: "/ayarlar", ad: "Ayarlar", ikon: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0", ek: ["M16 4v4", "M10 10v4", "M18 16v4"] },
-  ];
+  const menu = $derived([
+    { href: "/", ad: dil.metin.menuGenelBakis, ikon: "M3 12h4l3-8 4 16 3-8h4", ek: [] as string[] },
+    { href: "/tanilama", ad: dil.metin.menuTanilama, ikon: "M21 21l-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z", ek: ["M7.5 10.5h2l1-2 2 4 1-2h1"] },
+    { href: "/gecmis", ad: dil.metin.menuGecmis, ikon: "M3 12a9 9 0 1 0 3-6.7L3 8", ek: ["M3 3v5h5", "M12 7v5l3 2"] },
+    { href: "/ayarlar", ad: dil.metin.menuAyarlar, ikon: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0", ek: ["M16 4v4", "M10 10v4", "M18 16v4"] },
+  ]);
 
   // Rapor detayı Geçmiş'in; bilgi sayfaları (tüm dillerde) Ayarlar'ın parçasıdır.
   const BILGI_SAYFASI = /^(\/(en|ar|fa))?\/(hakkinda|iletisim|kosullar|gizlilik)(\/|$)/;
@@ -39,7 +40,7 @@
   });
 </script>
 
-<nav class="alt-menu" aria-label="Ana menü">
+<nav class="alt-menu" aria-label={dil.metin.menuAna}>
   {#each menu as m (m.href)}
     <a href={m.href} class:aktif={aktif(m.href, yol)} aria-current={aktif(m.href, yol) ? "page" : undefined}>
       <svg viewBox="0 0 24 24" aria-hidden="true">
