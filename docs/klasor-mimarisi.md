@@ -31,7 +31,8 @@ netcheck/
 │   ├── pages/               # Dosya tabanlı rota sistemi (URL rotaları: .astro, .mdx)
 │   ├── components/          # Yeniden kullanılabilir UI bileşenleri (.svelte, .tsx)
 │   ├── lib/                 # İş mantığı, Rust IPC sarmalayıcıları, Svelte 5 store'ları ($state)
-│   ├── types/               # TypeScript tip tanımları ve arayüzler (.ts)
+│   │   ├── types/           # Veri sözleşmesi: TypeScript tipleri (.ts)
+│   │   └── veri/            # Görev 11 örnek verisi (ekranlar kullanmaz)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)
 │
 └── docs/                    # Proje dokümantasyonu, görevler ve mimari rehberler
@@ -69,8 +70,9 @@ netcheck/
 - **Ne konur?** Svelte 5 `$state` store'ları (`diagnostics`, `reports`, `tema`), Rust `invoke` sarmalayıcıları (`native.ts`), skor hesabı (`score.ts`) ve Türkçe metinler (`labels.ts`).
 - **Nasıl import edilir?** `$lib/native` veya `$lib/reports.svelte` şeklinde alias ile çağrılır.
 
-### 8. `src/types/` (Tip Tanımları)
-- **Ne konur?** TypeScript veri modelleri (`netcheck.ts`: `NetworkSnapshot`, `DiagnosticTest`, `DiagnosticReport`). Rust serde yapılarıyla birebir eşleşir.
+### 8. `src/lib/types/` ve `src/lib/veri/` (Veri Sözleşmesi)
+- **`src/lib/types/`:** TypeScript veri tipleri, her ana tip ayrı dosyada (`network.ts`, `diagnostic.ts`, `report.ts`, `platform.ts`, `preferences.ts`); `index.ts` hepsini dışa aktarır ve `$lib/types` ile içe aktarılır. Rust serde yapılarıyla birebir eşleşir. Alan tabloları: [`docs/veri-modeli.md`](veri-modeli.md).
+- **`src/lib/veri/`:** Görev 11 örnek verisi (`ornek.ts`). Yalnız tip örneğidir; hiçbir ekran içe aktarmaz.
 
 ### 9. `src/styles/` (Tasarım ve Stiller)
 - **Ne konur?** `app.css` ve tema tanımları.

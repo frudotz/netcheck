@@ -43,4 +43,4 @@ One shell and one set of pages adapt to phone, tablet, desktop, and TV by availa
 
 `bun run dev` serves the UI without Tauri for layout work only; every IPC call fails with [[src/lib/native.ts#NativeUnavailableError]] and screens say so.
 
-[[src/lib/native.ts#hasNative]] gates calls. No mock data ships in the repository; layout matrices in PR #30 replayed a real snapshot through a test harness that is not committed.
+[[src/lib/native.ts#hasNative]] gates calls. No screen uses mock data: the only sample records ([[src/lib/veri/ornek.ts]]) exist for the Task 11 type contract, and layout matrices in PR #30 replayed a real snapshot through a test harness that is not committed.

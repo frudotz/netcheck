@@ -13,6 +13,8 @@ The UI uses exactly four Tauri commands, wrapped in [[src/lib/native.ts]]; their
 - `generate_report_id` returns `NCHK-YYYY-XXXXXXXX` from [[src-tauri/src/report_id.rs#generate]] (see [[decisions#Report IDs come from Rust]]).
 - `get_platform_info` returns `{ os, family, icmp }` from [[src-tauri/src/platform/mod.rs#info]] so Settings can show the real platform and ping method.
 
+The TypeScript side of these payloads is the data contract in [[src/lib/types/index.ts]], one file per main type, with field tables in [[docs/veri-modeli.md]]. Rust's outcome codes are a closed union ([[src/lib/types/diagnostic.ts#DiagnosticCode]]), so a new code must be added to the contract before the UI can show it.
+
 Snapshot and diagnostics are blocking system calls, so they run on `spawn_blocking` instead of the async runtime thread. The command list is registered in [[src-tauri/src/lib.rs#run]], which also registers the backend commands described in [[architecture#Local SQLite backend]].
 
 ## Frontend structure

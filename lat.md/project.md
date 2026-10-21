@@ -24,7 +24,7 @@ Out of scope, per [[AGENTS.md]]: login/registration in the app, server/API, clou
 
 These rules apply to every change and are the main review criteria for features.
 
-- **No fake data.** Outside Tauri, IPC calls throw [[src/lib/native.ts#NativeUnavailableError]] and the UI says data is only available in the app. Missing values render as "Kullanılamıyor" or [[src/lib/labels.ts#NOT_FOUND]] ("Bulunamadı"), never as invented values.
+- **No fake data.** Outside Tauri, IPC calls throw [[src/lib/native.ts#NativeUnavailableError]] and the UI says data is only available in the app. Missing values render as "Kullanılamıyor" or [[src/lib/labels.ts#NOT_FOUND]] ("Bulunamadı"), never as invented values. The Task 11 sample records in [[src/lib/veri/ornek.ts]] only illustrate the types: they use documentation address ranges and no screen, store or command imports them.
 - **Fixed targets.** Diagnostic targets live in Rust; the frontend only sends a [[src-tauri/src/diagnostics.rs#DiagnosticKind]]. User input never reaches a shell, PowerShell, CMD, or any spawned process.
 - **Least privilege.** Tauri capabilities stay at `core:default` and `opener:default`; Android requests only `INTERNET` and `ACCESS_NETWORK_STATE`.
 - **Honest capability reporting.** A platform that cannot do something reports it as unavailable; another check is never relabeled as ICMP (see [[decisions#Real ICMP or nothing]]).

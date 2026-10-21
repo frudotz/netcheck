@@ -1,7 +1,7 @@
 <script lang="ts">
   // İletişim formu (görev 06) — gönderim sonrası bildirim + temizleme.
   // NetCheck'in sunucusu yoktur: mesaj hiçbir yere gönderilmez ve saklanmaz (bildirimde açıkça belirtilir).
-  import type { Locale } from "$lib/i18n";
+  import type { Locale } from "$lib/types";
 
   let { lang = "tr" }: { lang?: Locale } = $props();
 

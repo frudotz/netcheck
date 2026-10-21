@@ -1,8 +1,7 @@
 // Bilgi sayfaları için dil tanımları (görev 06: TR / EN / AR / FA).
 // Uygulama ekranları Türkçedir; yalnızca bilgi sayfaları çok dillidir.
 
-export type Locale = "tr" | "en" | "ar" | "fa";
-export type InfoSlug = "hakkinda" | "iletisim" | "kosullar" | "gizlilik";
+import type { InfoSlug, Locale } from "./types";
 
 export const LOCALES: Locale[] = ["tr", "en", "ar", "fa"];
 

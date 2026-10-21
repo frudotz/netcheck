@@ -1,6 +1,6 @@
 <script lang="ts">
   // Tanılama test durumu rozeti
-  import type { DiagnosticStatus } from "../types/netcheck";
+  import type { DiagnosticStatus } from "$lib/types";
   import { statusLabel } from "$lib/labels";
 
   let { status }: { status: DiagnosticStatus } = $props();

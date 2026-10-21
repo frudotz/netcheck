@@ -32,16 +32,7 @@ Akış: Genel Bakış → Tanılama → Tanılama Raporu → Geçmiş.
 
 ## 4. Veri Modeli
 
-Tanımlar: [`src/types/netcheck.ts`](../src/types/netcheck.ts) (TypeScript) ↔ `src-tauri/src/*.rs` (Rust, serde `camelCase`).
-
-| Model | Alanlar | Kaynak |
-|---|---|---|
-| `NetworkSnapshot` | `hostname?`, `localIPv4?`, `localIPv6?`, `gateway?`, `dnsServers[]`, `connectionType` (`ethernet`/`wifi`/`cellular`/`unknown`), `interfaceName?`, `interfaces[]` | Rust `get_network_snapshot` |
-| `NetworkInterface` | `name`, `ipv4?`, `ipv6?`, `mac?`, `type`, `isUp`, `isDefault` | Rust |
-| `DiagnosticTest` | `id`, `name`, `target?`, `status`, `latencyMs?`, `message?` | Rust `run_diagnostic` sonucu + Türkçe mesaj |
-| `DiagnosticReport` | `id`, `createdAt`, `score`, `passed`, `failed`, `network`, `tests[]` | Ön yüz birleştirir; `id` Rust'tan |
-
-Raporlar `localStorage` içinde `netcheck.reports` anahtarıyla saklanır (en fazla 50).
+Üç ana model: ağ durumu (`NetworkSnapshot`), test sonucu (`DiagnosticTest`) ve ikisini birleştiren rapor (`DiagnosticReport`). Raporlar yalnız cihazda saklanır. Alan tabloları, ilişkiler ve sabit seçenek listeleri tek kaynakta: [`docs/veri-modeli.md`](veri-modeli.md). Tipler: [`src/lib/types/`](../src/lib/types/index.ts) (TypeScript) ↔ `src-tauri/src/*.rs` (Rust, serde `camelCase`).
 
 **Bağlantı Skoru** ([`src/lib/score.ts`](../src/lib/score.ts)): İnternet 35 + DNS 20 + Gateway 15 + 1.1.1.1 10 + 8.8.8.8 10 + gecikme bonusu en fazla 10 (<50 ms: 10, <100 ms: 7, <200 ms: 4, diğer: 1). Temel tanılama sonuçlarına göre hesaplanan basit bir değerlendirmedir; profesyonel bir ağ kalitesi ölçümü değildir.
 
