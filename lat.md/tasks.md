@@ -65,9 +65,9 @@ Three Week 4 requirements contradict binding project rules and need an instructo
 
 ### NC-17 Documentation index completeness
 
-The AGENTS.md documentation index no longer lists every `docs/*.md`: [[docs/backend.md]] from PR #31 is missing, a Task 08 regression.
+The AGENTS.md documentation index must list every `docs/*.md`; [[docs/backend.md]] from PR #31 was missing, a Task 08 regression.
 
-- Priority P1 · Status `planned` · Depends on: none.
+- Priority P1 · Status `in progress` · Evidence: the row is added on the PR #33 branch; the task is done when PR #33 merges.
 - Acceptance: every top-level `docs/*.md` appears in the AGENTS.md index with a working link (row R08-a).
 
 ### NC-14 Week 04 course tasks
@@ -115,9 +115,11 @@ Add tests that open the in-memory database, because migrations, RBAC, and CRUD c
 
 ### NC-10 Documentation consistency
 
-Repository documents contradict each other on iOS status and on whether the app has a database.
+Repository documents contradict each other on platform run status and on whether the app has a database.
 
-- Priority P2 · Status `planned` · Depends on: none.
+- Priority P2 · Status `in progress` · Depends on: [[tasks#Open work#NC-16 Conflicting course requirements]] for the database sentence.
+- Done on the PR #33 branch: iOS status in [[README.md]], [[docs/proje-fikri.md]], [[docs/klasor-mimarisi.md]] and the four Hakkında pages now matches [[platforms#iOS]]: simulator build, physical iPhone not verified.
+- Still open: README and Hakkında say macOS was never run as an app, although PR #28 recorded a debug `.app` launch. README also says there is no database.
 - Acceptance: [[README.md]], [[docs/proje-fikri.md]], [[docs/klasor-mimarisi.md]], and the four Hakkında pages match [[platforms#Support matrix]]. README's "no database" sentence reflects the unused SQLite backend, and [[docs/backend.md]] §8 matches the actual tests.
 
 ### NC-18 Ad-hoc colors and template leftovers

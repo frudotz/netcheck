@@ -72,4 +72,4 @@ Cross-platform limitations that are inherent to the design or not yet addressed.
 - IPv6 ping targets are unsupported on all backends ([[networking#Ping backends]]).
 - iOS DNS server discovery depends on `/etc/resolv.conf` ([[decisions#netdev features per target]]).
 - The SQLite backend runs migrations at startup on mobile without any recorded runtime check ([[architecture#Local SQLite backend]]).
-- Repository documents disagree on iOS status: [[README.md]], [[docs/proje-fikri.md]], [[docs/klasor-mimarisi.md]], and the Hakkında pages still call iOS planned or say it has no ping, while [[docs/mimari-agac.md]] records the simulator build ([[tasks#Open work#NC-10 Documentation consistency]]).
+- [[README.md]] and the Hakkında pages say macOS was never run as an app, while PR #28 records a debug `.app` launch ([[tasks#Open work#NC-10 Documentation consistency]]).

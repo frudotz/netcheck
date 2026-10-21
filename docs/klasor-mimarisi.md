@@ -22,6 +22,7 @@ netcheck/
 ├── src-tauri/               # Rust Tauri çekirdeği (Pencere, yetkiler, native komutlar)
 │   ├── tauri.conf.json      # Masaüstü/mobil pencere ayarları ve frontendDist hedefi
 │   ├── gen/android/         # Tauri Android projesi (Gradle, AndroidManifest, MainActivity)
+│   ├── gen/apple/           # Tauri iOS projesi (Xcode projesi, Info.plist; imzalama ayarları depoya girmez)
 │   ├── Cargo.toml           # Rust kütüphaneleri ve bağımlılıkları
 │   └── src/                 # lib.rs (komut kaydı), platformdan bağımsız modüller + platform/ (OS'e özgü kod)
 │
@@ -49,7 +50,7 @@ netcheck/
 - **Nasıl kullanılır?** Kod içinde `/logo.svg` veya `/favicon.png` şeklinde kök dizinden çağrılır.
 
 ### 3. `src-tauri/` (Native Çekirdek)
-- **Ne konur?** Rust backend kodları (`src/lib.rs` komut kaydı; platformdan bağımsız `network.rs`, `diagnostics.rs`, `report_id.rs`; işletim sistemine göre değişen her şey `src/platform/` altında — ör. `platform/icmp.rs`: Windows `IcmpSendEcho`, macOS/Linux sistem `ping`, Android ayrıcalıksız ICMP soketi, iOS henüz yok), Cargo paketleri (`Cargo.toml`), izinler (`capabilities/`) ve pencere ayarları (`tauri.conf.json`).
+- **Ne konur?** Rust backend kodları (`src/lib.rs` komut kaydı; platformdan bağımsız `network.rs`, `diagnostics.rs`, `report_id.rs`; işletim sistemine göre değişen her şey `src/platform/` altında — ör. `platform/icmp.rs`: Windows `IcmpSendEcho`, macOS/Linux sistem `ping`, Android ayrıcalıksız ICMP soketi, iOS Darwin ICMP datagram soketi), Cargo paketleri (`Cargo.toml`), izinler (`capabilities/`) ve pencere ayarları (`tauri.conf.json`).
 - **Ne zaman kullanılır?** İşletim sistemiyle konuşan native kodlar (ağ arayüzleri, ping, DNS, HTTPS testi, rapor kimliği) yazılırken. Test hedefleri burada sabittir; ön yüzden komuta serbest girdi aktarılmaz.
 
 ### 4. `src/layouts/` (Sayfa İskeletleri)

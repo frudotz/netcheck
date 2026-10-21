@@ -2,7 +2,7 @@
 
 Traceable audit of every instructor requirement in [`docs/tasks/`](tasks/) and the instructor evaluation [`docs/k1/01.review.md`](k1/01.review.md), checked against the repository, GitHub settings and CI. It is not a statement of grades.
 
-- **Audited state:** `origin/master` at `dbe4c91` (2026-10-21), GitHub repository settings read through the API on the same day, and CI on PR #33.
+- **Audited state:** `origin/master` at `dbe4c91` (2026-10-21), plus the documentation fixes in PR #33 (marked "fixed in PR #33"). GitHub repository settings were read through the API on the same day and re-read before the final update; they were unchanged.
 - **Sources:** the 18 files in [`docs/tasks/week-3/`](tasks/week-3/) and [`docs/tasks/week-4/`](tasks/week-4/), plus [`docs/k1/01.review.md`](k1/01.review.md).
 - **Not found:** `hoca-raporu.md` is not in this repository, its Git history, any fetched branch, the upstream `keyvanarasteh/hello-mobil` repository, GitHub PRs, or local folders. This matrix does not reconstruct it. The instructor-authored evaluation that does exist is `docs/k1/01.review.md` (Batch 01: 107/108 at `9992001`).
 - **Method:** each row was checked directly in code, files, Git, the GitHub API or CI output. A row marked "instructor-verified" relies on `01.review.md` because it cannot be checked from the repository; it was re-checked where possible.
@@ -22,11 +22,11 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
-| Week 3 — Batch 01 (Tasks 01–09) | 36 | 7 | 1 | 2 | 46 |
+| Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
 | Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 9 | 13 | 26 | 1 | 49 |
-| **All** | **45** | **20** | **27** | **3** | **95** |
+| **All** | **46** | **20** | **26** | **3** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Since then there are two regressions: an incomplete documentation index and stale platform statements. Batch 02 work has not started, and its prerequisite (Task 09.1) is misconfigured: `master` does not require a pull request.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02 work has not started, and its prerequisite (Task 09.1) is misconfigured: `master` does not require a pull request.
 
 ## Week 3 — Batch 01
 
@@ -66,7 +66,7 @@ Batch 01 is essentially complete. The only instructor deduction, a direct commit
 | R03-e | License link, student name and number, instructor info | PASS | `README.md` "Akademik Bilgiler", "Lisans" |
 | R03-f | Student details correct | UNVERIFIED | `README.md` shows the section as "Şube 1" twice; this value has never been confirmed. **Missing:** student confirms or corrects it — P2 |
 | R03-g | No copied folder tree; links to `docs/klasor-mimarisi.md` | PASS | Instructor-verified; README links the document |
-| R03-h | Technology and feature sections match the app | PARTIAL | README still says iOS is "planned" (an iOS simulator build exists, PR #28) and "veritabanı yoktur" (the SQLite backend from #31 is compiled in, but no screen uses it). **Missing:** NC-10 |
+| R03-h | Technology and feature sections match the app | PARTIAL | iOS status fixed in PR #33: simulator build and launch, physical iPhone not verified (PR #28). Still open: README says macOS was never run as an app, but PR #28 records a debug `.app` launch. It also says "veritabanı yoktur", while the SQLite backend from #31 is compiled in (decision C-3). **Missing:** NC-10 |
 
 ### Task 04 — AGENTS.md, CLAUDE.md, GEMINI.md
 
@@ -96,8 +96,8 @@ Batch 01 is essentially complete. The only instructor deduction, a direct commit
 | R06-b | İletişim: Svelte form with simulated "sent" notice and reset | PASS | `src/components/IletisimFormu.svelte` (`gonder` sets the notice and clears the fields) |
 | R06-c | Koşullar and Gizlilik in MDX; localStorage and KVKK notice | PASS | All four languages mention localStorage and KVKK; terms pages state it is a course project |
 | R06-d | Every page in TR/EN/AR/FA; AR/FA `dir="rtl"`; all build | PASS | 16 routes built in `dist/`; `dir="rtl"` present in the built AR/FA pages |
-| R06-e | Reachable from navigation or settings | PASS | `src/components/AppNav.svelte`, `src/components/Settings.svelte` |
-| R06-f | Content accurate | PARTIAL | All four Hakkında pages call iOS a planned platform. **Missing:** NC-10 |
+| R06-e | Reachable from navigation or settings | PASS | `src/components/Settings.svelte` links all four pages; `src/components/AppNav.svelte` keeps the Ayarlar tab active on them |
+| R06-f | Content accurate | PARTIAL | iOS sentence fixed in all four languages in PR #33. Still open: the pages say macOS was never run as an app (PR #28 records a debug `.app` launch). **Missing:** NC-10 |
 
 ### Task 07 — Architecture tree
 
@@ -112,7 +112,7 @@ Batch 01 is essentially complete. The only instructor deduction, a direct commit
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R08-a | Every `docs/*.md` listed in the AGENTS.md index | FAIL (regression) | [`docs/backend.md`](backend.md), added by PR #31, is not listed. **Missing:** add the row — P1, NC-17 |
+| R08-a | Every `docs/*.md` listed in the AGENTS.md index | PASS (fixed in PR #33) | [`docs/backend.md`](backend.md) (from PR #31) and this document are now listed; all 11 top-level `docs/*.md` are indexed |
 | R08-b | Commands work; no stale or copied information | PARTIAL | Commands verified (`bun run build`). AGENTS.md §6 lists "giriş/kayıt, sunucu/API, veritabanı" as out of scope, yet `master` contains the SQLite and auth backend (PR #31, instructor-authored). **Missing:** decision C-3 |
 | R08-c | Single-source rule; no colors in AGENTS.md | PASS | 0 hex values in AGENTS.md |
 | R08-d | Agent compliance test (one color task, one page task) | PASS | [`docs/agent-compliance-test.md`](agent-compliance-test.md) Tests A and B (PR #20) |
@@ -242,8 +242,8 @@ Ordered by priority. Nothing in this plan is implemented by this audit.
    - Then, on a `docs/` branch, add the "PR güvenliği" section to `docs/kurallar.md` with a link from AGENTS.md, and add `docs/kanit/master-korumasi.png`.
    - **Acceptance:** every 09.1 checklist item is ticked with evidence.
 2. **P1 — Decisions C-1 to C-3 (NC-16).** **Acceptance:** each decision is recorded in AGENTS.md, which is the single source for rules.
-3. **P1 — Documentation index (NC-17).** Add `docs/backend.md` to the AGENTS.md index. **Acceptance:** every `docs/*.md` is listed.
+3. **Done in PR #33 — Documentation index (NC-17).** `docs/backend.md` added to the AGENTS.md index.
 4. **P1 — Tasks 10 → 15 in order (NC-14).** One `feature/NN-*` branch, PR and `docs/istemler/` log per task. Run each task's own audit prompt first and implement only the PARTIAL and FAIL rows above. **Acceptance:** each task's "Görev bittiğinde repoda ne olacak" list and checklist are met, with `bun run build` at 0 errors.
-5. **P2 — Accuracy and hygiene.** Platform and scope statements in README, `proje-fikri`, `klasor-mimarisi` and Hakkında (NC-10). Confirm "Şube" (R03-f). Ad-hoc colors and the unused `src/app.css` (R05-f, NC-18). AI-task section in the descriptions of PRs #28–#30 (R01.2-c).
+5. **P2 — Accuracy and hygiene.** iOS statements were fixed in PR #33. Still open: the macOS run status in README and Hakkında, and the README "no database" sentence after decision C-3 (NC-10). Confirm "Şube" (R03-f). Ad-hoc colors and the unused `src/app.css` (R05-f, NC-18). AI-task section in the descriptions of PRs #28–#30 (R01.2-c).
 
 Related current-state descriptions: [`lat.md/project.md`](../lat.md/project.md) (scope and rules), [`lat.md/architecture.md`](../lat.md/architecture.md) (IPC contract, SQLite backend), [`lat.md/platforms.md`](../lat.md/platforms.md) (evidence levels), [`lat.md/workflows.md`](../lat.md/workflows.md) (Git and CI rules).
