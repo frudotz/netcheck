@@ -39,11 +39,12 @@ Work that is planned, blocked, or in progress, highest priority first.
 
 ### NC-15 Master protection ruleset
 
-Course task 09.1 is misconfigured: the active "Protectmaster" ruleset blocks deletion and force-push on all branches but does not require a pull request.
+Course task 09.1: the "Protectmaster" ruleset protects only the default branch with PR, status-check, deletion and force-push rules.
 
-- Priority P0 · Status `planned` · Depends on: the repository owner changing GitHub settings (not a code change).
-- Evidence: rows R09.1-a to R09.1-k in [[docs/course-compliance.md]]. Head branches are not deleted automatically, fork workflows need approval only for first-time contributors, and the "PR güvenliği" section and screenshot are missing.
-- Acceptance: every Task 09.1 checklist item is met, and a direct push to `master` is rejected in the self-test.
+- Priority P0 · Status `in progress` · Depends on: merging the Task 09.1 PR; the settings themselves were fixed by the owner on 2026-10-21.
+- Evidence: rows R09.1-a to R09.1-k in [[docs/course-compliance.md]]. The "PR güvenliği" section of [[docs/kurallar.md]] records the configuration read from the GitHub API, with [[docs/kanit/master-korumasi.png]] as the screenshot.
+- Open: the direct-push self-test (R09.1-d) was deliberately not performed; the configuration is the evidence.
+- Acceptance: every Task 09.1 checklist item is met; the self-test result is recorded if the owner runs it.
 
 ### NC-05 Physical iPhone validation
 

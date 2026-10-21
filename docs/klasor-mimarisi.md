@@ -77,7 +77,7 @@ netcheck/
 - **Kural:** Renkler CSS değişkeni (`--renk-ana`, `--zemin`, `--kart`, `--durum-*`) olarak burada tanımlanır; değerlerin tek kaynağı [`docs/branding.md`](branding.md). Ad-hoc renk yazılmaz.
 
 ### 10. `docs/` (Dokümantasyon)
-- **Ne konur?** Mimari kararlar, marka renkleri, görev kılavuzları ve proje planları.
+- **Ne konur?** Mimari kararlar, marka renkleri, görev kılavuzları ve proje planları. Görev dosyalarının istediği kanıt görselleri `docs/kanit/` alt klasöründe durur.
 
 ---
 
