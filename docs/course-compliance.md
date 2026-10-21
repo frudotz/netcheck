@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 28 | 10 | 9 | 2 | 49 |
-| **All** | **65** | **17** | **9** | **4** | **95** |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 33 | 10 | 4 | 2 | 49 |
+| **All** | **70** | **17** | **4** | **4** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method), 11 (data contract) and 12 (card), plus the app-language groundwork for Tasks 12–14, are on their branches; Tasks 13–16 have not started.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method), 11 (data contract), 12 (card) and 13 (list states), plus the app-language groundwork for Tasks 12–14, are on their branches; Tasks 14–16 have not started.
 
 ## Week 3 — Batch 01
 
@@ -181,12 +181,12 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R13-a | `Yukleniyor`, `BosDurum`, `HataDurumu` in `src/lib/components/ui/` | FAIL | Absent — P1 |
-| R13-b | Main list uses one loader and shows exactly one of loading, error, empty, full | PARTIAL | Each screen handles states itself (`Overview.svelte` loading/error, `History.svelte` "Henüz kayıtlı rapor yok."), not through shared components — P1 |
-| R13-c | Empty search or filter result shows `BosDurum` with a clear button | FAIL | No search or filter exists — P1 |
-| R13-d | State texts in TR/EN/AR/FA | FAIL | App screens are Turkish only. **Conflict C-2** — P1, needs decision |
-| R13-e | Screenshots of the four states in `docs/istemler/13-*.md` | FAIL | Absent — P1 |
-| R13-f | Same components used on a second list | FAIL | Absent — P1 |
+| R13-a | `Yukleniyor`, `BosDurum`, `HataDurumu` in `src/lib/components/ui/` | PASS (Task 13 branch) | Generic inputs typed in `src/lib/types/ui.ts`; colors only from `app.css` variables |
+| R13-b | Main list uses one loader and shows exactly one of loading, error, empty, full | PASS (Task 13 branch) | Geçmiş loads through `reports.yukle()`, which now throws on unreadable storage. In the running app each `?durum=` value showed exactly one state |
+| R13-c | Empty search or filter result shows `BosDurum` with a clear button | PASS (Task 13 branch) | Search by report ID or date and a score-level filter. A search for "qqzzxx" showed "Aramaya uyan rapor yok" with "Süzgeci temizle", and clearing restored the 6 reports |
+| R13-d | State texts in TR/EN/AR/FA | PASS (Task 13 branch) | All four states checked in Arabic and Persian in the app (RTL). Rests on decision C-2 |
+| R13-e | Screenshots of the four states in `docs/istemler/13-*.md` | PARTIAL | Four screenshots from the running Windows app (`docs/kanit/13-liste-ve-uc-durum-*.png`), captured by the tool and linked from the log. **Missing:** the student's own run of the task's §3 steps — student action |
+| R13-f | Same components used on a second list | PASS (Task 13 branch) | Genel Bakış interface list: `Yukleniyor` while loading, `HataDurumu` without Tauri (checked in headless Edge), `BosDurum` with no interfaces |
 
 ### Task 14 — Detail screen and navigation
 
@@ -218,7 +218,7 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled), 10, 11 and 12 follow it; Tasks 13–15 not started — P1, NC-14 |
+| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled) and 10–13 follow it; Tasks 14–15 not started — P1, NC-14 |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
 
 ## Conflicts requiring an instructor decision

@@ -9,6 +9,9 @@
   import { dil } from "$lib/dil.svelte";
   import { baglantiTuruEtiketi, tarihSaat } from "$lib/sozluk";
   import Kart from "$lib/components/ui/Kart.svelte";
+  import Yukleniyor from "$lib/components/ui/Yukleniyor.svelte";
+  import BosDurum from "$lib/components/ui/BosDurum.svelte";
+  import HataDurumu from "$lib/components/ui/HataDurumu.svelte";
   import ScoreGauge from "./ScoreGauge.svelte";
 
   const m = $derived(dil.metin);
@@ -129,12 +132,9 @@
   </div>
 
   {#if loading && !snapshot}
-    <p class="kart durum-metin" role="status">{m.agBilgileriAliniyor}</p>
+    <Yukleniyor satir={4} etiket={m.agBilgileriAliniyor} />
   {:else if hata}
-    <div class="kart durum-metin" role="alert">
-      <p>{hata === "yalniz-uygulamada" ? m.yalnizUygulamada : m.agBilgileriAlinamadi}</p>
-      <button class="btn ikincil" onclick={load}>{m.tekrarDene}</button>
-    </div>
+    <HataDurumu mesaj={hata === "yalniz-uygulamada" ? m.yalnizUygulamada : m.agBilgileriAlinamadi} tekrarDene={load} />
   {:else if snapshot}
     <div class="pano">
       <section class="kart durum {linkState}" aria-live="polite">
@@ -201,7 +201,7 @@
             {/each}
           </ul>
         {:else}
-          <p class="bos-metin">{m.arayuzYok}</p>
+          <BosDurum baslik={m.arayuzYok} />
         {/if}
       </section>
     </div>
@@ -259,20 +259,6 @@
     .doner {
       animation: none;
     }
-  }
-
-  .durum-metin {
-    margin: 0;
-    padding: var(--bosluk-4);
-    color: var(--yazi-soluk);
-    display: flex;
-    flex-direction: column;
-    gap: var(--bosluk-3);
-  }
-
-  .durum-metin p {
-    margin: 0;
-    color: var(--yazi);
   }
 
   /* Telefon: tek sütun. Tablet ve üzeri (≥ 48em): durum + skor solda, ağ bilgileri sağda,
@@ -420,10 +406,5 @@
   .kart-listesi li {
     display: flex;
     min-width: 0;
-  }
-
-  .bos-metin {
-    margin: 0;
-    color: var(--yazi-soluk);
   }
 </style>
