@@ -58,23 +58,23 @@ export const Chart: React.FC<ChartProps> = ({
             }}
           >
             <BarChart2 className="w-3.5 h-3.5" />
-            <span>Grafik Görünümü</span>
+            <span>{t("chartGraphView")}</span>
           </button>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <caption className="sr-only">{title ?? "Grafik Veri Tablosu"}</caption>
+            <caption className="sr-only">{title ?? t("chartDataTable")}</caption>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--kenar)" }}>
                 <th scope="col" className="py-2 px-3 font-semibold" style={{ color: "var(--yazi-soluk)" }}>
-                  Kategori
+                  {t("chartCategory")}
                 </th>
                 <th scope="col" className="py-2 px-3 font-semibold text-right" style={{ color: "var(--yazi-soluk)" }}>
-                  Değer
+                  {t("chartValue")}
                 </th>
                 <th scope="col" className="py-2 px-3 font-semibold text-right" style={{ color: "var(--yazi-soluk)" }}>
-                  Yüzde
+                  {t("chartPercent")}
                 </th>
               </tr>
             </thead>
@@ -88,7 +88,7 @@ export const Chart: React.FC<ChartProps> = ({
                     {valueFormatter(item.value)}
                   </td>
                   <td className="py-2 px-3 text-right font-mono" style={{ color: "var(--yazi-soluk)" }}>
-                    {((item.value / total) * 100).toFixed(1)}%
+                    {t("chartPercentValue", { value: ((item.value / total) * 100).toFixed(1) })}
                   </td>
                 </tr>
               ))}
@@ -120,7 +120,7 @@ export const Chart: React.FC<ChartProps> = ({
           <button
             type="button"
             onClick={() => setShowTable(true)}
-            className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded border hover:opacity-80 transition-colors focus-visible:outline-none"
+            className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded border hover:opacity-80 transition-colors"
             style={{
               backgroundColor: "var(--zemin)",
               borderColor: "var(--kenar)",
@@ -168,7 +168,7 @@ export const Chart: React.FC<ChartProps> = ({
                       strokeDashoffset={strokeDashoffset}
                       strokeLinecap="round"
                     >
-                      <title>{`${item.label}: ${valueFormatter(item.value)} (%${(percent * 100).toFixed(0)})`}</title>
+                      <title>{`${item.label}: ${valueFormatter(item.value)} (${t("chartPercentValue", { value: (percent * 100).toFixed(0) })})`}</title>
                     </circle>
                   );
                 });
@@ -193,7 +193,7 @@ export const Chart: React.FC<ChartProps> = ({
                       {item.label}
                     </span>
                     <span className="font-mono text-xs ml-auto" style={{ color: "var(--yazi-soluk)" }}>
-                      {valueFormatter(item.value)} (%{pct})
+                      {valueFormatter(item.value)} ({t("chartPercentValue", { value: pct })})
                     </span>
                   </div>
                 );

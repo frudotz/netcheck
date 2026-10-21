@@ -1,5 +1,4 @@
 import React from "react";
-import { SCORE_NOTE } from "../domain/rules";
 import { useI18n } from "../i18n";
 import { ShieldCheck, AlertTriangle, AlertCircle, Info } from "lucide-react";
 
@@ -111,7 +110,7 @@ export const ScoreGauge: React.FC<ScoreGaugeProps> = ({
           }}
         >
           <Info className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: "var(--renk-ana)" }} />
-          <span>{SCORE_NOTE}</span>
+          <span>{t("scoreNote")}</span>
         </div>
       )}
     </div>

@@ -1,9 +1,10 @@
 import React from "react";
-import { ReportRecord, ScoreRule } from "../domain/types";
+import type { ReportRecord, ScoreRule } from "../domain/types";
 import { computeScore, scoreLevel } from "../domain/rules";
 import { ArrowRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { useI18n } from "../i18n";
+import { sozluk, baglantiTuruEtiketi } from "../../src/lib/sozluk";
 
 export interface ScorePreviewProps {
   sampleReports: ReportRecord[];
@@ -14,7 +15,7 @@ export const ScorePreview: React.FC<ScorePreviewProps> = ({
   sampleReports,
   candidateRule,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   return (
     <div
@@ -30,7 +31,7 @@ export const ScorePreview: React.FC<ScorePreviewProps> = ({
           {t("rulesPreview")}
         </h4>
         <p className="text-xs mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-          Bu kurallar yayınlandığında, mevcut örnek raporların simüle edilen yeni skorları aşağıdaki gibi hesaplanır.
+          {t("scorePreviewHint")}
         </p>
       </div>
 
@@ -51,7 +52,9 @@ export const ScorePreview: React.FC<ScorePreviewProps> = ({
                   {report.id}
                 </span>
                 <span className="text-xs" style={{ color: "var(--yazi-soluk)" }}>
-                  {report.tests.filter(t => t.status === "success").length} / 5 Test Başarılı · {report.network.connectionType}
+                  {t("scorePreviewPassed", { passed: report.tests.filter(test => test.status === "success").length })}
+                  {" · "}
+                  {baglantiTuruEtiketi(sozluk[locale], report.network.connectionType)}
                 </span>
               </div>
 

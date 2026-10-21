@@ -27,7 +27,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         style={{ color: "var(--yazi)" }}
       >
         <span>
-          {label} {required && <span className="text-red-500">*</span>}
+          {label} {required && <span className="text-hata" aria-hidden="true">*</span>}
         </span>
       </label>
 

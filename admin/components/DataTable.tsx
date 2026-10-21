@@ -78,7 +78,7 @@ export function DataTable<T extends object>({
   selectedKeys,
   onSelectChange,
   exportFilename = "export.csv",
-  caption = "Veri Tablosu",
+  caption,
   className = "",
 }: DataTableProps<T>) {
   const { t } = useI18n();
@@ -104,7 +104,7 @@ export function DataTable<T extends object>({
     const csvRows = rows.map(row => {
       return visibleColumns
         .map(c => {
-          const val = (row as any)[c.key];
+          const val = (row as Record<string, unknown>)[c.key];
           if (val === undefined || val === null) return '""';
           const str = typeof val === "object" ? JSON.stringify(val) : String(val);
           return `"${str.replace(/"/g, '""')}"`;
@@ -181,7 +181,7 @@ export function DataTable<T extends object>({
             className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity"
             style={{
               backgroundColor: "var(--durum-hata)",
-              color: "#ffffff",
+              color: "var(--durum-hata-zemin)",
               borderRadius: "var(--radius)",
             }}
           >
@@ -251,32 +251,32 @@ export function DataTable<T extends object>({
               {t("selectedCount", { count: selectedKeys.length })}
             </span>
           ) : (
-            <span>Toplam {total} kayıt</span>
+            <span>{t("tableTotal", { total })}</span>
           )}
         </div>
 
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2 ms-auto">
           {/* Column visibility toggle */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setShowColMenu(!showColMenu)}
-              className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border hover:opacity-80 transition-colors focus-visible:outline-none"
+              className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border hover:opacity-80 transition-colors"
               style={{
                 backgroundColor: "var(--kart)",
                 borderColor: "var(--kenar)",
                 color: "var(--yazi)",
               }}
-              title="Sütunları Göster / Gizle"
+              title={t("tableColumnsToggle")}
               aria-expanded={showColMenu}
             >
               <Eye className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sütunlar</span>
+              <span className="hidden sm:inline">{t("tableColumns")}</span>
             </button>
 
             {showColMenu && (
               <div
-                className="absolute right-0 top-full mt-1.5 w-48 p-2 rounded-lg shadow-xl border z-30 flex flex-col gap-1.5"
+                className="absolute end-0 top-full mt-1.5 w-48 p-2 rounded-lg shadow-xl border z-30 flex flex-col gap-1.5"
                 style={{
                   backgroundColor: "var(--kart)",
                   borderColor: "var(--kenar)",
@@ -286,14 +286,14 @@ export function DataTable<T extends object>({
                   className="text-xs font-semibold px-2 py-1 border-b"
                   style={{ borderColor: "var(--kenar)", color: "var(--yazi)" }}
                 >
-                  Sütun Tercihleri
+                  {t("tableColumnPrefs")}
                 </div>
                 {columns.map(col => {
                   const isVisible = !hiddenCols.has(col.key);
                   return (
                     <label
                       key={col.key}
-                      className="cursor-pointer flex items-center gap-2 px-2 py-1 rounded hover:bg-black/5 dark:hover:bg-white/5 text-xs"
+                      className="cursor-pointer flex items-center gap-2 px-2 py-1 rounded hover:bg-yazi/5 text-xs"
                       style={{ color: "var(--yazi)" }}
                     >
                       <input
@@ -322,7 +322,7 @@ export function DataTable<T extends object>({
           <button
             type="button"
             onClick={handleExportCsv}
-            className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border hover:opacity-80 transition-colors focus-visible:outline-none"
+            className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border hover:opacity-80 transition-colors"
             style={{
               backgroundColor: "var(--kart)",
               borderColor: "var(--kenar)",
@@ -338,8 +338,8 @@ export function DataTable<T extends object>({
 
       {/* Desktop / Tablet View (Table) */}
       <div className="hidden md:block overflow-x-auto w-full">
-        <table className="w-full text-left border-collapse">
-          <caption className="sr-only">{caption}</caption>
+        <table className="w-full text-start border-collapse">
+          <caption className="sr-only">{caption ?? t("tableCaption")}</caption>
           <thead>
             <tr
               style={{
@@ -372,7 +372,7 @@ export function DataTable<T extends object>({
                       <button
                         type="button"
                         onClick={() => handleSort(col.key)}
-                        className="cursor-pointer inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity font-semibold focus-visible:outline-none"
+                        className="cursor-pointer inline-flex items-center gap-1.5 hover:opacity-80 transition-opacity font-semibold"
                         style={{ color: isSorted ? "var(--renk-ana)" : "var(--yazi)" }}
                       >
                         <span>{col.header}</span>
@@ -403,7 +403,7 @@ export function DataTable<T extends object>({
                   key={key}
                   onClick={() => onRowClick?.(row)}
                   className={`transition-colors border-b last:border-b-0 ${
-                    onRowClick ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" : ""
+                    onRowClick ? "cursor-pointer hover:bg-yazi/5" : ""
                   }`}
                   style={{
                     borderColor: "var(--kenar)",
@@ -416,19 +416,19 @@ export function DataTable<T extends object>({
                         type="checkbox"
                         checked={isSelected}
                         onChange={e => handleSelectRow(key, e as unknown as React.MouseEvent)}
-                        aria-label={`Seç: ${key}`}
+                        aria-label={t("tableSelectRow", { key })}
                         className="cursor-pointer rounded"
                       />
                     </td>
                   )}
 
-                  {visibleColumns.map((col, cIdx) => (
+                  {visibleColumns.map(col => (
                     <td
                       key={col.key}
                       className={densityPadding}
                       style={{ color: "var(--yazi)" }}
                     >
-                      {col.render ? col.render(row, idx) : ((row as any)[col.key] as React.ReactNode)}
+                      {col.render ? col.render(row, idx) : ((row as Record<string, unknown>)[col.key] as React.ReactNode)}
                     </td>
                   ))}
                 </tr>
@@ -439,7 +439,7 @@ export function DataTable<T extends object>({
       </div>
 
       {/* Mobile Card List View (Strictly active on narrow screens < 768px as requested in §A.1 and §H) */}
-      <div className="block md:hidden divide-y divide-solid" style={{ borderColor: "var(--kenar)" }}>
+      <div className="block md:hidden divide-y divide-kenar">
         {rows.map((row, idx) => {
           const key = rowKey(row);
           const isSelected = selectedKeys?.includes(key);
@@ -449,7 +449,7 @@ export function DataTable<T extends object>({
               key={key}
               onClick={() => onRowClick?.(row)}
               className={`p-4 transition-colors ${
-                onRowClick ? "cursor-pointer hover:bg-black/5 dark:hover:bg-white/5" : ""
+                onRowClick ? "cursor-pointer hover:bg-yazi/5" : ""
               }`}
               style={{
                 backgroundColor: isSelected ? "var(--durum-basarili-zemin)" : "transparent",
@@ -464,7 +464,7 @@ export function DataTable<T extends object>({
                       onChange={e => handleSelectRow(key, e as unknown as React.MouseEvent)}
                       className="rounded"
                     />
-                    <span>Kaydı Seç</span>
+                    <span>{t("tableSelectRecord")}</span>
                   </label>
                   <span className="font-mono text-xs" style={{ color: "var(--yazi-soluk)" }}>
                     #{idx + 1}
@@ -478,8 +478,8 @@ export function DataTable<T extends object>({
                     <span className="font-semibold text-xs flex-shrink-0" style={{ color: "var(--yazi-soluk)" }}>
                       {col.header}:
                     </span>
-                    <div className="text-right flex-1 break-words font-medium" style={{ color: "var(--yazi)" }}>
-                      {col.render ? col.render(row, idx) : ((row as any)[col.key] as React.ReactNode)}
+                    <div className="text-end flex-1 break-words font-medium" style={{ color: "var(--yazi)" }}>
+                      {col.render ? col.render(row, idx) : ((row as Record<string, unknown>)[col.key] as React.ReactNode)}
                     </div>
                   </div>
                 ))}
@@ -501,11 +501,12 @@ export function DataTable<T extends object>({
           {/* Page size selector */}
           {onPageSizeChange && (
             <div className="flex items-center gap-2">
-              <span style={{ color: "var(--yazi-soluk)" }}>Sayfa boyutu:</span>
+              <span style={{ color: "var(--yazi-soluk)" }}>{t("tablePageSize")}</span>
               <select
+                aria-label={t("tablePageSize")}
                 value={pageSize}
                 onChange={e => onPageSizeChange(Number(e.target.value) as 10 | 25 | 50)}
-                className="cursor-pointer text-xs py-1 px-2 rounded border appearance-none focus-visible:outline-none"
+                className="cursor-pointer text-xs py-1 px-2 rounded border appearance-none"
                 style={{
                   backgroundColor: "var(--kart)",
                   borderColor: "var(--kenar)",
@@ -520,38 +521,36 @@ export function DataTable<T extends object>({
           )}
 
           {/* Page indicator & buttons */}
-          <div className="flex items-center gap-2 ml-auto">
-            <span style={{ color: "var(--yazi-soluk)" }}>
-              Sayfa <span className="font-semibold" style={{ color: "var(--yazi)" }}>{page}</span> / {totalPages}
-            </span>
+          <div className="flex items-center gap-2 ms-auto">
+            <span style={{ color: "var(--yazi-soluk)" }}>{t("tablePageOf", { page, total: totalPages })}</span>
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 disabled={page <= 1}
                 onClick={() => onPageChange?.(page - 1)}
-                className="cursor-pointer p-1.5 rounded border disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition-opacity focus-visible:outline-none"
+                className="cursor-pointer p-1.5 rounded border disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition-opacity"
                 style={{
                   backgroundColor: "var(--kart)",
                   borderColor: "var(--kenar)",
                   color: "var(--yazi)",
                 }}
-                aria-label="Önceki Sayfa"
+                aria-label={t("tablePrev")}
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4 rtl:-scale-x-100" />
               </button>
               <button
                 type="button"
                 disabled={page >= totalPages}
                 onClick={() => onPageChange?.(page + 1)}
-                className="cursor-pointer p-1.5 rounded border disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition-opacity focus-visible:outline-none"
+                className="cursor-pointer p-1.5 rounded border disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-80 transition-opacity"
                 style={{
                   backgroundColor: "var(--kart)",
                   borderColor: "var(--kenar)",
                   color: "var(--yazi)",
                 }}
-                aria-label="Sonraki Sayfa"
+                aria-label={t("tableNext")}
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-4 h-4 rtl:-scale-x-100" />
               </button>
             </div>
           </div>

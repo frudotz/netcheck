@@ -1,5 +1,6 @@
 import React from "react";
-import { NetworkSnapshot } from "../domain/types";
+import type { NetworkSnapshot } from "../domain/types";
+import { sozluk, baglantiTuruEtiketi } from "../../src/lib/sozluk";
 import { MaskedValue } from "./MaskedValue";
 import { StatusBadge } from "./StatusBadge";
 import { Wifi, Network, Smartphone, HelpCircle, Check, X } from "lucide-react";
@@ -14,7 +15,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
   network,
   onRevealSensitive,
 }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const getConnectionIcon = (type: string) => {
     switch (type) {
@@ -43,7 +44,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
         {/* Hostname */}
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium" style={{ color: "var(--yazi-soluk)" }}>
-            Cihaz Adı (Hostname)
+            {t("networkHostname")}
           </span>
           <MaskedValue
             value={network.hostname}
@@ -55,7 +56,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
         {/* Local IPv4 */}
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium" style={{ color: "var(--yazi-soluk)" }}>
-            Yerel IPv4 Adresi
+            {t("networkLocalIpv4")}
           </span>
           <MaskedValue
             value={network.localIPv4}
@@ -67,7 +68,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
         {/* Local IPv6 */}
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium" style={{ color: "var(--yazi-soluk)" }}>
-            Yerel IPv6 Adresi
+            {t("networkLocalIpv6")}
           </span>
           <MaskedValue
             value={network.localIPv6}
@@ -79,7 +80,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
         {/* Gateway */}
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium" style={{ color: "var(--yazi-soluk)" }}>
-            Ağ Geçidi (Gateway)
+            {t("networkGateway")}
           </span>
           <MaskedValue
             value={network.gateway}
@@ -91,7 +92,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
         {/* DNS Servers */}
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium" style={{ color: "var(--yazi-soluk)" }}>
-            DNS Sunucuları
+            {t("networkDnsServers")}
           </span>
           {network.dnsServers && network.dnsServers.length > 0 ? (
             <div className="flex flex-wrap gap-2">
@@ -118,7 +119,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
           <div>
             <StatusBadge
               tone="info"
-              label={network.connectionType.toUpperCase()}
+              label={baglantiTuruEtiketi(sozluk[locale], network.connectionType)}
               icon={getConnectionIcon(network.connectionType)}
               size="sm"
             />
@@ -145,7 +146,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
         >
           <span>{t("interfacesList")}</span>
           <span className="text-xs font-normal" style={{ color: "var(--yazi-soluk)" }}>
-            {network.interfaces?.length ?? 0} Arayüz
+            {t("networkInterfaceCount", { count: network.interfaces?.length ?? 0 })}
           </span>
         </div>
 
@@ -177,12 +178,12 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
             <tbody className="divide-y" style={{ borderColor: "var(--kenar)" }}>
               {network.interfaces && network.interfaces.length > 0 ? (
                 network.interfaces.map((iface, idx) => (
-                  <tr key={idx} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                  <tr key={idx} className="hover:bg-yazi/5 transition-colors">
                     <td className="py-3 px-4 font-mono font-medium" style={{ color: "var(--yazi)" }}>
                       {iface.name}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="capitalize">{iface.type}</span>
+                      <span>{baglantiTuruEtiketi(sozluk[locale], iface.type)}</span>
                     </td>
                     <td className="py-3 px-4 font-mono">
                       <MaskedValue
@@ -207,7 +208,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
                         }}
                       >
                         {iface.isUp ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                        <span>{iface.isUp ? "UP" : "DOWN"}</span>
+                        <span>{iface.isUp ? t("networkStateUp") : t("networkStateDown")}</span>
                       </span>
                     </td>
                     <td className="py-3 px-4">
@@ -219,7 +220,7 @@ export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({
                             color: "var(--renk-ana-yazi)",
                           }}
                         >
-                          Varsayılan
+                          {t("interfaceDefault")}
                         </span>
                       ) : (
                         <span style={{ color: "var(--yazi-soluk)" }}>—</span>

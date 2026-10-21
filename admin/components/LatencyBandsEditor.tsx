@@ -100,7 +100,7 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
             {t("rulesLatencyBands")}
           </h4>
           <p className="text-xs mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            Ortalama Cloudflare ve Google DNS gecikmesine göre eklenecek bonus puanlar.
+            {t("latencyBandsHint")}
           </p>
         </div>
 
@@ -116,7 +116,7 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
             }}
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Kademe Ekle</span>
+            <span>{t("latencyBandsAdd")}</span>
           </button>
         )}
       </div>
@@ -130,7 +130,7 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
           }}
         >
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>Gecikme üst sınırları kesinlikle artan sırada olmalı ve en son kademe sınırsız (null) kalmalıdır.</span>
+          <span>{t("rulesLatencyDesc")}</span>
         </div>
       )}
 
@@ -151,7 +151,7 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
               </span>
 
               <div className="flex items-center gap-2 flex-1">
-                <span style={{ color: "var(--yazi-soluk)" }}>Ortalama &lt;</span>
+                <span style={{ color: "var(--yazi-soluk)" }}>{t("latencyBandsAverageBelow")}</span>
                 {isLast ? (
                   <span
                     className="font-mono font-semibold px-2 py-1 rounded border text-xs"
@@ -161,7 +161,7 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
                       color: "var(--yazi)",
                     }}
                   >
-                    Üst Sınırsız (Kalan)
+                    {t("latencyBandsUnlimited")}
                   </span>
                 ) : (
                   <div className="flex items-center gap-1">
@@ -171,7 +171,7 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
                       disabled={disabled}
                       value={band.maxMs ?? ""}
                       onChange={e => handleMaxMsChange(idx, e.target.value)}
-                      className="w-20 p-1.5 text-center font-mono rounded border bg-transparent focus-visible:outline-none text-xs sm:text-sm font-semibold"
+                      className="w-20 p-1.5 text-center font-mono rounded border bg-transparent text-xs sm:text-sm font-semibold"
                       style={{
                         borderColor: "var(--kenar)",
                         color: "var(--yazi)",
@@ -185,7 +185,7 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <span style={{ color: "var(--yazi-soluk)" }}>Bonus:</span>
+                <span style={{ color: "var(--yazi-soluk)" }}>{t("latencyBandsBonus")}</span>
                 <input
                   type="number"
                   min={0}
@@ -193,14 +193,14 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
                   disabled={disabled}
                   value={band.bonus}
                   onChange={e => handleBonusChange(idx, Number(e.target.value))}
-                  className="w-16 p-1.5 text-center font-mono font-bold rounded border bg-transparent focus-visible:outline-none text-xs sm:text-sm"
+                  className="w-16 p-1.5 text-center font-mono font-bold rounded border bg-transparent text-xs sm:text-sm"
                   style={{
                     borderColor: "var(--kenar)",
                     color: "var(--yazi)",
                   }}
                 />
                 <span className="font-semibold text-xs" style={{ color: "var(--yazi-soluk)" }}>
-                  Puan
+                  {t("scoreRulesPoints")}
                 </span>
               </div>
 
@@ -208,10 +208,10 @@ export const LatencyBandsEditor: React.FC<LatencyBandsEditorProps> = ({
                 <button
                   type="button"
                   onClick={() => handleRemoveBand(idx)}
-                  className="cursor-pointer p-1.5 rounded hover:opacity-75 focus-visible:outline-none ml-2"
+                  className="cursor-pointer p-1.5 rounded hover:opacity-75 ms-2"
                   style={{ color: "var(--durum-hata)" }}
-                  title="Kademeyi Sil"
-                  aria-label="Kademeyi Sil"
+                  title={t("latencyBandsRemove")}
+                  aria-label={t("latencyBandsRemove")}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

@@ -37,9 +37,15 @@ NetCheck
     ├── /iletisim  · /en/iletisim  · /ar/iletisim  · /fa/iletisim   (Astro + Svelte form)
     ├── /kosullar  · /en/kosullar  · /ar/kosullar  · /fa/kosullar   (MDX)
     └── /gizlilik  · /en/gizlilik  · /ar/gizlilik  · /fa/gizlilik   (MDX)
+
+Yönetim Paneli (/admin, yalnız arayüz; uygulama menüsünden bağlantı yok) — docs/yonetim-paneli.md
+├── /admin (Özet) · /admin/raporlar · /admin/rapor?id=… · /admin/cihazlar · /admin/mesajlar
+├── /admin/skor-kurallari · /admin/hedefler · /admin/icerik · /admin/yoneticiler · /admin/denetim
+│   └── Veri kaynağı bağlı değil: her ekran "bağlı değil" durumunu gösterir (örnek veri yok)
+└── /admin/ayarlar → Tema ve dil (uygulamayla ortak), tablo yoğunluğu
 ```
 
-Toplam 21 rota: 5 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil). Uygulama ekranları tek rotada dört dilde çizilir (Ayarlar → dil).
+Toplam 32 rota: 5 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil) + 11 yönetim paneli ekranı. Uygulama ekranları ve panel tek rotada dört dilde çizilir (Ayarlar → dil).
 
 Rapor kimliği yol yerine sorgu dizesindedir (`/rapor?id=`): uygulama statik derlenir ve raporlar yalnız cihazda bulunduğu için `/rapor/NCHK-…` gibi kimlikli yollar önceden üretilemez; Tauri paketinde böyle bir yol 404 verir. Adres yine kimliği içerir, doğrudan açılabilir ve geri tuşu çalışır.
 

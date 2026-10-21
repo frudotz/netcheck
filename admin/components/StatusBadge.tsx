@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2, AlertTriangle, AlertCircle, Info, Clock, Ban } from "lucide-react";
+import { CheckCircle2, AlertTriangle, AlertCircle, Info, Clock } from "lucide-react";
 
 export type StatusTone = "success" | "warning" | "danger" | "info" | "neutral";
 

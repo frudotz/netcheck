@@ -1,5 +1,7 @@
-import { DiagnosticTest, ScoreRule, ScoreLevel } from "./types";
+import type { DiagnosticTest, ScoreRule, ScoreLevel } from "./types";
 
+// Skor kuralı düzenleyicisinin önizlemesi için ayarlanabilir hesap. Uygulamanın kullandığı sabit
+// kural src/lib/score.ts'tedir; panel bir kural yayınlayabildiğinde ikisi tek kaynakta birleşmelidir.
 export function computeScore(tests: DiagnosticTest[], rule: ScoreRule): number {
   const base = tests.reduce((s, t) => s + (t.status === "success" ? (rule.weights[t.id] ?? 0) : 0), 0);
   const samples = tests
@@ -17,8 +19,5 @@ export function computeScore(tests: DiagnosticTest[], rule: ScoreRule): number {
 export function scoreLevel(score: number, rule: ScoreRule): ScoreLevel {
   return score >= rule.levels.iyi ? "iyi" : score >= rule.levels.orta ? "orta" : "zayif";
 }
-
-export const SCORE_NOTE =
-  "Temel bağlantı ve tanılama sonuçlarına göre hesaplanan basit bir değerlendirmedir.";
 
 export const isReportId = (s: string): boolean => /^NCHK-\d{4}-[0-9A-F]{8}$/.test(s);

@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -15,91 +14,93 @@ import {
   X,
   Search,
   ChevronRight,
-  ShieldCheck,
-  User,
+  ArrowLeft,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LangSwitch } from "./LangSwitch";
+import { EKRAN_BASLIGI } from "./BagliDegil";
 import { useI18n } from "../i18n";
+import { bagli } from "../api";
+import { adres, git, type Gorunum } from "../yol";
 
-export interface NavItem {
-  to: string;
-  label: string;
+interface NavItem {
+  gorunum: Gorunum;
   icon: React.ReactNode;
-  badge?: number | string;
 }
 
 export interface AppShellProps {
+  gorunum: Gorunum;
   children: React.ReactNode;
 }
 
-export const AppShell: React.FC<AppShellProps> = ({ children }) => {
-  const { t, isRtl } = useI18n();
-  const location = useLocation();
-  const navigate = useNavigate();
+const NAV: NavItem[] = [
+  { gorunum: "ozet", icon: <LayoutDashboard className="w-4 h-4" /> },
+  { gorunum: "raporlar", icon: <FileText className="w-4 h-4" /> },
+  { gorunum: "cihazlar", icon: <Smartphone className="w-4 h-4" /> },
+  { gorunum: "mesajlar", icon: <MessageSquare className="w-4 h-4" /> },
+  { gorunum: "skor-kurallari", icon: <Sliders className="w-4 h-4" /> },
+  { gorunum: "hedefler", icon: <Target className="w-4 h-4" /> },
+  { gorunum: "icerik", icon: <FileCode className="w-4 h-4" /> },
+  { gorunum: "yoneticiler", icon: <Users className="w-4 h-4" /> },
+  { gorunum: "denetim", icon: <ShieldAlert className="w-4 h-4" /> },
+  { gorunum: "ayarlar", icon: <Settings className="w-4 h-4" /> },
+];
+
+export const AppShell: React.FC<AppShellProps> = ({ gorunum, children }) => {
+  const { t } = useI18n();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [globalSearch, setGlobalSearch] = useState("");
 
-  const navItems: NavItem[] = [
-    { to: "/", label: t("navDashboard"), icon: <LayoutDashboard className="w-4 h-4" /> },
-    { to: "/raporlar", label: t("navReports"), icon: <FileText className="w-4 h-4" /> },
-    { to: "/cihazlar", label: t("navDevices"), icon: <Smartphone className="w-4 h-4" /> },
-    { to: "/mesajlar", label: t("navMessages"), icon: <MessageSquare className="w-4 h-4" /> },
-    { to: "/skor-kurallari", label: t("navRules"), icon: <Sliders className="w-4 h-4" /> },
-    { to: "/hedefler", label: t("navTargets"), icon: <Target className="w-4 h-4" /> },
-    { to: "/icerik", label: t("navContent"), icon: <FileCode className="w-4 h-4" /> },
-    { to: "/yoneticiler", label: t("navAdmins"), icon: <Users className="w-4 h-4" /> },
-    { to: "/denetim", label: t("navAudit"), icon: <ShieldAlert className="w-4 h-4" /> },
-    { to: "/ayarlar", label: t("navSettings"), icon: <Settings className="w-4 h-4" /> },
-  ];
+  // Telefon menüsü açıkken Esc kapatır.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const kapat = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", kapat);
+    return () => window.removeEventListener("keydown", kapat);
+  }, [mobileMenuOpen]);
 
-  const handleGlobalSearchSubmit = (e: React.FormEvent) => {
+  // Rapor detayı menüde Raporlar altında sayılır.
+  const etkin = gorunum === "rapor" ? "raporlar" : gorunum;
+
+  const handleGlobalSearchSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!globalSearch.trim()) return;
     const term = globalSearch.trim();
+    if (!term) return;
     if (term.toUpperCase().startsWith("NCHK-")) {
-      navigate(`/raporlar/${term.toUpperCase()}`);
+      git(adres("rapor", { id: term.toUpperCase() }));
     } else {
-      navigate(`/raporlar?q=${encodeURIComponent(term)}`);
+      git(adres("raporlar", { q: term }));
     }
-    setGlobalSearch("");
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: "var(--zemin)" }}>
-      {/* Skip link for WCAG AA compliance */}
+    <div className="min-h-screen flex flex-col bg-zemin">
       <a href="#main-content" className="skip-to-content">
         {t("skipToContent")}
       </a>
 
-      {/* Top Bar: Always --renk-koyu background with white text as specified in §C */}
-      <header
-        className="w-full h-16 flex items-center justify-between px-4 sm:px-6 z-40 sticky top-0 shadow-md"
-        style={{
-          backgroundColor: "var(--renk-koyu)",
-          color: "#ffffff",
-        }}
-      >
-        <div className="flex items-center gap-3">
-          {/* Mobile hamburger button */}
+      {/* Üst bar: uygulamadaki gibi --renk-koyu zemin, üzerinde --renk-koyu-yazi (docs/branding.md). */}
+      <header className="w-full h-16 flex items-center justify-between gap-3 px-4 sm:px-6 z-40 sticky top-0 shadow-md bg-koyu text-koyu-yazi">
+        <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="cursor-pointer md:hidden p-1.5 rounded-lg text-white hover:bg-white/10 focus-visible:outline-none"
-            aria-label="Menüyü Aç/Kapat"
+            className="cursor-pointer md:hidden p-1.5 rounded-lg text-koyu-yazi hover:bg-koyu-yazi/10"
+            aria-label={t("shellMenuToggle")}
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          {/* Brand Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-2.5 font-bold text-lg tracking-tight focus-visible:outline-none"
-            style={{ color: "#ffffff", textDecoration: "none" }}
+          <a
+            href={adres("ozet")}
+            className="flex items-center gap-2.5 font-bold text-lg tracking-tight text-koyu-yazi min-w-0"
+            aria-label={`NetCheck ${t("adminPanel")}`}
           >
-            {/* NetCheck 3-tier signal arcs + checkmark brand icon */}
+            {/* NetCheck işareti: üç sinyal yayı ve onay işareti (docs/branding.md §3). */}
             <svg
               width="28"
               height="28"
@@ -110,211 +111,174 @@ export const AppShell: React.FC<AppShellProps> = ({ children }) => {
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
+              className="flex-shrink-0"
             >
-              {/* Outer arc */}
               <path d="M5 12.55a11 11 0 0 1 14.08 0" stroke="var(--renk-vurgu)" opacity="0.6" />
-              {/* Middle arc */}
               <path d="M1.42 9a16 16 0 0 1 21.16 0" stroke="var(--renk-vurgu)" />
-              {/* Inner arc */}
               <path d="M8.53 16.11a6 6 0 0 1 6.95 0" stroke="var(--renk-vurgu)" opacity="0.8" />
-              {/* Center checkmark */}
-              <polyline points="9 19 11 21 15 17" stroke="#ffffff" strokeWidth="2.5" />
+              <polyline points="9 19 11 21 15 17" stroke="var(--renk-koyu-yazi)" strokeWidth="2.5" />
             </svg>
-            <span className="flex items-center font-extrabold tracking-wide text-lg">
+            <span className="flex items-center font-extrabold tracking-wide text-lg" dir="ltr">
               <span>net</span>
-              <span style={{ color: "var(--renk-vurgu)" }}>check</span>
-              <span
-                className="ml-2 px-1.5 py-0.5 rounded text-[10px] tracking-wider uppercase font-semibold border"
-                style={{
-                  backgroundColor: "rgba(34, 211, 238, 0.15)",
-                  borderColor: "rgba(34, 211, 238, 0.4)",
-                  color: "var(--renk-vurgu)",
-                }}
-              >
-                YÖNETİM
-              </span>
+              <span className="text-vurgu">check</span>
             </span>
-          </Link>
+            <span
+              className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] tracking-wider uppercase font-semibold border text-vurgu"
+              style={{
+                backgroundColor: "color-mix(in srgb, var(--renk-vurgu) 15%, transparent)",
+                borderColor: "color-mix(in srgb, var(--renk-vurgu) 40%, transparent)",
+              }}
+            >
+              {t("shellBrandBadge")}
+            </span>
+          </a>
         </div>
 
-        {/* Global Quick Search */}
-        <form
-          onSubmit={handleGlobalSearchSubmit}
-          className="hidden md:flex items-center relative max-w-xs lg:max-w-md w-full mx-6"
-        >
-          <Search
-            className="absolute left-3 w-4 h-4 pointer-events-none text-slate-400"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            value={globalSearch}
-            onChange={e => setGlobalSearch(e.target.value)}
-            placeholder={t("searchPlaceholder")}
-            className="w-full text-xs sm:text-sm pl-9 pr-4 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-white placeholder-slate-400 focus-visible:outline-none focus:border-cyan-400 transition-colors"
-          />
-        </form>
-
-        {/* Header Right Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <ThemeToggle />
-          <LangSwitch />
-
-          {/* Current Admin User Badge */}
-          <div
-            className="hidden sm:flex items-center gap-2 pl-3 border-l border-slate-700 text-xs"
-            title="Aktif Yönetici: Emre Yılmaz (Owner)"
+        {/* Hızlı arama yalnız veri kaynağı bağlıyken gösterilir; bağlı değilken sonuç veremez. */}
+        {bagli && (
+          <form
+            onSubmit={handleGlobalSearchSubmit}
+            className="hidden md:flex items-center relative max-w-xs lg:max-w-md w-full mx-6"
+            role="search"
           >
-            <div className="w-7 h-7 rounded-full bg-cyan-600/30 border border-cyan-400 flex items-center justify-center font-bold text-cyan-300">
-              EY
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="font-semibold leading-tight text-white">Emre Yılmaz</span>
-              <span className="text-[10px] text-cyan-300 leading-tight">Sistem Sahibi</span>
-            </div>
+            <Search
+              className="absolute start-3 w-4 h-4 pointer-events-none text-koyu-yazi/60"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={globalSearch}
+              onChange={e => setGlobalSearch(e.target.value)}
+              placeholder={t("searchPlaceholder")}
+              aria-label={t("searchPlaceholder")}
+              className="w-full text-xs sm:text-sm ps-9 pe-4 py-1.5 rounded-lg bg-koyu-yazi/10 border border-koyu-yazi/20 text-koyu-yazi placeholder:text-koyu-yazi/60 focus:border-vurgu transition-colors"
+            />
+          </form>
+        )}
+
+        {/* Dar ekranda tema seçimi yalnız Ayarlar'da; logo ve dil seçimi sığsın. */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden sm:block">
+            <ThemeToggle />
           </div>
+          <LangSwitch />
         </div>
       </header>
 
-      {/* Main Container: Sidebar + Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Desktop Sidebar */}
+      <div className="flex-1 flex">
         <aside
-          className={`hidden md:flex flex-col border-r transition-all duration-200 z-20 ${
+          className={`hidden md:flex md:sticky md:top-16 md:self-start md:h-[calc(100dvh-4rem)] flex-col border-e transition-all duration-200 z-20 bg-kart border-kenar ${
             sidebarCollapsed ? "w-16" : "w-64"
           }`}
-          style={{
-            backgroundColor: "var(--kart)",
-            borderColor: "var(--kenar)",
-          }}
-          aria-label="Ana Menü"
+          aria-label={t("shellMainMenu")}
         >
-          {/* Navigation Links */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            {navItems.map(item => {
-              const isActive =
-                item.to === "/"
-                  ? location.pathname === "/"
-                  : location.pathname.startsWith(item.to);
-
+            {NAV.map(item => {
+              const isActive = item.gorunum === etkin;
+              const label = t(EKRAN_BASLIGI[item.gorunum]);
               return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  title={sidebarCollapsed ? item.label : undefined}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-colors focus-visible:outline-none ${
-                    isActive ? "font-semibold shadow-xs" : "hover:bg-black/5 dark:hover:bg-white/5"
+                <a
+                  key={item.gorunum}
+                  href={adres(item.gorunum)}
+                  title={sidebarCollapsed ? label : undefined}
+                  aria-label={sidebarCollapsed ? label : undefined}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                    isActive ? "font-semibold shadow-xs bg-ana text-ana-yazi" : "text-yazi hover:bg-yazi/5"
                   }`}
-                  style={{
-                    backgroundColor: isActive ? "var(--renk-ana)" : "transparent",
-                    color: isActive ? "var(--renk-ana-yazi)" : "var(--yazi)",
-                    textDecoration: "none",
-                  }}
                 >
                   <span className="flex-shrink-0" aria-hidden="true">
                     {item.icon}
                   </span>
-                  {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
-                  {!sidebarCollapsed && item.badge !== undefined && (
-                    <span
-                      className="ml-auto px-1.5 py-0.5 text-[10px] rounded-full font-mono"
-                      style={{
-                        backgroundColor: isActive ? "rgba(255,255,255,0.2)" : "var(--zemin)",
-                        color: isActive ? "#ffffff" : "var(--yazi-soluk)",
-                      }}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
+                  {!sidebarCollapsed && <span className="truncate">{label}</span>}
+                </a>
               );
             })}
           </nav>
 
-          {/* Sidebar Collapse Toggle */}
-          <div
-            className="p-3 border-t flex justify-end"
-            style={{ borderColor: "var(--kenar)" }}
-          >
+          <div className="p-3 border-t border-kenar flex items-center justify-between gap-2">
+            <a
+              href="/"
+              title={sidebarCollapsed ? t("shellBackToApp") : undefined}
+              aria-label={sidebarCollapsed ? t("shellBackToApp") : undefined}
+              className="inline-flex items-center gap-2 p-1.5 rounded text-xs text-yazi-soluk hover:bg-yazi/5"
+            >
+              <ArrowLeft className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
+              {!sidebarCollapsed && <span>{t("shellBackToApp")}</span>}
+            </a>
             <button
               type="button"
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="cursor-pointer p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline-none text-xs"
-              style={{ color: "var(--yazi-soluk)" }}
-              title={sidebarCollapsed ? "Menüyü Genişlet" : "Menüyü Daralt"}
-              aria-label={sidebarCollapsed ? "Menüyü Genişlet" : "Menüyü Daralt"}
+              className="cursor-pointer p-1.5 rounded hover:bg-yazi/5 text-xs text-yazi-soluk"
+              title={sidebarCollapsed ? t("shellExpandMenu") : t("shellCollapseMenu")}
+              aria-label={sidebarCollapsed ? t("shellExpandMenu") : t("shellCollapseMenu")}
+              aria-expanded={!sidebarCollapsed}
             >
               <ChevronRight
-                className={`w-4 h-4 transition-transform ${sidebarCollapsed ? "" : "rotate-180"}`}
+                className={`w-4 h-4 transition-transform rtl:-scale-x-100 ${sidebarCollapsed ? "" : "rotate-180"}`}
               />
             </button>
           </div>
         </aside>
 
-        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div
-            className="fixed inset-0 z-50 md:hidden bg-black/60 backdrop-blur-xs flex"
+            className="fixed inset-0 z-50 md:hidden bg-koyu/60 backdrop-blur-xs flex"
             onClick={() => setMobileMenuOpen(false)}
             role="dialog"
             aria-modal="true"
+            aria-label={t("shellMainMenu")}
           >
             <div
-              className="w-72 h-full flex flex-col p-4 shadow-2xl focus:outline-none"
-              style={{
-                backgroundColor: "var(--kart)",
-                color: "var(--yazi)",
-              }}
+              className="w-72 max-w-[85vw] h-full flex flex-col p-4 shadow-2xl bg-kart text-yazi"
               onClick={e => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between pb-3 border-b mb-3" style={{ borderColor: "var(--kenar)" }}>
-                <span className="font-bold text-sm" style={{ color: "var(--yazi)" }}>
-                  {t("adminPanel")}
-                </span>
+              <div className="flex items-center justify-between pb-3 border-b border-kenar mb-3">
+                <span className="font-bold text-sm text-yazi">{t("adminPanel")}</span>
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-1 rounded hover:opacity-75 focus-visible:outline-none"
-                  style={{ color: "var(--yazi-soluk)" }}
+                  className="p-1 rounded hover:opacity-75 text-yazi-soluk"
+                  aria-label={t("close")}
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <nav className="flex-1 space-y-1 overflow-y-auto">
-                {navItems.map(item => {
-                  const isActive =
-                    item.to === "/"
-                      ? location.pathname === "/"
-                      : location.pathname.startsWith(item.to);
-
+              <nav className="flex-1 space-y-1 overflow-y-auto" aria-label={t("shellMainMenu")}>
+                {NAV.map(item => {
+                  const isActive = item.gorunum === etkin;
                   return (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                      style={{
-                        backgroundColor: isActive ? "var(--renk-ana)" : "transparent",
-                        color: isActive ? "var(--renk-ana-yazi)" : "var(--yazi)",
-                        textDecoration: "none",
-                      }}
+                    <a
+                      key={item.gorunum}
+                      href={adres(item.gorunum)}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                        isActive ? "bg-ana text-ana-yazi" : "text-yazi hover:bg-yazi/5"
+                      }`}
                     >
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </Link>
+                      <span aria-hidden="true">{item.icon}</span>
+                      <span>{t(EKRAN_BASLIGI[item.gorunum])}</span>
+                    </a>
                   );
                 })}
               </nav>
+
+              <a
+                href="/"
+                className="mt-3 pt-3 border-t border-kenar inline-flex items-center gap-2 text-sm text-yazi-soluk"
+              >
+                <ArrowLeft className="w-4 h-4 rtl:rotate-180" aria-hidden="true" />
+                <span>{t("shellBackToApp")}</span>
+              </a>
             </div>
           </div>
         )}
 
-        {/* Main Content Area */}
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 focus:outline-none max-w-7xl w-full mx-auto"
+          className="flex-1 min-w-0 overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto"
         >
           {children}
         </main>

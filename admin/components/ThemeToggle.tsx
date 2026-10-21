@@ -1,6 +1,6 @@
 import React from "react";
 import { Sun, Moon, Laptop } from "lucide-react";
-import { useTheme, Theme } from "../context/ThemeContext";
+import { useTheme, type Theme } from "../context/ThemeContext";
 import { useI18n } from "../i18n";
 
 export const ThemeToggle: React.FC = () => {
@@ -15,11 +15,7 @@ export const ThemeToggle: React.FC = () => {
 
   return (
     <div
-      className="inline-flex items-center p-0.5 rounded-lg border text-xs"
-      style={{
-        backgroundColor: "var(--zemin)",
-        borderColor: "var(--kenar)",
-      }}
+      className="inline-flex items-center p-0.5 rounded-lg border text-xs bg-zemin border-kenar"
       role="radiogroup"
       aria-label={t("theme")}
     >
@@ -31,13 +27,11 @@ export const ThemeToggle: React.FC = () => {
             type="button"
             role="radio"
             aria-checked={isSelected}
+            aria-label={opt.label}
             onClick={() => setTheme(opt.value)}
-            className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-colors focus-visible:outline-none"
-            style={{
-              backgroundColor: isSelected ? "var(--kart)" : "transparent",
-              color: isSelected ? "var(--yazi)" : "var(--yazi-soluk)",
-              boxShadow: isSelected ? "0 1px 2px rgba(0,0,0,0.06)" : "none",
-            }}
+            className={`cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-colors ${
+              isSelected ? "bg-kart text-yazi shadow-xs" : "text-yazi-soluk"
+            }`}
             title={opt.label}
           >
             {opt.icon}

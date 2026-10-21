@@ -1,33 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { api } from "../api/mockAdapter";
-import { ReportRecord } from "../domain/types";
-import { DataTable, Column } from "../components/DataTable";
-import { FilterBar, FilterConfig } from "../components/FilterBar";
-import { StatusBadge, StatusTone } from "../components/StatusBadge";
+import { api } from "../api";
+import type { ReportRecord } from "../domain/types";
+import { adres, git, sorguDegeri } from "../yol";
+import { sozluk, tarihSaat, baglantiTuruEtiketi } from "../../src/lib/sozluk";
+import { DataTable } from "../components/DataTable";
+import type { Column } from "../components/DataTable";
+import { FilterBar } from "../components/FilterBar";
+import type { FilterConfig } from "../components/FilterBar";
+import { StatusBadge } from "../components/StatusBadge";
+import type { StatusTone } from "../components/StatusBadge";
 import { CopyText } from "../components/CopyText";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
 import {
-  FileText,
   Share2,
   Lock,
   Wifi,
   Network,
   Smartphone,
   EyeOff,
-  CheckCircle2,
-  AlertCircle,
-  Clock,
-  Ban,
 } from "lucide-react";
 
 export const ReportsListView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +38,7 @@ export const ReportsListView: React.FC = () => {
     key: "createdAt",
     dir: "desc",
   });
-  const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
+  const [search, setSearch] = useState(() => sorguDegeri("q") ?? "");
   const [filters, setFilters] = useState<Record<string, string | number | boolean | undefined>>({});
 
   // Selection for bulk actions
@@ -61,8 +58,8 @@ export const ReportsListView: React.FC = () => {
       });
       setReports(res.items);
       setTotal(res.total);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+    } catch {
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +74,7 @@ export const ReportsListView: React.FC = () => {
       for (const id of selectedIds) {
         await api.updateReportSharing(id, false, reason);
       }
-      addToast(`${selectedIds.length} raporun paylaşımı kapatıldı.`, "success");
+      addToast(t("reportsSharingDisabledCount", { count: selectedIds.length }), "success");
       setSelectedIds([]);
       setConfirmBulkDisableShare(false);
       fetchReports();
@@ -89,7 +86,7 @@ export const ReportsListView: React.FC = () => {
   const filterConfigs: FilterConfig[] = [
     {
       key: "scoreLevel",
-      label: "Skor Seviyesi",
+      label: t("reportsFilterScoreLevel"),
       type: "select",
       options: [
         { value: "iyi", label: `${t("scoreGood")} (≥ 80)` },
@@ -102,28 +99,28 @@ export const ReportsListView: React.FC = () => {
       label: t("reportConnectionType"),
       type: "select",
       options: [
-        { value: "wifi", label: "Wi-Fi" },
-        { value: "ethernet", label: "Ethernet" },
-        { value: "cellular", label: "Hücresel" },
+        { value: "wifi", label: baglantiTuruEtiketi(sozluk[locale], "wifi") },
+        { value: "ethernet", label: baglantiTuruEtiketi(sozluk[locale], "ethernet") },
+        { value: "cellular", label: baglantiTuruEtiketi(sozluk[locale], "cellular") },
       ],
     },
     {
       key: "testStatus",
-      label: "Test Durumu",
+      label: t("reportsFilterTestStatus"),
       type: "select",
       options: [
-        { value: "success", label: "Başarılı" },
-        { value: "failed", label: "Başarısız" },
-        { value: "unavailable", label: "Kullanılamıyor" },
+        { value: "success", label: t("statusSuccess") },
+        { value: "failed", label: t("statusFailed") },
+        { value: "unavailable", label: t("statusUnavailable") },
       ],
     },
     {
       key: "shared",
-      label: "Paylaşım",
+      label: t("reportSharedStatus"),
       type: "select",
       options: [
-        { value: "true", label: "Açık (Public)" },
-        { value: "false", label: "Kapalı (Private)" },
+        { value: "true", label: t("reportSharedOn") },
+        { value: "false", label: t("reportSharedOff") },
       ],
     },
   ];
@@ -144,20 +141,11 @@ export const ReportsListView: React.FC = () => {
       key: "createdAt",
       header: t("reportDate"),
       sortable: true,
-      render: r => {
-        const d = new Date(r.createdAt);
-        return (
-          <span className="font-mono text-xs" style={{ color: "var(--yazi)" }}>
-            {d.toLocaleDateString("tr-TR", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        );
-      },
+      render: r => (
+        <span className="text-xs" style={{ color: "var(--yazi)" }}>
+          {tarihSaat(r.createdAt, locale)}
+        </span>
+      ),
     },
     {
       key: "score",
@@ -180,9 +168,9 @@ export const ReportsListView: React.FC = () => {
       key: "passed",
       header: t("reportTestsPassed"),
       render: r => (
-        <div className="flex items-center gap-1.5 font-mono text-xs">
+        <div className="flex items-center gap-1.5 text-xs">
           <span className="font-semibold" style={{ color: "var(--durum-basarili)" }}>
-            {r.passed} Başarılı
+            {t("reportsPassedCount", { count: r.passed })}
           </span>
           <span style={{ color: "var(--yazi-soluk)" }}>/</span>
           <span
@@ -191,7 +179,7 @@ export const ReportsListView: React.FC = () => {
               color: r.failed > 0 ? "var(--durum-hata)" : "var(--yazi-soluk)",
             }}
           >
-            {r.failed} Başarısız
+            {t("reportsFailedCount", { count: r.failed })}
           </span>
         </div>
       ),
@@ -210,9 +198,9 @@ export const ReportsListView: React.FC = () => {
             <Smartphone className="w-3.5 h-3.5" />
           );
         return (
-          <span className="inline-flex items-center gap-1.5 capitalize text-xs">
+          <span className="inline-flex items-center gap-1.5 text-xs">
             {icon}
-            <span>{type}</span>
+            <span>{baglantiTuruEtiketi(sozluk[locale], type)}</span>
           </span>
         );
       },
@@ -275,7 +263,7 @@ export const ReportsListView: React.FC = () => {
             {t("navReports")}
           </h1>
           <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            Kullanıcı cihazlarından gelen ağ tanılama ve skorlama raporları
+            {t("reportsSubtitle")}
           </p>
         </div>
 
@@ -287,12 +275,12 @@ export const ReportsListView: React.FC = () => {
               className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity"
               style={{
                 backgroundColor: "var(--durum-uyari)",
-                color: "#ffffff",
+                color: "var(--durum-uyari-zemin)",
                 borderRadius: "var(--radius)",
               }}
             >
               <EyeOff className="w-3.5 h-3.5" />
-              <span>Seçilenlerin Paylaşımını Kapat ({selectedIds.length})</span>
+              <span>{t("reportsBulkDisableSharing", { count: selectedIds.length })}</span>
             </button>
           </div>
         )}
@@ -302,7 +290,7 @@ export const ReportsListView: React.FC = () => {
       <FilterBar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Rapor ID, Cihaz veya IP ara (örn: NCHK-2026-3F9A0C71)..."
+        searchPlaceholder={t("reportsSearchPlaceholder")}
         filters={filterConfigs}
         filterValues={filters}
         onFilterChange={(key, val) => {
@@ -321,7 +309,7 @@ export const ReportsListView: React.FC = () => {
         columns={columns}
         rows={reports}
         rowKey={r => r.id}
-        onRowClick={r => navigate(`/raporlar/${r.id}`)}
+        onRowClick={r => git(adres("rapor", { id: r.id }))}
         loading={loading}
         error={error}
         onRetry={fetchReports}
@@ -338,7 +326,7 @@ export const ReportsListView: React.FC = () => {
         selectedKeys={selectedIds}
         onSelectChange={setSelectedIds}
         exportFilename="netcheck-raporlar.csv"
-        caption="Ağ Tanılama Raporları Listesi"
+        caption={t("reportsTableCaption")}
       />
 
       {/* Bulk Disable Share Confirmation */}
@@ -346,12 +334,12 @@ export const ReportsListView: React.FC = () => {
         isOpen={confirmBulkDisableShare}
         onClose={() => setConfirmBulkDisableShare(false)}
         onConfirm={handleBulkDisableSharing}
-        title="Seçilen Raporların Paylaşımını Kapat?"
-        message={`Seçili ${selectedIds.length} raporun genel internet erişim bağlantısı derhal sonlandırılacaktır. Bu işlem denetim günlüğüne kaydedilecektir.`}
-        confirmLabel="Paylaşımları Kapat"
+        title={t("reportsBulkConfirmTitle")}
+        message={t("reportsBulkConfirmMessage", { count: selectedIds.length })}
+        confirmLabel={t("reportsBulkConfirmLabel")}
         tone="warning"
         requireReason={true}
-        reasonPlaceholder="Örn: Kullanıcı talebi veya güvenlik denetimi nedeniyle kapatıldı..."
+        reasonPlaceholder={t("reportsBulkReasonPlaceholder")}
       />
     </div>
   );

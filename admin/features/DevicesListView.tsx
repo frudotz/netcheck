@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { api } from "../api/mockAdapter";
-import { Device, ReportRecord } from "../domain/types";
-import { DataTable, Column } from "../components/DataTable";
-import { FilterBar, FilterConfig } from "../components/FilterBar";
+import { api } from "../api";
+import type { Device, ReportRecord } from "../domain/types";
+import { adres, sorguDegeri } from "../yol";
+import { tarihSaat } from "../../src/lib/sozluk";
+import { DataTable } from "../components/DataTable";
+import type { Column } from "../components/DataTable";
+import { FilterBar } from "../components/FilterBar";
+import type { FilterConfig } from "../components/FilterBar";
 import { Drawer } from "../components/Drawer";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Chart } from "../components/Chart";
-import { StatusBadge } from "../components/StatusBadge";
 import { CopyText } from "../components/CopyText";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
@@ -15,17 +17,12 @@ import {
   Smartphone,
   Laptop,
   Trash2,
-  Calendar,
-  Layers,
   ArrowRight,
-  Activity,
-  ShieldAlert,
 } from "lucide-react";
 
 export const DevicesListView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
-  const [searchParams] = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +32,7 @@ export const DevicesListView: React.FC = () => {
   // Filters & Pagination
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<10 | 25 | 50>(10);
-  const [search, setSearch] = useState(() => searchParams.get("q") ?? "");
+  const [search, setSearch] = useState(() => sorguDegeri("q") ?? "");
   const [filters, setFilters] = useState<Record<string, string | number | boolean | undefined>>({});
 
   // Device Detail Drawer
@@ -58,8 +55,8 @@ export const DevicesListView: React.FC = () => {
       });
       setDevices(res.items);
       setTotal(res.total);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+    } catch {
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -77,7 +74,7 @@ export const DevicesListView: React.FC = () => {
       const filtered = allReports.items.filter(r => r.deviceId === device.id);
       setDeviceReports(filtered);
     } catch {
-      addToast("Cihaz raporları yüklenirken hata oluştu", "error");
+      addToast(t("devicesReportsLoadError"), "error");
     } finally {
       setLoadingDeviceReports(false);
     }
@@ -86,8 +83,8 @@ export const DevicesListView: React.FC = () => {
   const handleDeleteDeviceData = async (reason?: string) => {
     if (!deviceToDelete) return;
     try {
-      await api.deleteDeviceData(deviceToDelete.id, reason || "Yönetici onayıyla silindi");
-      addToast("Cihaz verileri ve ilişkili raporlar başarıyla silindi.", "success");
+      await api.deleteDeviceData(deviceToDelete.id, reason ?? "");
+      addToast(t("devicesDeleted"), "success");
       setDeviceToDelete(null);
       if (selectedDevice?.id === deviceToDelete.id) {
         setSelectedDevice(null);
@@ -97,6 +94,9 @@ export const DevicesListView: React.FC = () => {
       addToast(t("toastActionError"), "error");
     }
   };
+
+  const familyLabel = (family: Device["platform"]["family"]) =>
+    family === "mobile" ? t("devicesFamilyMobile") : t("devicesFamilyDesktop");
 
   const filterConfigs: FilterConfig[] = [
     {
@@ -116,7 +116,7 @@ export const DevicesListView: React.FC = () => {
   const columns: Column<Device>[] = [
     {
       key: "id",
-      header: "Cihaz Kimliği",
+      header: t("devicesId"),
       sortable: true,
       render: d => (
         <span onClick={e => e.stopPropagation()}>
@@ -128,13 +128,13 @@ export const DevicesListView: React.FC = () => {
       key: "family",
       header: t("deviceFamily"),
       render: d => (
-        <span className="inline-flex items-center gap-1.5 capitalize text-xs">
+        <span className="inline-flex items-center gap-1.5 text-xs">
           {d.platform.family === "mobile" ? (
             <Smartphone className="w-3.5 h-3.5" />
           ) : (
             <Laptop className="w-3.5 h-3.5" />
           )}
-          <span>{d.platform.family}</span>
+          <span>{familyLabel(d.platform.family)}</span>
         </span>
       ),
     },
@@ -174,19 +174,11 @@ export const DevicesListView: React.FC = () => {
       key: "lastSeenAt",
       header: t("deviceLastSeen"),
       sortable: true,
-      render: d => {
-        const date = new Date(d.lastSeenAt);
-        return (
-          <span className="font-mono text-xs" style={{ color: "var(--yazi)" }}>
-            {date.toLocaleDateString("tr-TR", {
-              day: "2-digit",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        );
-      },
+      render: d => (
+        <span className="text-xs" style={{ color: "var(--yazi)" }}>
+          {tarihSaat(d.lastSeenAt, locale)}
+        </span>
+      ),
     },
     {
       key: "reportCount",
@@ -194,14 +186,14 @@ export const DevicesListView: React.FC = () => {
       sortable: true,
       render: d => (
         <span
-          className="font-mono font-bold text-xs px-2 py-0.5 rounded-full"
+          className="font-bold text-xs px-2 py-0.5 rounded-full"
           style={{
             backgroundColor: "var(--zemin)",
             color: "var(--yazi)",
             border: "1px solid var(--kenar)",
           }}
         >
-          {d.reportCount} Rapor
+          {t("devicesReportCount", { count: d.reportCount })}
         </span>
       ),
     },
@@ -220,12 +212,12 @@ export const DevicesListView: React.FC = () => {
               color: "var(--renk-ana)",
             }}
           >
-            Detaylar
+            {t("devicesDetails")}
           </button>
           <button
             type="button"
             onClick={() => setDeviceToDelete(d)}
-            className="cursor-pointer p-1 rounded hover:opacity-80 text-red-500"
+            className="cursor-pointer p-1 rounded hover:opacity-80 text-hata"
             title={t("deviceDeleteData")}
             aria-label={t("deviceDeleteData")}
           >
@@ -238,7 +230,7 @@ export const DevicesListView: React.FC = () => {
 
   // Device trend chart points
   const trendData = deviceReports.map((r, i) => ({
-    label: `R${i + 1}`,
+    label: `${i + 1}`,
     value: r.score,
   }));
 
@@ -250,7 +242,7 @@ export const DevicesListView: React.FC = () => {
           {t("navDevices")}
         </h1>
         <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-          NetCheck uygulamasını çalıştıran kullanıcı cihazları ve işletim sistemi ortamları
+          {t("devicesSubtitle")}
         </p>
       </div>
 
@@ -258,7 +250,7 @@ export const DevicesListView: React.FC = () => {
       <FilterBar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Cihaz ID, OS veya sürüm ara (örn: dev-001)..."
+        searchPlaceholder={t("devicesSearchPlaceholder")}
         filters={filterConfigs}
         filterValues={filters}
         onFilterChange={(key, val) => {
@@ -290,14 +282,14 @@ export const DevicesListView: React.FC = () => {
           setPage(1);
         }}
         exportFilename="netcheck-cihazlar.csv"
-        caption="Bağlı Cihazlar Listesi"
+        caption={t("devicesTableCaption")}
       />
 
       {/* Device Detail Drawer */}
       <Drawer
         isOpen={selectedDevice !== null}
         onClose={() => setSelectedDevice(null)}
-        title={selectedDevice ? `Cihaz: ${selectedDevice.id}` : "Cihaz Detayları"}
+        title={selectedDevice ? t("devicesDrawerTitle", { id: selectedDevice.id }) : t("devicesDrawerFallback")}
         width="lg"
       >
         {selectedDevice && (
@@ -312,15 +304,15 @@ export const DevicesListView: React.FC = () => {
             >
               <div>
                 <span className="text-xs" style={{ color: "var(--yazi-soluk)" }}>
-                  İşletim Sistemi:
+                  {t("deviceOs")}
                 </span>
-                <p className="font-semibold capitalize" style={{ color: "var(--yazi)" }}>
-                  {selectedDevice.platform.os} ({selectedDevice.platform.family})
+                <p className="font-semibold" style={{ color: "var(--yazi)" }}>
+                  {selectedDevice.platform.os} ({familyLabel(selectedDevice.platform.family)})
                 </p>
               </div>
               <div>
                 <span className="text-xs" style={{ color: "var(--yazi-soluk)" }}>
-                  ICMP Arka Uç:
+                  {t("deviceIcmp")}
                 </span>
                 <p className="font-mono font-semibold" style={{ color: "var(--yazi)" }}>
                   {selectedDevice.platform.icmp}
@@ -328,7 +320,7 @@ export const DevicesListView: React.FC = () => {
               </div>
               <div>
                 <span className="text-xs" style={{ color: "var(--yazi-soluk)" }}>
-                  Uygulama Sürümü:
+                  {t("deviceAppVersion")}
                 </span>
                 <p className="font-mono font-semibold" style={{ color: "var(--yazi)" }}>
                   v{selectedDevice.appVersion}
@@ -336,7 +328,7 @@ export const DevicesListView: React.FC = () => {
               </div>
               <div>
                 <span className="text-xs" style={{ color: "var(--yazi-soluk)" }}>
-                  Varsayılan Dil:
+                  {t("deviceLocale")}
                 </span>
                 <p className="font-semibold uppercase" style={{ color: "var(--yazi)" }}>
                   {selectedDevice.locale}
@@ -347,14 +339,14 @@ export const DevicesListView: React.FC = () => {
             {/* Score Trend Chart */}
             <div>
               <h3 className="font-semibold text-sm mb-2" style={{ color: "var(--yazi)" }}>
-                Bağlantı Skoru Trendi ({deviceReports.length} Rapor)
+                {t("devicesScoreTrend", { count: deviceReports.length })}
               </h3>
               {trendData.length > 1 ? (
                 <Chart
                   type="line"
                   data={trendData}
                   height={160}
-                  valueFormatter={v => `${v} puan`}
+                  valueFormatter={v => t("devicesPoints", { value: v })}
                 />
               ) : (
                 <div
@@ -364,7 +356,7 @@ export const DevicesListView: React.FC = () => {
                     color: "var(--yazi-soluk)",
                   }}
                 >
-                  Yeterli trend verisi bulunmuyor (en az 2 rapor gereklidir).
+                  {t("devicesTrendNotEnough")}
                 </div>
               )}
             </div>
@@ -372,33 +364,33 @@ export const DevicesListView: React.FC = () => {
             {/* Reports List */}
             <div className="space-y-3">
               <h3 className="font-semibold text-sm" style={{ color: "var(--yazi)" }}>
-                Cihaza Ait Raporlar
+                {t("devicesReportsTitle")}
               </h3>
               {loadingDeviceReports ? (
-                <div className="text-xs py-4 text-center">Raporlar yükleniyor...</div>
+                <div className="text-xs py-4 text-center">{t("loading")}</div>
               ) : deviceReports.length > 0 ? (
                 <div className="space-y-2">
                   {deviceReports.map(rep => (
                     <div
                       key={rep.id}
-                      className="p-3 rounded-lg border flex items-center justify-between text-xs transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                      className="p-3 rounded-lg border flex items-center justify-between text-xs transition-colors hover:bg-yazi/5"
                       style={{
                         backgroundColor: "var(--zemin)",
                         borderColor: "var(--kenar)",
                       }}
                     >
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-mono font-semibold" style={{ color: "var(--yazi)" }}>
+                        <span className="font-mono font-semibold force-ltr" style={{ color: "var(--yazi)" }}>
                           {rep.id}
                         </span>
                         <span style={{ color: "var(--yazi-soluk)" }}>
-                          {new Date(rep.createdAt).toLocaleString("tr-TR")}
+                          {tarihSaat(rep.createdAt, locale)}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <span
-                          className="font-mono font-bold px-2 py-0.5 rounded"
+                          className="font-bold px-2 py-0.5 rounded"
                           style={{
                             backgroundColor:
                               rep.score >= 80
@@ -414,14 +406,16 @@ export const DevicesListView: React.FC = () => {
                                 : "var(--durum-hata)",
                           }}
                         >
-                          {rep.score} Puan
+                          {t("devicesPoints", { value: rep.score })}
                         </span>
                         <a
-                          href={`/raporlar/${rep.id}`}
+                          href={adres("rapor", { id: rep.id })}
                           className="p-1 rounded hover:opacity-80"
                           style={{ color: "var(--renk-ana)" }}
+                          title={t("view")}
+                          aria-label={t("view")}
                         >
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
                         </a>
                       </div>
                     </div>
@@ -429,7 +423,7 @@ export const DevicesListView: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-xs text-center py-4 italic" style={{ color: "var(--yazi-soluk)" }}>
-                  Bu cihaza ait rapor bulunamadı.
+                  {t("devicesNoReports")}
                 </div>
               )}
             </div>
@@ -442,7 +436,7 @@ export const DevicesListView: React.FC = () => {
                 className="cursor-pointer w-full py-2.5 px-4 text-xs font-semibold rounded-lg flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
                 style={{
                   backgroundColor: "var(--durum-hata)",
-                  color: "#ffffff",
+                  color: "var(--durum-hata-zemin)",
                   borderRadius: "var(--radius)",
                 }}
               >
@@ -459,12 +453,12 @@ export const DevicesListView: React.FC = () => {
         isOpen={deviceToDelete !== null}
         onClose={() => setDeviceToDelete(null)}
         onConfirm={handleDeleteDeviceData}
-        title="Cihazın Tüm Verilerini Silmek İstiyor Musunuz?"
-        message={`"${deviceToDelete?.id}" kimlikli cihaz profili ve ilişkili tüm tanılama raporları veri tabanından kalıcı olarak silinecektir.`}
-        confirmLabel="Cihaz Verilerini Sil"
+        title={t("devicesDeleteTitle")}
+        message={t("devicesDeleteMessage", { id: deviceToDelete?.id ?? "" })}
+        confirmLabel={t("deviceDeleteData")}
         tone="danger"
         requireReason={true}
-        reasonPlaceholder="KVKK/GDPR veya kullanıcı silme talebi gerekçesi..."
+        reasonPlaceholder={t("devicesDeleteReason")}
       />
     </div>
   );

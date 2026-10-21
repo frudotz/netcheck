@@ -19,7 +19,7 @@ export const Drawer: React.FC<DrawerProps> = ({
 }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
-  const { isRtl } = useI18n();
+  const { t } = useI18n();
 
   useEffect(() => {
     if (isOpen) {
@@ -67,11 +67,9 @@ export const Drawer: React.FC<DrawerProps> = ({
     xl: "max-w-2xl",
   }[width];
 
-  const sidePlacement = isRtl ? "left-0" : "right-0";
-
   return (
     <div
-      className="fixed inset-0 z-50 flex bg-black/60 backdrop-blur-xs transition-opacity"
+      className="fixed inset-0 z-50 flex bg-koyu/60 backdrop-blur-xs transition-opacity"
       role="dialog"
       aria-modal="true"
       aria-labelledby="drawer-title"
@@ -83,11 +81,9 @@ export const Drawer: React.FC<DrawerProps> = ({
       <div
         ref={drawerRef}
         tabIndex={-1}
-        className={`relative ${sidePlacement} ml-auto h-full w-full ${widthClasses} flex flex-col shadow-2xl z-10 focus:outline-none transition-transform`}
+        className={`relative ms-auto h-full w-full ${widthClasses} flex flex-col shadow-2xl z-10 transition-transform border-s border-kenar`}
         style={{
           backgroundColor: "var(--kart)",
-          borderLeft: isRtl ? "none" : "1px solid var(--kenar)",
-          borderRight: isRtl ? "1px solid var(--kenar)" : "none",
           color: "var(--yazi)",
         }}
       >
@@ -101,9 +97,9 @@ export const Drawer: React.FC<DrawerProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer p-1.5 rounded-lg hover:opacity-75 focus-visible:outline-none"
+            className="cursor-pointer p-1.5 rounded-lg hover:opacity-75"
             style={{ color: "var(--yazi-soluk)" }}
-            aria-label="Kapat"
+            aria-label={t("close")}
           >
             <X className="w-5 h-5" />
           </button>

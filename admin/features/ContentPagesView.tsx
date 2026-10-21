@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { ContentPage, Lang } from "../domain/types";
+import { api } from "../api";
+import type { ContentPage, Locale } from "../domain/types";
 import { RichTextLite } from "../components/RichTextLite";
-import { StatusBadge } from "../components/StatusBadge";
 import { FormField } from "../components/FormField";
+import { CardSkeleton } from "../components/Skeleton";
+import { EmptyState } from "../components/EmptyState";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
+import { dirOf, LOCALES, localeName, pageTitle } from "../../src/lib/i18n";
 import {
-  FileCode,
   Save,
   AlertTriangle,
-  CheckCircle2,
-  Globe,
+  AlertCircle,
   Eye,
   Check,
   Edit,
 } from "lucide-react";
 
+const slugs: ContentPage["slug"][] = ["hakkinda", "gizlilik", "kosullar", "iletisim"];
+
 export const ContentPagesView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,7 @@ export const ContentPagesView: React.FC = () => {
 
   // Selected cell
   const [selectedSlug, setSelectedSlug] = useState<ContentPage["slug"]>("hakkinda");
-  const [selectedLang, setSelectedLang] = useState<Lang>("tr");
+  const [selectedLang, setSelectedLang] = useState<Locale>("tr");
 
   // Edit draft state
   const [editTitle, setEditTitle] = useState("");
@@ -35,19 +37,8 @@ export const ContentPagesView: React.FC = () => {
   const [editStatus, setEditStatus] = useState<"draft" | "published">("published");
   const [saving, setSaving] = useState(false);
 
-  const slugs: { id: ContentPage["slug"]; label: string }[] = [
-    { id: "hakkinda", label: "Hakkında" },
-    { id: "gizlilik", label: "Gizlilik Politikası" },
-    { id: "kosullar", label: "Kullanım Koşulları" },
-    { id: "iletisim", label: "İletişim & Destek" },
-  ];
-
-  const langs: { id: Lang; label: string; isRtl: boolean }[] = [
-    { id: "tr", label: "Türkçe (TR)", isRtl: false },
-    { id: "en", label: "English (EN)", isRtl: false },
-    { id: "ar", label: "العربية (AR)", isRtl: true },
-    { id: "fa", label: "فارسی (FA)", isRtl: true },
-  ];
+  // Sayfa adları arayüz dilinde, uygulamanın bilgi sayfası başlıklarından (src/lib/i18n.ts).
+  const slugLabel = (slug: ContentPage["slug"]) => pageTitle[locale][slug];
 
   const fetchPages = async () => {
     try {
@@ -56,7 +47,7 @@ export const ContentPagesView: React.FC = () => {
       const data = await api.getContentPages();
       setPages(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -81,20 +72,20 @@ export const ContentPagesView: React.FC = () => {
   }, [selectedSlug, selectedLang, pages]);
 
   const activePage = pages.find(p => p.slug === selectedSlug && p.lang === selectedLang) || null;
-  const isCurrentLangRtl = selectedLang === "ar" || selectedLang === "fa";
+  const isCurrentLangRtl = dirOf(selectedLang) === "rtl";
 
   // Check for missing or draft pages
   let missingTranslationsCount = 0;
   slugs.forEach(s => {
-    langs.forEach(l => {
-      const match = pages.find(p => p.slug === s.id && p.lang === l.id);
+    LOCALES.forEach(l => {
+      const match = pages.find(p => p.slug === s && p.lang === l);
       if (!match || match.status === "draft" || !match.body.trim()) {
         missingTranslationsCount++;
       }
     });
   });
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       setSaving(true);
@@ -117,6 +108,27 @@ export const ContentPagesView: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <span className="sr-only">{t("loading")}</span>
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        icon={<AlertCircle className="w-6 h-6" />}
+        title={t("errorTitle")}
+        description={error}
+        action={{ label: t("retry"), onClick: fetchPages }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Title */}
@@ -126,7 +138,7 @@ export const ContentPagesView: React.FC = () => {
             {t("contentTitle")}
           </h1>
           <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            Uygulama içi statik bilgi ve yasal metinlerin 4 dilde yönetimi
+            {t("contentPagesSubtitle")}
           </p>
         </div>
       </div>
@@ -143,7 +155,7 @@ export const ContentPagesView: React.FC = () => {
         >
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           <span>
-            {t("contentMissingWarning")} ({missingTranslationsCount} sayfa henüz yayınlanmamış veya taslak durumdadır).
+            {t("contentMissingWarning")} {t("contentPagesMissingCount", { count: missingTranslationsCount })}
           </span>
         </div>
       )}
@@ -165,52 +177,54 @@ export const ContentPagesView: React.FC = () => {
             color: "var(--yazi)",
           }}
         >
-          <span>{t("contentMatrix")} (4 Sayfa × 4 Dil)</span>
+          <span>{t("contentMatrix")} {t("contentPagesMatrixSize")}</span>
           <span className="text-xs font-normal" style={{ color: "var(--yazi-soluk)" }}>
-            Düzenlemek için bir hücreye tıklayın
+            {t("contentPagesMatrixHint")}
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-start text-xs">
             <caption className="sr-only">{t("contentMatrix")}</caption>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--kenar)", backgroundColor: "var(--zemin)" }}>
                 <th scope="col" className="py-2.5 px-4 font-semibold" style={{ color: "var(--yazi)" }}>
                   {t("contentSlug")}
                 </th>
-                {langs.map(l => (
-                  <th key={l.id} scope="col" className="py-2.5 px-4 font-semibold text-center" style={{ color: "var(--yazi)" }}>
-                    {l.label}
+                {LOCALES.map(l => (
+                  <th key={l} scope="col" lang={l} className="py-2.5 px-4 font-semibold text-center" style={{ color: "var(--yazi)" }}>
+                    {localeName[l]} ({l.toUpperCase()})
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: "var(--kenar)" }}>
               {slugs.map(s => (
-                <tr key={s.id}>
+                <tr key={s}>
                   <td className="py-3 px-4 font-semibold text-xs" style={{ color: "var(--yazi)" }}>
-                    {s.label}
-                    <span className="block font-mono text-[10px]" style={{ color: "var(--yazi-soluk)" }}>
-                      /{s.id}
+                    {slugLabel(s)}
+                    <span className="block font-mono text-[10px] force-ltr" style={{ color: "var(--yazi-soluk)" }}>
+                      /{s}
                     </span>
                   </td>
 
-                  {langs.map(l => {
-                    const match = pages.find(p => p.slug === s.id && p.lang === l.id);
-                    const isSelected = selectedSlug === s.id && selectedLang === l.id;
+                  {LOCALES.map(l => {
+                    const match = pages.find(p => p.slug === s && p.lang === l);
+                    const isSelected = selectedSlug === s && selectedLang === l;
                     const isPublished = match?.status === "published";
                     const hasContent = Boolean(match?.body.trim());
 
                     return (
-                      <td key={l.id} className="py-2 px-2 text-center">
+                      <td key={l} className="py-2 px-2 text-center">
                         <button
                           type="button"
                           onClick={() => {
-                            setSelectedSlug(s.id);
-                            setSelectedLang(l.id);
+                            setSelectedSlug(s);
+                            setSelectedLang(l);
                           }}
-                          className="cursor-pointer w-full py-2 px-3 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all focus-visible:outline-none"
+                          aria-label={`${slugLabel(s)} · ${localeName[l]}`}
+                          aria-pressed={isSelected}
+                          className="cursor-pointer w-full py-2 px-3 rounded-lg border flex flex-col items-center justify-center gap-1 transition-all"
                           style={{
                             backgroundColor: isSelected
                               ? "var(--renk-ana)"
@@ -231,7 +245,13 @@ export const ContentPagesView: React.FC = () => {
                         >
                           <div className="flex items-center gap-1 font-semibold text-[11px]">
                             {isPublished ? <Check className="w-3 h-3" /> : <Edit className="w-3 h-3" />}
-                            <span>{isPublished ? "Yayında" : hasContent ? "Taslak" : "Eksik"}</span>
+                            <span>
+                              {isPublished
+                                ? t("rulesStatusPublished")
+                                : hasContent
+                                ? t("rulesStatusDraft")
+                                : t("contentPagesMissing")}
+                            </span>
                           </div>
                         </button>
                       </td>
@@ -258,11 +278,11 @@ export const ContentPagesView: React.FC = () => {
         >
           <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: "var(--kenar)" }}>
             <div>
-              <h3 className="font-semibold text-sm sm:text-base capitalize" style={{ color: "var(--yazi)" }}>
-                Düzenle: {slugs.find(s => s.id === selectedSlug)?.label} ({selectedLang.toUpperCase()})
+              <h3 className="font-semibold text-sm sm:text-base" style={{ color: "var(--yazi)" }}>
+                {t("contentPagesEditing", { page: slugLabel(selectedSlug), lang: selectedLang.toUpperCase() })}
               </h3>
               <p className="text-xs" style={{ color: "var(--yazi-soluk)" }}>
-                Markdown etiketleri ile biçimlendirme yapabilirsiniz.
+                {t("contentPagesMarkdownHint")}
               </p>
             </div>
 
@@ -270,6 +290,7 @@ export const ContentPagesView: React.FC = () => {
               <select
                 value={editStatus}
                 onChange={e => setEditStatus(e.target.value as "draft" | "published")}
+                aria-label={t("contentStatusField")}
                 className="cursor-pointer text-xs font-semibold px-2.5 py-1.5 rounded-lg border appearance-none"
                 style={{
                   backgroundColor: "var(--zemin)",
@@ -277,8 +298,8 @@ export const ContentPagesView: React.FC = () => {
                   color: "var(--yazi)",
                 }}
               >
-                <option value="published">Yayında (Canlı)</option>
-                <option value="draft">Taslak</option>
+                <option value="published">{t("contentPagesStatusLive")}</option>
+                <option value="draft">{t("rulesStatusDraft")}</option>
               </select>
             </div>
           </div>
@@ -289,7 +310,7 @@ export const ContentPagesView: React.FC = () => {
               value={editTitle}
               dir={isCurrentLangRtl ? "rtl" : "ltr"}
               onChange={e => setEditTitle(e.target.value)}
-              className="p-2.5 text-xs sm:text-sm rounded-lg border transition-colors focus-visible:outline-none"
+              className="p-2.5 text-xs sm:text-sm rounded-lg border transition-colors"
               style={{
                 backgroundColor: "var(--zemin)",
                 borderColor: "var(--kenar)",
@@ -306,7 +327,7 @@ export const ContentPagesView: React.FC = () => {
               onChange={setEditBody}
               dir={isCurrentLangRtl ? "rtl" : "ltr"}
               rows={10}
-              placeholder="İçerik metnini buraya girin..."
+              placeholder={t("contentPagesBodyPlaceholder")}
             />
           </FormField>
 
@@ -322,7 +343,7 @@ export const ContentPagesView: React.FC = () => {
               }}
             >
               <Save className="w-3.5 h-3.5" />
-              <span>{saving ? "Kaydediliyor..." : t("save")}</span>
+              <span>{saving ? t("contentPagesSaving") : t("save")}</span>
             </button>
           </div>
         </form>
@@ -340,7 +361,7 @@ export const ContentPagesView: React.FC = () => {
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4" style={{ color: "var(--renk-ana)" }} />
               <h3 className="font-semibold text-sm sm:text-base" style={{ color: "var(--yazi)" }}>
-                {isCurrentLangRtl ? t("contentPreviewRtl") : "Canlı Önizleme"}
+                {isCurrentLangRtl ? t("contentPreviewRtl") : t("contentPagesPreview")}
               </h3>
             </div>
             {isCurrentLangRtl && (
@@ -351,7 +372,7 @@ export const ContentPagesView: React.FC = () => {
                   color: "var(--durum-uyari)",
                 }}
               >
-                RTL Düzeni Aktif
+                {t("contentPagesRtlActive")}
               </span>
             )}
           </div>
@@ -359,39 +380,40 @@ export const ContentPagesView: React.FC = () => {
           <div
             className="flex-1 p-4 rounded-lg border overflow-y-auto"
             dir={isCurrentLangRtl ? "rtl" : "ltr"}
+            lang={selectedLang}
             style={{
               backgroundColor: "var(--zemin)",
               borderColor: "var(--kenar)",
             }}
           >
             <h2 className="text-lg font-bold mb-3" style={{ color: "var(--yazi)" }}>
-              {editTitle || <span className="opacity-40 italic">Başlık girilmedi</span>}
+              {editTitle || <span className="opacity-40 italic">{t("contentPagesNoTitle")}</span>}
             </h2>
 
             <div
               className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap space-y-2"
               style={{ color: "var(--yazi)" }}
             >
-              {editBody || <span className="opacity-40 italic">İçerik girilmedi</span>}
+              {editBody || <span className="opacity-40 italic">{t("contentPagesNoBody")}</span>}
             </div>
 
-            {/* Simulated technical details ensuring LTR on RTL locales per §A.1 */}
+            {/* Teknik değerler RTL dillerde de soldan sağa kalır; yalnız belgeleme amaçlı örnek değerler. */}
             <div
               className="mt-6 pt-4 border-t text-xs flex flex-col gap-1.5"
               style={{ borderColor: "var(--kenar)" }}
             >
               <span className="font-semibold" style={{ color: "var(--yazi-soluk)" }}>
-                Teknik Bilgi Alanları (Her zaman LTR kalır):
+                {t("contentPagesLtrFields")}
               </span>
               <div className="flex flex-wrap gap-2">
-                <code className="force-ltr font-mono text-xs px-2 py-0.5 rounded bg-black/5 dark:bg-white/5">
-                  ID: NCHK-2026-3F9A0C71
+                <code className="force-ltr font-mono text-xs px-2 py-0.5 rounded bg-yazi/5">
+                  NCHK-YYYY-XXXXXXXX
                 </code>
-                <code className="force-ltr font-mono text-xs px-2 py-0.5 rounded bg-black/5 dark:bg-white/5">
-                  IP: 192.168.1.24
+                <code className="force-ltr font-mono text-xs px-2 py-0.5 rounded bg-yazi/5">
+                  192.0.2.24
                 </code>
-                <code className="force-ltr font-mono text-xs px-2 py-0.5 rounded bg-black/5 dark:bg-white/5">
-                  support@netcheck.internal
+                <code className="force-ltr font-mono text-xs px-2 py-0.5 rounded bg-yazi/5">
+                  destek@example.com
                 </code>
               </div>
             </div>

@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { DiagnosticTarget } from "../domain/types";
+import { api } from "../api";
+import type { DiagnosticKind, DiagnosticTarget } from "../domain/types";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { StatusBadge } from "../components/StatusBadge";
+import { CardSkeleton } from "../components/Skeleton";
+import { EmptyState } from "../components/EmptyState";
 import { useI18n } from "../i18n";
+import type { Translations } from "../i18n/tr";
+import { sozluk, testAdi } from "../../src/lib/sozluk";
 import { useToast } from "../context/ToastContext";
-import {
-  Target,
-  RotateCcw,
-  Save,
-  Check,
-  AlertCircle,
-  HelpCircle,
-  Clock,
-} from "lucide-react";
+import { RotateCcw, Save, AlertCircle } from "lucide-react";
+
+// Hedef adresleri veri olarak gösterilir (çevrilmez); test adları uygulamanın sözlüğünden (testAdi),
+// açıklamalar panel sözlüğünden gelir.
+const testDisplayNames: Record<DiagnosticKind, { host?: string; desc: keyof Translations }> = {
+  gateway: { desc: "targetsInfoGateway" },
+  cloudflare: { host: "1.1.1.1", desc: "targetsInfoCloudflare" },
+  google: { host: "8.8.8.8", desc: "targetsInfoGoogle" },
+  dns: { desc: "targetsInfoDns" },
+  internet: { desc: "targetsInfoInternet" },
+};
 
 export const DiagnosticTargetsView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -25,27 +31,10 @@ export const DiagnosticTargetsView: React.FC = () => {
   const [confirmReset, setConfirmReset] = useState(false);
   const [savingIndex, setSavingIndex] = useState<number | null>(null);
 
-  const testDisplayNames: Record<string, { title: string; desc: string }> = {
-    gateway: {
-      title: "Varsayılan Ağ Geçidi (Gateway)",
-      desc: "İstemcinin bağlı olduğu yerel router/modem IP adresi ('auto' otomatik algılar).",
-    },
-    cloudflare: {
-      title: "Cloudflare DNS (1.1.1.1)",
-      desc: "Cloudflare global anycast resolver ping testi.",
-    },
-    google: {
-      title: "Google DNS (8.8.8.8)",
-      desc: "Google global resolver ping ve rota erişim testi.",
-    },
-    dns: {
-      title: "DNS Çözümleme (Hostname Resolution)",
-      desc: "Alan adının IP adresine çevrilme testi.",
-    },
-    internet: {
-      title: "İnternet Dış Dünya Erişimi (HTTPS)",
-      desc: "Dış web sunucusuna HTTP/TLS el sıkışması ve yanıt alma testi.",
-    },
+  const testTitle = (kind: DiagnosticKind): string => {
+    const info = testDisplayNames[kind];
+    const ad = testAdi(sozluk[locale], kind);
+    return info.host ? `${ad} (${info.host})` : ad;
   };
 
   const fetchTargets = async () => {
@@ -55,7 +44,7 @@ export const DiagnosticTargetsView: React.FC = () => {
       const data = await api.getTargets();
       setTargets(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -70,7 +59,7 @@ export const DiagnosticTargetsView: React.FC = () => {
     try {
       setSavingIndex(index);
       await api.updateTarget(target);
-      addToast(`${target.kind} hedefi başarıyla güncellendi.`, "success");
+      addToast(t("targetsUpdated", { name: testTitle(target.kind) }), "success");
     } catch {
       addToast(t("toastActionError"), "error");
     } finally {
@@ -83,11 +72,32 @@ export const DiagnosticTargetsView: React.FC = () => {
       const reset = await api.resetTargetsToDefault();
       setTargets(reset);
       setConfirmReset(false);
-      addToast("Tanılama hedefleri varsayılan değerlere sıfırlandı.", "success");
+      addToast(t("targetsResetDone"), "success");
     } catch {
       addToast(t("toastActionError"), "error");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <span className="sr-only">{t("loading")}</span>
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        icon={<AlertCircle className="w-6 h-6" />}
+        title={t("errorTitle")}
+        description={error}
+        action={{ label: t("retry"), onClick: fetchTargets }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -121,10 +131,7 @@ export const DiagnosticTargetsView: React.FC = () => {
       {/* Target Rows */}
       <div className="space-y-4">
         {targets.map((tgt, idx) => {
-          const info = testDisplayNames[tgt.kind] || {
-            title: tgt.kind,
-            desc: "Tanılama hedefi",
-          };
+          const title = testTitle(tgt.kind);
 
           return (
             <div
@@ -140,16 +147,16 @@ export const DiagnosticTargetsView: React.FC = () => {
               <div className="max-w-md">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-sm sm:text-base" style={{ color: "var(--yazi)" }}>
-                    {info.title}
+                    {title}
                   </h3>
                   <StatusBadge
                     tone={tgt.enabled ? "success" : "neutral"}
-                    label={tgt.enabled ? "Etkin" : "Devre Dışı"}
+                    label={tgt.enabled ? t("targetStatus") : t("targetsDisabled")}
                     size="sm"
                   />
                 </div>
                 <p className="text-xs mt-1 leading-relaxed" style={{ color: "var(--yazi-soluk)" }}>
-                  {info.desc}
+                  {t(testDisplayNames[tgt.kind].desc)}
                 </p>
               </div>
 
@@ -157,10 +164,11 @@ export const DiagnosticTargetsView: React.FC = () => {
               <div className="flex flex-wrap items-center gap-3">
                 {/* Target Address Input */}
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-medium" style={{ color: "var(--yazi-soluk)" }}>
+                  <label htmlFor={`hedef-${tgt.kind}`} className="text-[11px] font-medium" style={{ color: "var(--yazi-soluk)" }}>
                     {t("targetAddress")}
                   </label>
                   <input
+                    id={`hedef-${tgt.kind}`}
                     type="text"
                     value={tgt.target}
                     onChange={e => {
@@ -171,7 +179,7 @@ export const DiagnosticTargetsView: React.FC = () => {
                         return copy;
                       });
                     }}
-                    className="p-1.5 px-3 rounded-lg border font-mono text-xs sm:text-sm transition-colors focus-visible:outline-none"
+                    className="force-ltr p-1.5 px-3 rounded-lg border font-mono text-xs sm:text-sm transition-colors"
                     style={{
                       backgroundColor: "var(--zemin)",
                       borderColor: "var(--kenar)",
@@ -183,11 +191,12 @@ export const DiagnosticTargetsView: React.FC = () => {
 
                 {/* Timeout Input */}
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-medium" style={{ color: "var(--yazi-soluk)" }}>
+                  <label htmlFor={`zaman-asimi-${tgt.kind}`} className="text-[11px] font-medium" style={{ color: "var(--yazi-soluk)" }}>
                     {t("targetTimeout")}
                   </label>
                   <div className="flex items-center gap-1">
                     <input
+                      id={`zaman-asimi-${tgt.kind}`}
                       type="number"
                       step={500}
                       min={500}
@@ -201,7 +210,7 @@ export const DiagnosticTargetsView: React.FC = () => {
                           return copy;
                         });
                       }}
-                      className="p-1.5 text-center rounded-lg border font-mono text-xs sm:text-sm font-semibold focus-visible:outline-none"
+                      className="p-1.5 text-center rounded-lg border font-mono text-xs sm:text-sm font-semibold"
                       style={{
                         backgroundColor: "var(--zemin)",
                         borderColor: "var(--kenar)",
@@ -217,13 +226,14 @@ export const DiagnosticTargetsView: React.FC = () => {
 
                 {/* Enabled Toggle */}
                 <div className="flex flex-col gap-1 items-center">
-                  <label className="text-[11px] font-medium" style={{ color: "var(--yazi-soluk)" }}>
-                    Durum
-                  </label>
+                  <span className="text-[11px] font-medium" style={{ color: "var(--yazi-soluk)" }} aria-hidden="true">
+                    {t("targetStatus")}
+                  </span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={tgt.enabled}
+                      aria-label={`${title}: ${t("targetStatus")}`}
                       onChange={e => {
                         const val = e.target.checked;
                         setTargets(prev => {
@@ -235,7 +245,7 @@ export const DiagnosticTargetsView: React.FC = () => {
                       className="sr-only peer"
                     />
                     <div
-                      className="w-9 h-5 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all"
+                      className="w-9 h-5 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-kart after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-kart after:border-kenar after:border after:rounded-full after:h-4 after:w-4 after:transition-all"
                       style={{
                         backgroundColor: tgt.enabled ? "var(--renk-ana)" : "var(--kenar)",
                       }}
@@ -245,7 +255,9 @@ export const DiagnosticTargetsView: React.FC = () => {
 
                 {/* Save Button */}
                 <div className="flex flex-col gap-1 justify-end">
-                  <label className="text-[11px] opacity-0 select-none">Kaydet</label>
+                  <span className="text-[11px] opacity-0 select-none" aria-hidden="true">
+                    {t("save")}
+                  </span>
                   <button
                     type="button"
                     onClick={() => handleUpdate(idx)}
@@ -272,9 +284,9 @@ export const DiagnosticTargetsView: React.FC = () => {
         isOpen={confirmReset}
         onClose={() => setConfirmReset(false)}
         onConfirm={handleResetDefaults}
-        title="Tanılama Hedeflerini Varsayılanlara Sıfırla?"
-        message="Yapılan tüm özel hedef adres ve zaman aşımı değişiklikleri iptal edilerek NetCheck standart fabrika değerleri yüklenecektir."
-        confirmLabel="Varsayılanlara Sıfırla"
+        title={t("targetsResetTitle")}
+        message={t("targetsResetMessage")}
+        confirmLabel={t("targetsResetConfirm")}
         tone="warning"
         requireReason={false}
       />

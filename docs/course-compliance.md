@@ -24,9 +24,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
 | Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 44 | 3 | 0 | 2 | 49 |
-| **All** | **81** | **10** | **0** | **4** | **95** |
+| Instructor status report 2026-10-21 — admin panel | 4 | 0 | 0 | 2 | 6 |
+| **All** | **85** | **10** | **0** | **6** | **101** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–15 and the app-language groundwork for Tasks 12–14 are on their branches. What remains in Week 4 is student-side evidence (R10-d, R13-e), macOS/Linux/iOS runs (R15-h, deferred by the instructor) and the announced Task 16 audit.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–15 and the app-language groundwork for Tasks 12–14 are on their branches. What remains in Week 4 is student-side evidence (R10-d, R13-e), macOS/Linux/iOS runs (R15-h, deferred by the instructor) and the announced Task 16 audit. The admin panel move from the instructor's status report is on its own branch as an interface without data; archiving the source repository (RA-e) follows its merge.
 
 ## Week 3 — Batch 01
 
@@ -221,6 +222,19 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 | RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PASS (Task 10–15 branches) | Tasks 09.1 (PR #34, log backfilled) and 10–15 each have a `feature/NN-*` branch, a PR and a `docs/istemler/` log; the app-language groundwork has its own branch, PR and log |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
 
+### Instructor status report (2026-10-21) — admin panel
+
+Source: the instructor's status report of 2026-10-21, shared privately and kept out of the repository as it instructs. It asks for the AI Studio admin panel (`frudotz/netcheck-gorev-aistudio`) to be moved into the main project, for example into `admin/`. The moved panel must follow the project rules: branch and PR, no hard-coded colour codes, texts from a dictionary. The separate repository may then be archived.
+
+| ID | Requirement | Status | Evidence / missing work |
+|---|---|---|---|
+| RA-a | The panel lives in the main project (e.g. `admin/`), not only in a separate repository | PASS (admin branch) | `admin/` with 11 screens; pages in `src/pages/admin/`; the build produces 32 pages (11 under `/admin`). [`docs/yonetim-paneli.md`](yonetim-paneli.md) |
+| RA-b | Moved on a branch with a PR | PASS (admin branch) | `feature/admin-panel-tasima` and its log [`docs/istemler/admin-panel-tasima.md`](istemler/admin-panel-tasima.md); PR #32 untouched |
+| RA-c | No hard-coded colour codes | PASS (admin branch) | Scan of `admin/`: 0 hex/rgb/hsl values, 0 Tailwind palette classes, 0 `dark:` variants. The Tailwind palette is disabled in `admin/styles/admin.css` and colour utilities map to `app.css` tokens; one token added (`--renk-koyu-yazi`, [`docs/branding.md`](branding.md)) |
+| RA-d | Texts come from a dictionary | PASS (admin branch) | `admin/i18n/{tr,en,ar,fa}.ts`, 410 keys each, parity enforced by the `Translations` type; no visible text outside dictionaries (scan). Shared labels come from `src/lib/sozluk.ts` |
+| RA-e | Archive the separate repository afterwards | UNVERIFIED | Owner's step after this branch is merged and verified; the source repository is unchanged until then |
+| RA-f | Unstated: how the panel is reached, whether it ships in mobile builds, whether it shows data | UNVERIFIED | Not specified by the report. Provisional, reversible choices (owner's general authorization, 2026-10-21): reachable at `/admin` only, as in PR #32; part of the static build on every platform; interface only, with data screens showing a "not connected" state until C-3 is decided |
+
 ## Conflicts requiring an instructor decision
 
 These requirements contradict binding rules already in the project. Resolve them before implementing the affected tasks (NC-16).
@@ -230,7 +244,15 @@ These requirements contradict binding rules already in the project. Resolve them
   - Turkish stays the default; Settings offers TR/EN/AR/FA and switches `<html lang dir>` on app screens.
   - Texts come from `src/lib/sozluk.ts`. New or changed texts are added in all four languages; older texts stay Turkish until moved.
   - Recorded in AGENTS.md §4. Instructor confirmation is still pending.
-- **C-3 — Out-of-scope list vs. merged backend.** AGENTS.md §6 excludes login, server and database, yet PR #31 (instructor-authored) merged a SQLite and auth backend that no screen uses.
+- **C-3 — Out-of-scope list vs. merged backend.** AGENTS.md §6 excludes login, server and database, yet PR #31 (instructor-authored) merged a SQLite and auth backend that no screen uses. The admin panel moved in for RA-a manages devices, messages and users, which is "remote management" in the same list; it is therefore kept as an interface without data until this is decided. PR #32 (instructor-authored) connects the panel to SQLite and stays open.
+
+### Open questions recorded with provisional choices
+
+These are not contradictions, but the requirement does not settle them. Each choice is small and reversible and is recorded in [`docs/yonetim-paneli.md`](yonetim-paneli.md).
+
+- **Admin dependencies.** Tailwind (build-time only, confined to `admin/styles/admin.css`) and `lucide-react` are kept; `react-router-dom` is replaced by Astro pages.
+- **Targets and Content screens.** Editing diagnostic targets contradicts "targets are fixed in Rust" (AGENTS.md §6), and editing content pages has no consumer in the app. Their code is kept but not rendered while the panel is not connected; keep, make read-only or remove is decided with C-3.
+- **Panel in mobile builds.** It is part of the static build and therefore in every package, with no link from the app.
 
 ## Remediation plan
 

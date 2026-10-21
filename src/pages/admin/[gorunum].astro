@@ -1,0 +1,13 @@
+---
+// Panelin özet dışındaki ekranları; liste admin/yol.ts'te. Rapor detayı tek sayfadır (/admin/rapor?id=…).
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { ALT_GORUNUMLER } from '../../../admin/yol';
+
+export function getStaticPaths() {
+  return ALT_GORUNUMLER.map((gorunum) => ({ params: { gorunum } }));
+}
+
+const { gorunum } = Astro.params;
+---
+
+<AdminLayout gorunum={gorunum} />

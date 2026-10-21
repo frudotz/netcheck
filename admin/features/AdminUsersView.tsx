@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { AdminUser, AdminRole } from "../domain/types";
-import { DataTable, Column } from "../components/DataTable";
+import { api } from "../api";
+import type { AdminUser, AdminRole } from "../domain/types";
+import { DataTable, type Column } from "../components/DataTable";
 import { Modal } from "../components/Modal";
 import { FormField } from "../components/FormField";
 import { StatusBadge } from "../components/StatusBadge";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
 import {
-  Users,
   UserPlus,
   ShieldCheck,
   Check,
   X,
-  Mail,
-  User,
   Shield,
 } from "lucide-react";
 
 export const AdminUsersView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -39,8 +36,8 @@ export const AdminUsersView: React.FC = () => {
       setError(null);
       const data = await api.getAdmins();
       setAdmins(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+    } catch {
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -50,7 +47,7 @@ export const AdminUsersView: React.FC = () => {
     fetchAdmins();
   }, []);
 
-  const handleInvite = async (e: React.FormEvent) => {
+  const handleInvite = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!inviteName.trim() || !inviteEmail.trim()) return;
     try {
@@ -61,7 +58,7 @@ export const AdminUsersView: React.FC = () => {
         role: inviteRole,
         active: true,
       });
-      addToast("Yönetici daveti başarıyla gönderildi.", "success");
+      addToast(t("adminsToastInvited"), "success");
       setInviteName("");
       setInviteEmail("");
       setInviteRole("support");
@@ -101,8 +98,9 @@ export const AdminUsersView: React.FC = () => {
               color: "var(--renk-ana)",
               border: "1px solid var(--kenar)",
             }}
+            aria-hidden="true"
           >
-            {a.name.slice(0, 2).toUpperCase()}
+            {a.name.slice(0, 2).toLocaleUpperCase(locale)}
           </div>
           <div>
             <div className="font-semibold text-xs sm:text-sm" style={{ color: "var(--yazi)" }}>
@@ -151,55 +149,35 @@ export const AdminUsersView: React.FC = () => {
       header: t("adminLastLogin"),
       sortable: true,
       render: a => {
-        if (!a.lastLoginAt) return <span style={{ color: "var(--yazi-soluk)" }}>Hiç giriş yapmadı</span>;
+        if (!a.lastLoginAt) return <span style={{ color: "var(--yazi-soluk)" }}>{t("adminsNeverLoggedIn")}</span>;
         return (
           <span className="font-mono text-xs" style={{ color: "var(--yazi)" }}>
-            {new Date(a.lastLoginAt).toLocaleString("tr-TR")}
+            {new Date(a.lastLoginAt).toLocaleString(locale)}
           </span>
         );
       },
     },
   ];
 
-  // Role - Permission Matrix Definition
-  const permissions = [
-    {
-      role: "owner" as AdminRole,
-      title: "Sistem Sahibi (Owner)",
-      view: true,
-      edit: true,
-      publish: true,
-      delete: true,
-      pii: true,
-    },
-    {
-      role: "support" as AdminRole,
-      title: "Destek Uzmanı (Support)",
-      view: true,
-      edit: true,
-      publish: false,
-      delete: false,
-      pii: true,
-    },
-    {
-      role: "content" as AdminRole,
-      title: "İçerik Yöneticisi (Content)",
-      view: true,
-      edit: true,
-      publish: true,
-      delete: false,
-      pii: false,
-    },
-    {
-      role: "viewer" as AdminRole,
-      title: "Salt Okunur İzleyici (Viewer)",
-      view: true,
-      edit: false,
-      publish: false,
-      delete: false,
-      pii: false,
-    },
+  // Role - Permission Matrix Definition (rol adları sözlükten, getRoleLabel)
+  const permissions: { role: AdminRole; view: boolean; edit: boolean; publish: boolean; delete: boolean; pii: boolean }[] = [
+    { role: "owner", view: true, edit: true, publish: true, delete: true, pii: true },
+    { role: "support", view: true, edit: true, publish: false, delete: false, pii: true },
+    { role: "content", view: true, edit: true, publish: true, delete: false, pii: false },
+    { role: "viewer", view: true, edit: false, publish: false, delete: false, pii: false },
   ];
+
+  // İzin hücresi: simge görsel, metin ekran okuyucu için.
+  const permissionCell = (allowed: boolean) => (
+    <td className="py-3 px-3 text-center">
+      {allowed ? (
+        <Check className="w-4 h-4 mx-auto text-basarili" aria-hidden="true" />
+      ) : (
+        <X className="w-4 h-4 mx-auto text-hata opacity-40" aria-hidden="true" />
+      )}
+      <span className="sr-only">{allowed ? t("adminsPermAllowed") : t("adminsPermDenied")}</span>
+    </td>
+  );
 
   return (
     <div className="space-y-6">
@@ -210,7 +188,7 @@ export const AdminUsersView: React.FC = () => {
             {t("adminsTitle")}
           </h1>
           <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            Yönetim paneline erişim yetkisi olan yöneticiler ve rol tabanlı izin matrisi
+            {t("adminsSubtitle")}
           </p>
         </div>
 
@@ -238,7 +216,7 @@ export const AdminUsersView: React.FC = () => {
         error={error}
         onRetry={fetchAdmins}
         exportFilename="netcheck-yoneticiler.csv"
-        caption="Yöneticiler Listesi"
+        caption={t("adminsTableCaption")}
       />
 
       {/* Role - Permission Matrix Section */}
@@ -256,17 +234,17 @@ export const AdminUsersView: React.FC = () => {
             <span>{t("permMatrix")}</span>
           </h2>
           <p className="text-xs mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            Her rolün panel üzerindeki operasyonel yetki sınırları
+            {t("adminsPermMatrixDesc")}
           </p>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+          <table className="w-full text-xs text-start">
             <caption className="sr-only">{t("permMatrix")}</caption>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--kenar)", backgroundColor: "var(--zemin)" }}>
-                <th scope="col" className="py-2.5 px-3 font-semibold" style={{ color: "var(--yazi)" }}>
-                  Rol
+                <th scope="col" className="py-2.5 px-3 font-semibold text-start" style={{ color: "var(--yazi)" }}>
+                  {t("adminRoleCol")}
                 </th>
                 <th scope="col" className="py-2.5 px-3 font-semibold text-center" style={{ color: "var(--yazi)" }}>
                   {t("permView")}
@@ -287,45 +265,15 @@ export const AdminUsersView: React.FC = () => {
             </thead>
             <tbody className="divide-y" style={{ borderColor: "var(--kenar)" }}>
               {permissions.map(p => (
-                <tr key={p.role} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                  <td className="py-3 px-3 font-semibold" style={{ color: "var(--yazi)" }}>
-                    {p.title}
-                  </td>
-                  <td className="py-3 px-3 text-center">
-                    {p.view ? (
-                      <Check className="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <X className="w-4 h-4 mx-auto text-red-500 opacity-40" />
-                    )}
-                  </td>
-                  <td className="py-3 px-3 text-center">
-                    {p.edit ? (
-                      <Check className="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <X className="w-4 h-4 mx-auto text-red-500 opacity-40" />
-                    )}
-                  </td>
-                  <td className="py-3 px-3 text-center">
-                    {p.publish ? (
-                      <Check className="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <X className="w-4 h-4 mx-auto text-red-500 opacity-40" />
-                    )}
-                  </td>
-                  <td className="py-3 px-3 text-center">
-                    {p.delete ? (
-                      <Check className="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <X className="w-4 h-4 mx-auto text-red-500 opacity-40" />
-                    )}
-                  </td>
-                  <td className="py-3 px-3 text-center">
-                    {p.pii ? (
-                      <Check className="w-4 h-4 mx-auto text-emerald-600 dark:text-emerald-400" />
-                    ) : (
-                      <X className="w-4 h-4 mx-auto text-red-500 opacity-40" />
-                    )}
-                  </td>
+                <tr key={p.role} className="hover:bg-yazi/5 transition-colors">
+                  <th scope="row" className="py-3 px-3 font-semibold text-start" style={{ color: "var(--yazi)" }}>
+                    {getRoleLabel(p.role)}
+                  </th>
+                  {permissionCell(p.view)}
+                  {permissionCell(p.edit)}
+                  {permissionCell(p.publish)}
+                  {permissionCell(p.delete)}
+                  {permissionCell(p.pii)}
                 </tr>
               ))}
             </tbody>
@@ -365,7 +313,7 @@ export const AdminUsersView: React.FC = () => {
                 borderRadius: "var(--radius)",
               }}
             >
-              {inviting ? "Davet Gönderiliyor..." : "Davetiye Gönder"}
+              {inviting ? t("adminsInviting") : t("adminsSendInvite")}
             </button>
           </>
         }
@@ -376,8 +324,8 @@ export const AdminUsersView: React.FC = () => {
               type="text"
               value={inviteName}
               onChange={e => setInviteName(e.target.value)}
-              placeholder="Örn: Ayşe Kaya"
-              className="p-2.5 text-xs sm:text-sm rounded-lg border focus-visible:outline-none"
+              placeholder={t("adminsNamePlaceholder")}
+              className="p-2.5 text-xs sm:text-sm rounded-lg border"
               style={{
                 backgroundColor: "var(--zemin)",
                 borderColor: "var(--kenar)",
@@ -393,8 +341,8 @@ export const AdminUsersView: React.FC = () => {
               type="email"
               value={inviteEmail}
               onChange={e => setInviteEmail(e.target.value)}
-              placeholder="ad@kurum.com"
-              className="p-2.5 text-xs sm:text-sm rounded-lg border focus-visible:outline-none"
+              placeholder={t("adminsEmailPlaceholder")}
+              className="p-2.5 text-xs sm:text-sm rounded-lg border force-ltr"
               style={{
                 backgroundColor: "var(--zemin)",
                 borderColor: "var(--kenar)",
@@ -409,7 +357,7 @@ export const AdminUsersView: React.FC = () => {
             <select
               value={inviteRole}
               onChange={e => setInviteRole(e.target.value as AdminRole)}
-              className="cursor-pointer p-2.5 text-xs sm:text-sm rounded-lg border focus-visible:outline-none appearance-none"
+              className="cursor-pointer p-2.5 text-xs sm:text-sm rounded-lg border appearance-none"
               style={{
                 backgroundColor: "var(--zemin)",
                 borderColor: "var(--kenar)",
@@ -417,10 +365,11 @@ export const AdminUsersView: React.FC = () => {
                 borderRadius: "var(--radius)",
               }}
             >
-              <option value="support">Destek Uzmanı (Support)</option>
-              <option value="content">İçerik Yöneticisi (Content)</option>
-              <option value="viewer">Salt Okunur İzleyici (Viewer)</option>
-              <option value="owner">Sistem Sahibi (Owner)</option>
+              {(["support", "content", "viewer", "owner"] as AdminRole[]).map(role => (
+                <option key={role} value={role}>
+                  {getRoleLabel(role)}
+                </option>
+              ))}
             </select>
           </FormField>
         </form>

@@ -1,27 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { ScoreRule, ReportRecord } from "../domain/types";
+import { api } from "../api";
+import type { ScoreRule, ReportRecord } from "../domain/types";
 import { WeightsEditor } from "../components/WeightsEditor";
 import { LatencyBandsEditor } from "../components/LatencyBandsEditor";
 import { ScorePreview } from "../components/ScorePreview";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { StatusBadge } from "../components/StatusBadge";
+import { CardSkeleton } from "../components/Skeleton";
+import { EmptyState } from "../components/EmptyState";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
 import {
-  Sliders,
   Save,
   Send,
   RotateCcw,
   History,
-  CheckCircle2,
-  Clock,
   AlertCircle,
-  HelpCircle,
 } from "lucide-react";
 
 export const ScoreRulesView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -64,7 +62,7 @@ export const ScoreRulesView: React.FC = () => {
         setActiveRule(JSON.parse(JSON.stringify(latest)));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -96,7 +94,7 @@ export const ScoreRulesView: React.FC = () => {
 
   const handleSaveDraft = async () => {
     try {
-      const saved = await api.saveDraftScoreRule(activeRule);
+      await api.saveDraftScoreRule(activeRule);
       addToast(t("toastRuleDraftSaved"), "info");
       fetchRulesAndSamples();
     } catch {
@@ -119,13 +117,34 @@ export const ScoreRulesView: React.FC = () => {
     if (!rollbackTargetVersion) return;
     try {
       await api.rollbackScoreRule(rollbackTargetVersion, reason);
-      addToast(`v${rollbackTargetVersion} sürümüne başarıyla geri dönüldü.`, "success");
+      addToast(t("scoreRulesRollbackDone", { version: rollbackTargetVersion }), "success");
       setRollbackTargetVersion(null);
       fetchRulesAndSamples();
     } catch {
       addToast(t("toastActionError"), "error");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-4" aria-busy="true">
+        <span className="sr-only">{t("loading")}</span>
+        <CardSkeleton />
+        <CardSkeleton />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <EmptyState
+        icon={<AlertCircle className="w-6 h-6" />}
+        title={t("errorTitle")}
+        description={error}
+        action={{ label: t("retry"), onClick: fetchRulesAndSamples }}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -216,7 +235,7 @@ export const ScoreRulesView: React.FC = () => {
                 {t("rulesThresholds")}
               </h4>
               <p className="text-xs mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-                Hesaplanan nihai 0-100 skorunun İyi, Orta ve Zayıf sınıflandırma alt sınırları.
+                {t("scoreRulesThresholdsHint")}
               </p>
             </div>
 
@@ -225,10 +244,11 @@ export const ScoreRulesView: React.FC = () => {
                 className="p-3 rounded-lg border flex flex-col gap-1.5"
                 style={{ backgroundColor: "var(--zemin)", borderColor: "var(--kenar)" }}
               >
-                <label className="font-semibold" style={{ color: "var(--durum-basarili)" }}>
+                <label htmlFor="esik-iyi" className="font-semibold" style={{ color: "var(--durum-basarili)" }}>
                   {t("rulesGoodMin")}
                 </label>
                 <input
+                  id="esik-iyi"
                   type="number"
                   min={activeRule.levels.orta + 1}
                   max={100}
@@ -248,10 +268,11 @@ export const ScoreRulesView: React.FC = () => {
                 className="p-3 rounded-lg border flex flex-col gap-1.5"
                 style={{ backgroundColor: "var(--zemin)", borderColor: "var(--kenar)" }}
               >
-                <label className="font-semibold" style={{ color: "var(--durum-uyari)" }}>
+                <label htmlFor="esik-orta" className="font-semibold" style={{ color: "var(--durum-uyari)" }}>
                   {t("rulesMediumMin")}
                 </label>
                 <input
+                  id="esik-orta"
                   type="number"
                   min={1}
                   max={activeRule.levels.iyi - 1}
@@ -293,7 +314,7 @@ export const ScoreRulesView: React.FC = () => {
                   <span>{t("rulesVersions")}</span>
                 </h4>
                 <p className="text-xs mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-                  Önceki kural sürümleri ve canlı yayın geçmişi
+                  {t("scoreRulesVersionsHint")}
                 </p>
               </div>
             </div>
@@ -315,7 +336,7 @@ export const ScoreRulesView: React.FC = () => {
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-center gap-2">
                         <span className="font-mono font-bold text-sm" style={{ color: "var(--yazi)" }}>
-                          Sürüm v{rule.version}
+                          {t("scoreRulesVersion", { version: rule.version })}
                         </span>
                         <StatusBadge
                           tone={isPublished ? "success" : "neutral"}
@@ -325,8 +346,8 @@ export const ScoreRulesView: React.FC = () => {
                       </div>
                       <span className="text-[11px]" style={{ color: "var(--yazi-soluk)" }}>
                         {rule.publishedAt
-                          ? `Yayınlanma: ${new Date(rule.publishedAt).toLocaleDateString("tr-TR")}`
-                          : "Taslak çalışma sürümü"}
+                          ? t("scoreRulesPublishedOn", { date: new Date(rule.publishedAt).toLocaleDateString(locale) })
+                          : t("scoreRulesDraftVersion")}
                       </span>
                     </div>
 
@@ -341,7 +362,7 @@ export const ScoreRulesView: React.FC = () => {
                           color: "var(--yazi)",
                         }}
                       >
-                        İncele
+                        {t("scoreRulesInspect")}
                       </button>
 
                       {isPublished && (
@@ -354,10 +375,9 @@ export const ScoreRulesView: React.FC = () => {
                             borderColor: "var(--durum-uyari)",
                             color: "var(--durum-uyari)",
                           }}
-                          title={t("rulesRollback")}
                         >
                           <RotateCcw className="w-3 h-3" />
-                          <span>Geri Dön</span>
+                          <span>{t("rulesRollback")}</span>
                         </button>
                       )}
                     </div>
@@ -376,10 +396,10 @@ export const ScoreRulesView: React.FC = () => {
         onConfirm={handlePublish}
         title={t("confirmPublishTitle")}
         message={t("confirmPublishMessage")}
-        confirmLabel="Kuralı Yayınla ve Canlıya Al"
+        confirmLabel={t("scoreRulesPublishConfirm")}
         tone="warning"
         requireReason={true}
-        reasonPlaceholder="Bu kural değişikliğinin gerekçesini belirtin (örn: Fiber hatlar için gecikme eşikleri iyileştirildi)..."
+        reasonPlaceholder={t("scoreRulesPublishReason")}
       />
 
       {/* Rollback Confirmation Dialog */}
@@ -387,12 +407,12 @@ export const ScoreRulesView: React.FC = () => {
         isOpen={rollbackTargetVersion !== null}
         onClose={() => setRollbackTargetVersion(null)}
         onConfirm={handleRollback}
-        title={`v${rollbackTargetVersion} Sürümüne Geri Dönmek İstiyor Musunuz?`}
-        message={`v${rollbackTargetVersion} sürümündeki test ağırlıkları ve kademeleri kopyalanarak yeni bir yayınlanmış sürüm olarak kaydedilecektir.`}
-        confirmLabel="Eski Sürüme Dön"
+        title={t("scoreRulesRollbackTitle", { version: rollbackTargetVersion ?? "" })}
+        message={t("scoreRulesRollbackMessage", { version: rollbackTargetVersion ?? "" })}
+        confirmLabel={t("scoreRulesRollbackConfirm")}
         tone="danger"
         requireReason={true}
-        reasonPlaceholder="Geri dönüş gerekçesi..."
+        reasonPlaceholder={t("scoreRulesRollbackReason")}
       />
     </div>
   );

@@ -44,7 +44,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         <button
           type="button"
           onClick={action.onClick}
-          className="cursor-pointer inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-opacity hover:opacity-90 focus-visible:outline-none"
+          className="cursor-pointer inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-opacity hover:opacity-90"
           style={{
             backgroundColor: "var(--renk-ana)",
             color: "var(--renk-ana-yazi)",

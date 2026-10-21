@@ -34,7 +34,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   const handleConfirm = () => {
     if (requireReason && !reason.trim()) {
-      setError("Bu işlem için bir gerekçe belirtmeniz zorunludur.");
+      setError(t("confirmReasonRequired"));
       return;
     }
     onConfirm(requireReason ? reason.trim() : undefined);
@@ -48,12 +48,15 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     onClose();
   };
 
+  // Düz durum rengi zemininde metin, aynı durumun -zemin token'ıdır (iki temada da okunur).
   let confirmBg = "var(--durum-hata)";
-  let confirmColor = "#ffffff";
+  let confirmColor = "var(--durum-hata-zemin)";
   if (tone === "warning") {
     confirmBg = "var(--durum-uyari)";
+    confirmColor = "var(--durum-uyari-zemin)";
   } else if (tone === "neutral") {
     confirmBg = "var(--renk-ana)";
+    confirmColor = "var(--renk-ana-yazi)";
   }
 
   return (
@@ -67,7 +70,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button
             type="button"
             onClick={handleCancel}
-            className="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg hover:opacity-80 transition-opacity focus-visible:outline-none"
+            className="cursor-pointer px-4 py-2 text-sm font-medium rounded-lg hover:opacity-80 transition-opacity"
             style={{
               backgroundColor: "transparent",
               color: "var(--yazi-soluk)",
@@ -80,7 +83,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button
             type="button"
             onClick={handleConfirm}
-            className="cursor-pointer px-4 py-2 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity focus-visible:outline-none"
+            className="cursor-pointer px-4 py-2 text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
             style={{
               backgroundColor: confirmBg,
               color: confirmColor,
@@ -115,7 +118,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               className="block text-xs font-semibold mb-1.5"
               style={{ color: "var(--yazi)" }}
             >
-              {t("confirmReasonLabel")} <span className="text-red-500">*</span>
+              {t("confirmReasonLabel")} <span className="text-hata" aria-hidden="true">*</span>
             </label>
             <textarea
               id="confirm-reason"
@@ -126,7 +129,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 if (error) setError("");
               }}
               placeholder={reasonPlaceholder ?? t("confirmReasonPlaceholder")}
-              className="w-full text-sm p-3 rounded-lg border transition-colors focus-visible:outline-none"
+              className="w-full text-sm p-3 rounded-lg border transition-colors"
               style={{
                 backgroundColor: "var(--zemin)",
                 borderColor: error ? "var(--durum-hata)" : "var(--kenar)",

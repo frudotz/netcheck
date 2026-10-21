@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { ContactMessage, AdminUser } from "../domain/types";
-import { StatusBadge, StatusTone } from "../components/StatusBadge";
-import { FilterBar, FilterConfig } from "../components/FilterBar";
+import { api } from "../api";
+import type { ContactMessage, AdminUser } from "../domain/types";
+import { StatusBadge, type StatusTone } from "../components/StatusBadge";
+import { FilterBar, type FilterConfig } from "../components/FilterBar";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
+import { LOCALES, localeName } from "../../src/lib/i18n";
 import {
-  MessageSquare,
   Send,
   Lock,
-  UserCheck,
   AlertOctagon,
-  Mail,
   User,
-  Clock,
   CheckCircle2,
-  AlertCircle,
   Inbox,
 } from "lucide-react";
 
 export const MessagesView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -58,8 +54,8 @@ export const MessagesView: React.FC = () => {
       if (!selectedMsgId && msgData.items.length > 0) {
         setSelectedMsgId(msgData.items[0].id);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+    } catch {
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -71,7 +67,7 @@ export const MessagesView: React.FC = () => {
 
   const activeMessage = messages.find(m => m.id === selectedMsgId) || null;
 
-  const handleSendReply = async (e: React.FormEvent) => {
+  const handleSendReply = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!activeMessage || !replyBody.trim()) return;
     try {
@@ -79,7 +75,7 @@ export const MessagesView: React.FC = () => {
       const updated = await api.replyMessage(activeMessage.id, replyBody.trim(), isInternalNote);
       setMessages(prev => prev.map(m => (m.id === updated.id ? updated : m)));
       setReplyBody("");
-      addToast(isInternalNote ? "Dahili not kaydedildi." : "Yanıt başarıyla gönderildi.", "success");
+      addToast(isInternalNote ? t("messagesToastNoteSaved") : t("messagesToastReplySent"), "success");
     } catch {
       addToast(t("toastActionError"), "error");
     } finally {
@@ -92,7 +88,7 @@ export const MessagesView: React.FC = () => {
     try {
       const updated = await api.updateMessageStatus(activeMessage.id, newStatus);
       setMessages(prev => prev.map(m => (m.id === updated.id ? updated : m)));
-      addToast(`Mesaj durumu '${newStatus}' olarak güncellendi.`, "success");
+      addToast(t("messagesToastStatusUpdated", { status: getStatusLabel(newStatus) }), "success");
     } catch {
       addToast(t("toastActionError"), "error");
     }
@@ -103,7 +99,7 @@ export const MessagesView: React.FC = () => {
     try {
       const updated = await api.assignMessage(activeMessage.id, assigneeId || undefined);
       setMessages(prev => prev.map(m => (m.id === updated.id ? updated : m)));
-      addToast("Atanan kişi güncellendi.", "success");
+      addToast(t("messagesToastAssigneeUpdated"), "success");
     } catch {
       addToast(t("toastActionError"), "error");
     }
@@ -112,7 +108,7 @@ export const MessagesView: React.FC = () => {
   const handleBulkSpam = async () => {
     try {
       await api.markMessageSpam(selectedIds);
-      addToast(`${selectedIds.length} mesaj spam olarak işaretlendi.`, "success");
+      addToast(t("messagesToastMarkedSpam", { count: selectedIds.length }), "success");
       setSelectedIds([]);
       setConfirmBulkSpam(false);
       fetchMessagesAndAdmins();
@@ -135,14 +131,10 @@ export const MessagesView: React.FC = () => {
     },
     {
       key: "lang",
-      label: "Dil",
+      label: t("language"),
       type: "select",
-      options: [
-        { value: "tr", label: "Türkçe" },
-        { value: "en", label: "English" },
-        { value: "ar", label: "العربية" },
-        { value: "fa", label: "فارسی" },
-      ],
+      // Dil adları her dilde kendi yazımıyla gösterilir (src/lib/i18n.ts).
+      options: LOCALES.map(l => ({ value: l, label: localeName[l] })),
     },
   ];
 
@@ -181,7 +173,7 @@ export const MessagesView: React.FC = () => {
             {t("navMessages")}
           </h1>
           <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            Kullanıcılardan gelen tanılama ve ağ bağlantısı geri bildirim talepleri
+            {t("messagesSubtitle")}
           </p>
         </div>
 
@@ -192,12 +184,12 @@ export const MessagesView: React.FC = () => {
             className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg hover:opacity-90"
             style={{
               backgroundColor: "var(--durum-hata)",
-              color: "#ffffff",
+              color: "var(--durum-hata-zemin)",
               borderRadius: "var(--radius)",
             }}
           >
             <AlertOctagon className="w-3.5 h-3.5" />
-            <span>Spam Olarak İşaretle ({selectedIds.length})</span>
+            <span>{t("messagesMarkSpamCount", { count: selectedIds.length })}</span>
           </button>
         )}
       </div>
@@ -206,7 +198,7 @@ export const MessagesView: React.FC = () => {
       <FilterBar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Gönderen adı, e-posta veya mesaj içeriği ara..."
+        searchPlaceholder={t("messagesSearchPlaceholder")}
         filters={filterConfigs}
         filterValues={filters}
         onFilterChange={(key, val) => setFilters(prev => ({ ...prev, [key]: val }))}
@@ -235,7 +227,7 @@ export const MessagesView: React.FC = () => {
               color: "var(--yazi)",
             }}
           >
-            <span>Gelen Mesajlar ({messages.length})</span>
+            <span>{t("messagesInboxCount", { count: messages.length })}</span>
             {messages.length > 0 && (
               <label className="flex items-center gap-1.5 cursor-pointer font-normal" style={{ color: "var(--yazi-soluk)" }}>
                 <input
@@ -247,7 +239,7 @@ export const MessagesView: React.FC = () => {
                   }}
                   className="rounded"
                 />
-                <span>Tümünü Seç</span>
+                <span>{t("selectAll")}</span>
               </label>
             )}
           </div>
@@ -256,6 +248,10 @@ export const MessagesView: React.FC = () => {
             {loading ? (
               <div className="p-8 text-center text-xs" style={{ color: "var(--yazi-soluk)" }}>
                 {t("loading")}
+              </div>
+            ) : error ? (
+              <div className="p-8 text-center text-xs" role="alert" style={{ color: "var(--durum-hata)" }}>
+                {error}
               </div>
             ) : messages.length === 0 ? (
               <div className="p-8 text-center text-xs italic" style={{ color: "var(--yazi-soluk)" }}>
@@ -269,7 +265,7 @@ export const MessagesView: React.FC = () => {
                   <div
                     key={msg.id}
                     onClick={() => setSelectedMsgId(msg.id)}
-                    className="p-3.5 cursor-pointer transition-colors hover:bg-black/5 dark:hover:bg-white/5 flex gap-2.5 items-start"
+                    className="p-3.5 cursor-pointer transition-colors hover:bg-yazi/5 flex gap-2.5 items-start"
                     style={{
                       backgroundColor: isSelected ? "var(--zemin)" : "transparent",
                     }}
@@ -283,7 +279,7 @@ export const MessagesView: React.FC = () => {
                         else setSelectedIds([...selectedIds, msg.id]);
                       }}
                       className="mt-1 cursor-pointer rounded"
-                      aria-label="Mesajı Seç"
+                      aria-label={t("messagesSelectOne")}
                     />
 
                     <div className="flex-1 min-w-0">
@@ -292,12 +288,12 @@ export const MessagesView: React.FC = () => {
                           {msg.name}
                         </span>
                         <span className="font-mono text-[10px] whitespace-nowrap" style={{ color: "var(--yazi-soluk)" }}>
-                          {new Date(msg.createdAt).toLocaleDateString("tr-TR", { month: "short", day: "numeric" })}
+                          {new Date(msg.createdAt).toLocaleDateString(locale, { month: "short", day: "numeric" })}
                         </span>
                       </div>
 
                       <p className="text-xs font-medium truncate mb-1" style={{ color: "var(--yazi)" }}>
-                        {msg.subject || "(Konu belirtilmemiş)"}
+                        {msg.subject || t("messagesNoSubject")}
                       </p>
 
                       <p className="text-xs line-clamp-2 leading-relaxed" style={{ color: "var(--yazi-soluk)" }}>
@@ -343,14 +339,14 @@ export const MessagesView: React.FC = () => {
               >
                 <div>
                   <h3 className="text-base font-bold" style={{ color: "var(--yazi)" }}>
-                    {activeMessage.subject || "Destek Bildirimi"}
+                    {activeMessage.subject || t("messagesDefaultSubject")}
                   </h3>
                   <div className="flex flex-wrap items-center gap-3 text-xs mt-1 force-ltr" style={{ color: "var(--yazi-soluk)" }}>
                     <span className="font-medium" style={{ color: "var(--yazi)" }}>
                       {activeMessage.name}
                     </span>
                     <span>&lt;{activeMessage.email}&gt;</span>
-                    <span>· {new Date(activeMessage.createdAt).toLocaleString("tr-TR")}</span>
+                    <span>· {new Date(activeMessage.createdAt).toLocaleString(locale)}</span>
                   </div>
                 </div>
 
@@ -360,6 +356,7 @@ export const MessagesView: React.FC = () => {
                   <select
                     value={activeMessage.status}
                     onChange={e => handleStatusChange(e.target.value as ContactMessage["status"])}
+                    aria-label={t("msgStatus")}
                     className="cursor-pointer text-xs font-semibold px-2.5 py-1.5 rounded-lg border appearance-none"
                     style={{
                       backgroundColor: "var(--kart)",
@@ -367,16 +364,17 @@ export const MessagesView: React.FC = () => {
                       color: "var(--yazi)",
                     }}
                   >
-                    <option value="new">Yeni</option>
-                    <option value="in-progress">İşleniyor</option>
-                    <option value="answered">Yanıtlandı</option>
-                    <option value="spam">Spam</option>
+                    <option value="new">{t("msgStatusNew")}</option>
+                    <option value="in-progress">{t("msgStatusInProgress")}</option>
+                    <option value="answered">{t("msgStatusAnswered")}</option>
+                    <option value="spam">{t("msgStatusSpam")}</option>
                   </select>
 
                   {/* Assignee selector */}
                   <select
                     value={activeMessage.assignee ?? ""}
                     onChange={e => handleAssigneeChange(e.target.value)}
+                    aria-label={t("msgAssignee")}
                     className="cursor-pointer text-xs font-medium px-2.5 py-1.5 rounded-lg border appearance-none"
                     style={{
                       backgroundColor: "var(--kart)",
@@ -384,7 +382,7 @@ export const MessagesView: React.FC = () => {
                       color: "var(--yazi)",
                     }}
                   >
-                    <option value="">Atanmamış</option>
+                    <option value="">{t("msgUnassigned")}</option>
                     {admins.map(adm => (
                       <option key={adm.id} value={adm.id}>
                         {adm.name}
@@ -408,13 +406,13 @@ export const MessagesView: React.FC = () => {
                   <div className="flex items-center justify-between mb-2 pb-2 border-b" style={{ borderColor: "var(--kenar)" }}>
                     <span className="font-semibold text-xs flex items-center gap-1.5" style={{ color: "var(--renk-ana)" }}>
                       <User className="w-3.5 h-3.5" />
-                      Kullanıcı Mesajı
+                      {t("messagesUserMessage")}
                     </span>
                     <span className="text-[11px] font-mono" style={{ color: "var(--yazi-soluk)" }}>
-                      {new Date(activeMessage.createdAt).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(activeMessage.createdAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
-                  <p className="whitespace-pre-wrap">{activeMessage.message}</p>
+                  <p className="whitespace-pre-wrap" dir="auto">{activeMessage.message}</p>
                 </div>
 
                 {/* Replies list */}
@@ -427,7 +425,7 @@ export const MessagesView: React.FC = () => {
                       style={{
                         backgroundColor: rep.internal ? "var(--durum-uyari-zemin)" : "var(--kart)",
                         borderColor: rep.internal ? "var(--durum-uyari)" : "var(--renk-ana)",
-                        borderLeftWidth: "4px",
+                        borderInlineStartWidth: "4px",
                       }}
                     >
                       <div className="flex items-center justify-between mb-2">
@@ -435,20 +433,24 @@ export const MessagesView: React.FC = () => {
                           {rep.internal ? (
                             <>
                               <Lock className="w-3.5 h-3.5" style={{ color: "var(--durum-uyari)" }} />
-                              <span style={{ color: "var(--durum-uyari)" }}>Dahili Not ({author?.name || "Yönetici"})</span>
+                              <span style={{ color: "var(--durum-uyari)" }}>
+                                {t("messagesInternalNoteBy", { name: author?.name || t("messagesUnknownAdmin") })}
+                              </span>
                             </>
                           ) : (
                             <>
                               <CheckCircle2 className="w-3.5 h-3.5" style={{ color: "var(--renk-ana)" }} />
-                              <span style={{ color: "var(--renk-ana)" }}>Kullanıcıya Yanıt ({author?.name || "Destek Ekibi"})</span>
+                              <span style={{ color: "var(--renk-ana)" }}>
+                                {t("messagesReplyBy", { name: author?.name || t("messagesSupportTeam") })}
+                              </span>
                             </>
                           )}
                         </span>
                         <span className="text-[11px] font-mono" style={{ color: "var(--yazi-soluk)" }}>
-                          {new Date(rep.at).toLocaleString("tr-TR", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                          {new Date(rep.at).toLocaleString(locale, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                         </span>
                       </div>
-                      <p className="whitespace-pre-wrap" style={{ color: "var(--yazi)" }}>
+                      <p className="whitespace-pre-wrap" dir="auto" style={{ color: "var(--yazi)" }}>
                         {rep.body}
                       </p>
                     </div>
@@ -466,11 +468,11 @@ export const MessagesView: React.FC = () => {
                       onChange={e => setIsInternalNote(e.target.checked)}
                       className="rounded"
                     />
-                    <span>Dahili Not Olarak Kaydet (Kullanıcıya gitmez)</span>
+                    <span>{t("messagesSaveAsInternal")}</span>
                   </label>
 
                   <span className="text-[11px]" style={{ color: "var(--yazi-soluk)" }}>
-                    {isInternalNote ? "Yalnızca panel yöneticileri görebilir" : "Kullanıcı e-postasına iletilecektir"}
+                    {isInternalNote ? t("messagesInternalHint") : t("messagesReplyHint")}
                   </span>
                 </div>
 
@@ -479,12 +481,13 @@ export const MessagesView: React.FC = () => {
                     rows={3}
                     value={replyBody}
                     onChange={e => setReplyBody(e.target.value)}
+                    aria-label={t("msgReply")}
                     placeholder={
                       isInternalNote
-                        ? "Ekip arkadaşlarınız için dahili inceleme notu yazın..."
-                        : "Kullanıcıya gönderilecek teknik destek yanıtını yazın..."
+                        ? t("messagesInternalPlaceholder")
+                        : t("messagesReplyPlaceholder")
                     }
-                    className="w-full text-xs sm:text-sm p-3 rounded-lg border transition-colors focus-visible:outline-none"
+                    className="w-full text-xs sm:text-sm p-3 rounded-lg border transition-colors"
                     style={{
                       backgroundColor: "var(--zemin)",
                       borderColor: "var(--kenar)",
@@ -502,12 +505,18 @@ export const MessagesView: React.FC = () => {
                     className="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg disabled:opacity-50 transition-opacity"
                     style={{
                       backgroundColor: isInternalNote ? "var(--durum-uyari)" : "var(--renk-ana)",
-                      color: "#ffffff",
+                      color: isInternalNote ? "var(--durum-uyari-zemin)" : "var(--renk-ana-yazi)",
                       borderRadius: "var(--radius)",
                     }}
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>{submittingReply ? "Kaydediliyor..." : isInternalNote ? "Dahili Not Ekle" : "Yanıtı Gönder"}</span>
+                    <span>
+                      {submittingReply
+                        ? t("messagesSaving")
+                        : isInternalNote
+                        ? t("msgInternalNote")
+                        : t("msgSendReply")}
+                    </span>
                   </button>
                 </div>
               </form>
@@ -515,7 +524,7 @@ export const MessagesView: React.FC = () => {
           ) : (
             <div className="h-full flex flex-col items-center justify-center p-8 text-center" style={{ color: "var(--yazi-soluk)" }}>
               <Inbox className="w-10 h-10 mb-2 opacity-40" />
-              <p className="text-sm font-medium">Görüntülemek için soldan bir mesaj seçin</p>
+              <p className="text-sm font-medium">{t("messagesSelectPrompt")}</p>
             </div>
           )}
         </div>
@@ -526,9 +535,9 @@ export const MessagesView: React.FC = () => {
         isOpen={confirmBulkSpam}
         onClose={() => setConfirmBulkSpam(false)}
         onConfirm={handleBulkSpam}
-        title="Seçilen Mesajları Spam Olarak İşaretle?"
-        message={`Seçilen ${selectedIds.length} mesaj spam klasörüne taşınacak ve ilgili e-postalar engellenecektir.`}
-        confirmLabel="Spam Olarak İşaretle"
+        title={t("messagesConfirmSpamTitle")}
+        message={t("messagesConfirmSpamMessage", { count: selectedIds.length })}
+        confirmLabel={t("msgMarkSpam")}
         tone="danger"
         requireReason={false}
       />

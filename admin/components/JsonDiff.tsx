@@ -34,7 +34,7 @@ export const JsonDiff: React.FC<JsonDiffProps> = ({ before, after }) => {
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "var(--durum-hata)" }} />
           {t("auditBefore")}
         </span>
-        <pre className="overflow-x-auto whitespace-pre-wrap flex-1 p-2 rounded bg-black/5 dark:bg-white/5">
+        <pre dir="ltr" className="overflow-x-auto whitespace-pre-wrap flex-1 p-2 rounded bg-yazi/5">
           {format(before)}
         </pre>
       </div>
@@ -53,7 +53,7 @@ export const JsonDiff: React.FC<JsonDiffProps> = ({ before, after }) => {
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "var(--durum-basarili)" }} />
           {t("auditAfter")}
         </span>
-        <pre className="overflow-x-auto whitespace-pre-wrap flex-1 p-2 rounded bg-black/5 dark:bg-white/5">
+        <pre dir="ltr" className="overflow-x-auto whitespace-pre-wrap flex-1 p-2 rounded bg-yazi/5">
           {format(after)}
         </pre>
       </div>

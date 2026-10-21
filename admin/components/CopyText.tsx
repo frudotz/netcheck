@@ -38,7 +38,7 @@ export const CopyText: React.FC<CopyTextProps> = ({ value, displayValue, classNa
       <button
         type="button"
         onClick={handleCopy}
-        className="cursor-pointer p-1 rounded hover:opacity-80 transition-colors focus-visible:outline-none"
+        className="cursor-pointer p-1 rounded hover:opacity-80 transition-colors"
         style={{
           color: copied ? "var(--durum-basarili)" : "var(--yazi-soluk)",
         }}

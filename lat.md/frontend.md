@@ -38,6 +38,8 @@ App screens default to Turkish and can be switched to English, Arabic or Persian
 
 The app language lives in [[src/lib/dil.svelte.ts#dil]] and is stored in `localStorage` under `dil`. An inline script in [[src/layouts/Layout.astro]] applies it before first paint and after each client-side navigation, except on information pages, whose route fixes the language (`data-sabit-dil`). Texts come from [[src/lib/sozluk.ts#sozluk]], keyed identically in all four languages. All five app screens, the shell and the shared components use it. [[src/lib/labels.ts]] keeps only the Turkish name, target hint and message written into each report at creation time, plus latency formatting; the contact form and the information pages keep their own per-language texts.
 
+The admin panel follows the same `dil` setting with its own dictionaries in `admin/i18n` ([[architecture#Admin panel]]).
+
 [[src/lib/i18n.ts#LOCALES]] lists the locales and [[src/lib/i18n.ts#dirOf]] sets `dir="rtl"` for `ar` and `fa`. Turkish pages live at the root and the others under `/en`, `/ar`, `/fa`. Layout uses logical CSS properties so the navigation rail and borders mirror in RTL. Translations are maintained by hand in the MDX/Astro pages, so changes to the Turkish source must be applied to all four.
 
 ## Responsive layout

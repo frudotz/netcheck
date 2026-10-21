@@ -16,6 +16,7 @@ Kontrast oranları WCAG 2.x formülüyle ölçülmüştür (metin/zemin; AA eşi
 | `--renk-ana-yazi` | `#ffffff` | `#062a33` | Ana renk üzerindeki metin (buton, rozet) | 5.36 · 8.38 |
 | `--renk-vurgu` | `#22d3ee` | `#22d3ee` | Üst bardaki logo ve işaret | 9.34 (üst bar üzerinde) |
 | `--renk-koyu` | `#0b1f2a` | `#0b1f2a` | Üst bar zemini (beyaz metin) | 16.89 (beyaz metin) |
+| `--renk-koyu-yazi` | `#ffffff` | `#ffffff` | Üst bar üzerindeki metin ve simgeler (yönetim paneli) | 16.89 (`--renk-koyu` üzerinde) |
 | `--zemin` | `#f4f7fa` | `#0b1220` | Sayfa arka planı | — |
 | `--kart` | `#ffffff` | `#131c2e` | Kartlar, liste ve alt menü yüzeyi | — |
 | `--yazi` | `#0f172a` | `#e6edf6` | Başlıklar ve gövde metni | zemin 16.60 · 15.88 |

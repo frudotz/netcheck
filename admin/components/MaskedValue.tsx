@@ -67,7 +67,7 @@ export const MaskedValue: React.FC<MaskedValueProps> = ({
             border: "1px solid var(--kenar)",
             color: "var(--yazi-soluk)",
           }}
-          aria-label="Gizlenmiş hassas veri"
+          aria-label={t("maskedHidden")}
         >
           {maskedRepresentation}
         </span>
@@ -76,7 +76,7 @@ export const MaskedValue: React.FC<MaskedValueProps> = ({
       <button
         type="button"
         onClick={handleToggle}
-        className="cursor-pointer inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded transition-colors focus-visible:outline-none"
+        className="cursor-pointer inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded transition-colors"
         style={{
           color: "var(--renk-ana)",
           backgroundColor: "transparent",

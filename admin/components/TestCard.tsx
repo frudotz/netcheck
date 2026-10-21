@@ -1,6 +1,8 @@
 import React from "react";
-import { DiagnosticTest, DiagnosticStatus } from "../domain/types";
-import { StatusBadge, StatusTone } from "./StatusBadge";
+import type { DiagnosticTest } from "../domain/types";
+import { sozluk, testAdi, testMesaji } from "../../src/lib/sozluk";
+import { StatusBadge } from "./StatusBadge";
+import type { StatusTone } from "./StatusBadge";
 import { CheckCircle2, AlertCircle, Clock, Loader2, Ban, Gauge } from "lucide-react";
 import { useI18n } from "../i18n";
 
@@ -9,7 +11,9 @@ export interface TestCardProps {
 }
 
 export const TestCard: React.FC<TestCardProps> = ({ test }) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  // Sonuç mesajı uygulamanın sözlüğünden, Rust kodundan üretilir (src/lib/sozluk.ts).
+  const message = testMesaji(sozluk[locale], test);
 
   let tone: StatusTone = "neutral";
   let statusLabel = t("statusPending");
@@ -56,14 +60,14 @@ export const TestCard: React.FC<TestCardProps> = ({ test }) => {
       <div className="flex items-start justify-between gap-2 mb-2">
         <div>
           <h4 className="font-semibold text-sm sm:text-base" style={{ color: "var(--yazi)" }}>
-            {test.name}
+            {testAdi(sozluk[locale], test.id)}
           </h4>
-          <div className="flex items-center gap-1.5 mt-0.5 force-ltr">
+          <div className="flex items-center gap-1.5 mt-0.5">
             <span className="text-xs" style={{ color: "var(--yazi-soluk)" }}>
-              Hedef:
+              {t("testCardTarget")}
             </span>
             <code
-              className="text-xs font-mono px-1.5 py-0.5 rounded"
+              className="text-xs font-mono px-1.5 py-0.5 rounded force-ltr"
               style={{
                 backgroundColor: "var(--zemin)",
                 color: "var(--yazi)",
@@ -79,11 +83,11 @@ export const TestCard: React.FC<TestCardProps> = ({ test }) => {
       </div>
 
       <div className="flex items-center justify-between pt-3 mt-2 border-t text-xs" style={{ borderColor: "var(--kenar)" }}>
-        <div className="flex items-center gap-1.5 font-mono">
+        <div className="flex items-center gap-1.5">
           <Gauge className="w-3.5 h-3.5" style={{ color: "var(--yazi-soluk)" }} />
-          <span style={{ color: "var(--yazi-soluk)" }}>Gecikme:</span>
+          <span style={{ color: "var(--yazi-soluk)" }}>{t("testCardLatency")}</span>
           <span
-            className="font-semibold"
+            className="font-semibold font-mono force-ltr"
             style={{
               color:
                 test.latencyMs !== undefined
@@ -99,7 +103,7 @@ export const TestCard: React.FC<TestCardProps> = ({ test }) => {
           </span>
         </div>
 
-        {test.code && (
+        {test.code && test.code !== "ok" && (
           <span
             className="text-[11px] font-mono px-2 py-0.5 rounded"
             style={{
@@ -112,9 +116,13 @@ export const TestCard: React.FC<TestCardProps> = ({ test }) => {
         )}
       </div>
 
-      {test.message && (
-        <p className="text-xs mt-2 pt-2 border-t leading-relaxed" style={{ borderColor: "var(--kenar)", color: "var(--yazi-soluk)" }}>
-          {test.message}
+      {message && (
+        <p
+          dir="auto"
+          className="text-xs mt-2 pt-2 border-t leading-relaxed"
+          style={{ borderColor: "var(--kenar)", color: "var(--yazi-soluk)" }}
+        >
+          {message}
         </p>
       )}
     </div>

@@ -1,13 +1,8 @@
-@import "./tokens.css";
-
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+/* Katmansız temel kurallar: Tailwind sınıflarından (ör. focus-visible:outline-none) önce gelir. */
 
 html, body {
   margin: 0;
   padding: 0;
-  font-family: var(--font);
   background-color: var(--zemin);
   color: var(--yazi);
   -webkit-font-smoothing: antialiased;
@@ -15,21 +10,18 @@ html, body {
   min-height: 100vh;
 }
 
-/* Accessible focus ring */
+/* Klavye odağı uygulamadakiyle aynı (src/styles/app.css). */
 :focus-visible {
-  outline: 2px solid var(--renk-vurgu);
+  outline: 3px solid var(--odak);
   outline-offset: 2px;
 }
 
-/* LTR forced fields for RTL locales (IP, MAC, emails, identifiers, latencies) */
-[dir="rtl"] .force-ltr,
+/* RTL dillerde de soldan sağa okunan değerler (IP, MAC, e-posta, kimlik, gecikme). */
 .force-ltr {
-  direction: ltr !important;
-  text-align: left;
+  direction: ltr;
   unicode-bidi: isolate;
 }
 
-/* Scrollbar styles matching theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -48,11 +40,11 @@ html, body {
   background: var(--yazi-soluk);
 }
 
-/* Skip link for keyboard accessibility */
+/* Klavye kullanıcıları için "içeriğe atla" bağlantısı. */
 .skip-to-content {
   position: absolute;
   top: -40px;
-  left: 12px;
+  inset-inline-start: 12px;
   background: var(--renk-ana);
   color: var(--renk-ana-yazi);
   padding: 8px 16px;

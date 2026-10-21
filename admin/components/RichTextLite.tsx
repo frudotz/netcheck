@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { Bold, List, Link as LinkIcon, Heading2 } from "lucide-react";
+import { useI18n } from "../i18n";
 
 export interface RichTextLiteProps {
   value: string;
@@ -16,6 +17,7 @@ export const RichTextLite: React.FC<RichTextLiteProps> = ({
   rows = 8,
   dir = "ltr",
 }) => {
+  const { t } = useI18n();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const insertTag = (prefix: string, suffix: string = "") => {
@@ -24,7 +26,7 @@ export const RichTextLite: React.FC<RichTextLiteProps> = ({
     const start = el.selectionStart;
     const end = el.selectionEnd;
     const selected = value.substring(start, end);
-    const replacement = `${prefix}${selected || "metin"}${suffix}`;
+    const replacement = `${prefix}${selected || t("richTextSampleWord")}${suffix}`;
     const nextValue = value.substring(0, start) + replacement + value.substring(end);
     onChange(nextValue);
 
@@ -54,36 +56,36 @@ export const RichTextLite: React.FC<RichTextLiteProps> = ({
         <button
           type="button"
           onClick={() => insertTag("**", "**")}
-          className="cursor-pointer p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline-none"
-          title="Kalın"
-          aria-label="Kalın Metin Ekle"
+          className="cursor-pointer p-1.5 rounded hover:bg-yazi/5"
+          title={t("richTextBold")}
+          aria-label={t("richTextBold")}
         >
           <Bold className="w-4 h-4" />
         </button>
         <button
           type="button"
           onClick={() => insertTag("\n## ", "\n")}
-          className="cursor-pointer p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline-none"
-          title="Başlık 2"
-          aria-label="Başlık Ekle"
+          className="cursor-pointer p-1.5 rounded hover:bg-yazi/5"
+          title={t("richTextHeading")}
+          aria-label={t("richTextHeading")}
         >
           <Heading2 className="w-4 h-4" />
         </button>
         <button
           type="button"
           onClick={() => insertTag("\n* ", "")}
-          className="cursor-pointer p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline-none"
-          title="Madde İşaretli Liste"
-          aria-label="Madde İşaretli Liste Ekle"
+          className="cursor-pointer p-1.5 rounded hover:bg-yazi/5"
+          title={t("richTextList")}
+          aria-label={t("richTextList")}
         >
           <List className="w-4 h-4" />
         </button>
         <button
           type="button"
           onClick={() => insertTag("[", "](https://...)")}
-          className="cursor-pointer p-1.5 rounded hover:bg-black/5 dark:hover:bg-white/5 focus-visible:outline-none"
-          title="Bağlantı"
-          aria-label="Bağlantı Ekle"
+          className="cursor-pointer p-1.5 rounded hover:bg-yazi/5"
+          title={t("richTextLink")}
+          aria-label={t("richTextLink")}
         >
           <LinkIcon className="w-4 h-4" />
         </button>
@@ -97,7 +99,7 @@ export const RichTextLite: React.FC<RichTextLiteProps> = ({
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full p-3.5 text-sm font-mono leading-relaxed resize-y focus:outline-none"
+        className="w-full p-3.5 text-sm font-mono leading-relaxed resize-y"
         style={{
           backgroundColor: "var(--kart)",
           color: "var(--yazi)",

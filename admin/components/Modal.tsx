@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import { useI18n } from "../i18n";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const Modal: React.FC<ModalProps> = ({
   footer,
   maxWidth = "lg",
 }) => {
+  const { t } = useI18n();
   const modalRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
@@ -73,7 +75,7 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-koyu/60 backdrop-blur-xs animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -81,7 +83,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         ref={modalRef}
         tabIndex={-1}
-        className={`w-full ${maxWidthClasses} flex flex-col max-h-[90vh] shadow-2xl overflow-hidden focus:outline-none`}
+        className={`w-full ${maxWidthClasses} flex flex-col max-h-[90vh] shadow-2xl overflow-hidden`}
         style={{
           backgroundColor: "var(--kart)",
           border: "1px solid var(--kenar)",
@@ -100,9 +102,9 @@ export const Modal: React.FC<ModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="cursor-pointer p-1.5 rounded-lg hover:opacity-75 focus-visible:outline-none"
+            className="cursor-pointer p-1.5 rounded-lg hover:opacity-75"
             style={{ color: "var(--yazi-soluk)" }}
-            aria-label="Kapat"
+            aria-label={t("close")}
           >
             <X className="w-5 h-5" />
           </button>

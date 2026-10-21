@@ -1,5 +1,6 @@
 import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { useI18n } from "../i18n";
 
 export interface StatCardProps {
   title: string;
@@ -15,11 +16,12 @@ export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
   change,
-  changeLabel = "önceki döneme göre",
+  changeLabel,
   icon,
   sparkline,
   tone = "default",
 }) => {
+  const { t } = useI18n();
   let accentColor = "var(--renk-ana)";
   if (tone === "success") accentColor = "var(--durum-basarili)";
   if (tone === "warning") accentColor = "var(--durum-uyari)";
@@ -121,7 +123,7 @@ export const StatCard: React.FC<StatCardProps> = ({
               0%
             </span>
           )}
-          <span style={{ color: "var(--yazi-soluk)" }}>{changeLabel}</span>
+          <span style={{ color: "var(--yazi-soluk)" }}>{changeLabel ?? t("statCardVsPrevious")}</span>
         </div>
       )}
     </div>

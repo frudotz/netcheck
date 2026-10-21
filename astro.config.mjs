@@ -5,6 +5,7 @@ import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
+import tailwindcss from '@tailwindcss/vite';
 
 // Tauri mobil geliştirme (`tauri android dev` / `tauri ios dev`) gerçek cihazdan erişilebilen
 // adresi TAURI_DEV_HOST ile verir; masaüstünde tanımsızdır ve 127.0.0.1 kullanılır.
@@ -24,6 +25,8 @@ export default defineConfig({
     host: tauriDevHost || '127.0.0.1',
   },
   vite: {
+    // Yalnız yönetim paneli stil dosyası (admin/styles/admin.css) Tailwind kullanır; uygulama CSS'i değişmez.
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         $lib: fileURLToPath(new URL('./src/lib', import.meta.url)),

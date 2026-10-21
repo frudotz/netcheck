@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { api } from "../api/mockAdapter";
-import { ReportRecord, Device } from "../domain/types";
+import { api } from "../api";
+import type { DiagnosticKind, Locale, ReportRecord, Device } from "../domain/types";
 import { StatCard } from "../components/StatCard";
 import { Chart } from "../components/Chart";
-import { FilterBar, FilterConfig } from "../components/FilterBar";
+import { FilterBar } from "../components/FilterBar";
+import type { FilterConfig } from "../components/FilterBar";
 import { CardSkeleton, ChartSkeleton } from "../components/Skeleton";
+import { sozluk, testAdi } from "../../src/lib/sozluk";
 import { useI18n } from "../i18n";
 import {
   FileText,
@@ -16,8 +18,12 @@ import {
   RefreshCw,
 } from "lucide-react";
 
+// Tarih biçimi uygulamadakiyle aynı yerel ayarlarla (src/lib/sozluk.ts `tarihSaat`).
+const gunYerelAyari: Record<Locale, string> = { tr: "tr-TR", en: "en-GB", ar: "ar", fa: "fa-IR" };
+const TEST_SIRASI: DiagnosticKind[] = ["gateway", "cloudflare", "google", "dns", "internet"];
+
 export const DashboardView: React.FC = () => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reports, setReports] = useState<ReportRecord[]>([]);
@@ -37,8 +43,8 @@ export const DashboardView: React.FC = () => {
       ]);
       setReports(reportsData.items);
       setDevices(devicesData.items);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+    } catch {
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -56,6 +62,7 @@ export const DashboardView: React.FC = () => {
   const weakReports = reports.filter(r => r.score < 50).length;
   const goodRatio = totalReports > 0 ? Math.round((goodReports / totalReports) * 100) : 0;
   const activeDevicesCount = devices.length;
+  const percent = (value: number | string) => t("chartPercentValue", { value });
 
   // Chart data: Score Distribution (Donut)
   const scoreDistData = [
@@ -84,33 +91,11 @@ export const DashboardView: React.FC = () => {
     });
   });
 
-  const testSuccessData = [
-    {
-      label: "Gateway (Ağ Geçidi)",
-      value: testCounts.gateway.total > 0 ? Math.round((testCounts.gateway.success / testCounts.gateway.total) * 100) : 0,
-      color: "var(--renk-ana)",
-    },
-    {
-      label: "Cloudflare (1.1.1.1)",
-      value: testCounts.cloudflare.total > 0 ? Math.round((testCounts.cloudflare.success / testCounts.cloudflare.total) * 100) : 0,
-      color: "var(--renk-ana)",
-    },
-    {
-      label: "Google DNS (8.8.8.8)",
-      value: testCounts.google.total > 0 ? Math.round((testCounts.google.success / testCounts.google.total) * 100) : 0,
-      color: "var(--renk-ana)",
-    },
-    {
-      label: "DNS Çözümleme",
-      value: testCounts.dns.total > 0 ? Math.round((testCounts.dns.success / testCounts.dns.total) * 100) : 0,
-      color: "var(--renk-ana)",
-    },
-    {
-      label: "İnternet (HTTPS)",
-      value: testCounts.internet.total > 0 ? Math.round((testCounts.internet.success / testCounts.internet.total) * 100) : 0,
-      color: "var(--renk-ana)",
-    },
-  ];
+  const testSuccessData = TEST_SIRASI.map(kind => ({
+    label: testAdi(sozluk[locale], kind),
+    value: testCounts[kind].total > 0 ? Math.round((testCounts[kind].success / testCounts[kind].total) * 100) : 0,
+    color: "var(--renk-ana)",
+  }));
 
   // Chart data: Platform Distribution
   const platformCounts: Record<string, number> = {};
@@ -123,12 +108,22 @@ export const DashboardView: React.FC = () => {
     value,
   }));
 
-  // Chart data: Daily Report Trend (Line)
-  const last7DaysLabels = ["08 Eki", "09 Eki", "10 Eki", "11 Eki", "12 Eki", "13 Eki", "14 Eki"];
-  const trendData = last7DaysLabels.map((label, idx) => ({
-    label,
-    value: 3 + (idx * 2) + (idx % 3 === 0 ? 3 : 1),
-  }));
+  // Chart data: Daily Report Trend (Line) — son 7 günde oluşturulan rapor sayısı (gelen verilerden).
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const trendData = Array.from({ length: 7 }, (_, idx) => {
+    const day = new Date(today);
+    day.setDate(today.getDate() - (6 - idx));
+    const next = new Date(day);
+    next.setDate(day.getDate() + 1);
+    return {
+      label: day.toLocaleDateString(gunYerelAyari[locale], { day: "2-digit", month: "short" }),
+      value: reports.filter(r => {
+        const created = new Date(r.createdAt);
+        return created >= day && created < next;
+      }).length,
+    };
+  });
 
   const filterConfigs: FilterConfig[] = [
     {
@@ -156,14 +151,14 @@ export const DashboardView: React.FC = () => {
   ];
 
   const handleExportSummaryCsv = () => {
-    const headers = "Metrik,Değer\n";
+    const headers = `${t("dashboardCsvMetric")},${t("chartValue")}\n`;
     const rows = [
-      `Toplam Rapor,${totalReports}`,
-      `Ortalama Skor,${avgScore}`,
-      `İyi Rapor Oranı,%${goodRatio}`,
-      `Aktif Cihaz Sayısı,${activeDevicesCount}`,
+      `${t("kpiTotalReports")},${totalReports}`,
+      `${t("kpiAvgScore")},${avgScore}`,
+      `${t("kpiGoodRatio")},${percent(goodRatio)}`,
+      `${t("kpiActiveDevices")},${activeDevicesCount}`,
     ].join("\n");
-    const blob = new Blob(["\uFEFF" + headers + rows], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["﻿" + headers + rows], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -181,7 +176,7 @@ export const DashboardView: React.FC = () => {
             {t("navDashboard")}
           </h1>
           <p className="text-xs sm:text-sm mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            Ağ tanılama raporlarının genel performansı ve filo istatistikleri
+            {t("dashboardSubtitle")}
           </p>
         </div>
 
@@ -236,7 +231,7 @@ export const DashboardView: React.FC = () => {
             className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg"
             style={{
               backgroundColor: "var(--durum-hata)",
-              color: "#ffffff",
+              color: "var(--durum-hata-zemin)",
               borderRadius: "var(--radius)",
             }}
           >
@@ -259,36 +254,28 @@ export const DashboardView: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* KPI Stat Cards */}
+          {/* KPI Stat Cards — yalnızca gelen verilerden; dönem karşılaştırması verisi yok. */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               title={t("kpiTotalReports")}
               value={totalReports}
-              change={14.2}
-              sparkline={[12, 16, 14, 20, 24, 28, 33]}
               icon={<FileText className="w-4 h-4" />}
             />
             <StatCard
               title={t("kpiAvgScore")}
               value={`${avgScore} / 100`}
-              change={-2.1}
               tone={avgScore >= 80 ? "success" : avgScore >= 50 ? "warning" : "danger"}
-              sparkline={[82, 85, 78, 80, 84, 82, avgScore]}
               icon={<Activity className="w-4 h-4" />}
             />
             <StatCard
               title={t("kpiGoodRatio")}
-              value={`%${goodRatio}`}
-              change={5.4}
+              value={percent(goodRatio)}
               tone="success"
-              sparkline={[60, 64, 68, 65, 70, 72, goodRatio]}
               icon={<ShieldCheck className="w-4 h-4" />}
             />
             <StatCard
               title={t("kpiActiveDevices")}
               value={activeDevicesCount}
-              change={0}
-              sparkline={[8, 8, 8, 8, 8, 8, 8]}
               icon={<Smartphone className="w-4 h-4" />}
             />
           </div>
@@ -299,13 +286,13 @@ export const DashboardView: React.FC = () => {
               type="donut"
               title={t("chartScoreDistribution")}
               data={scoreDistData}
-              valueFormatter={v => `${v} rapor`}
+              valueFormatter={v => t("dashboardReportsCount", { value: v })}
             />
             <Chart
               type="bar"
               title={t("chartTestSuccessRate")}
               data={testSuccessData}
-              valueFormatter={v => `%${v}`}
+              valueFormatter={v => percent(v)}
             />
           </div>
 
@@ -315,13 +302,13 @@ export const DashboardView: React.FC = () => {
               type="line"
               title={t("chartDailyTrend")}
               data={trendData}
-              valueFormatter={v => `${v} rapor`}
+              valueFormatter={v => t("dashboardReportsCount", { value: v })}
             />
             <Chart
               type="histogram"
               title={t("chartPlatformDist")}
               data={platformData}
-              valueFormatter={v => `${v} cihaz`}
+              valueFormatter={v => t("dashboardDevicesCount", { value: v })}
             />
           </div>
         </>

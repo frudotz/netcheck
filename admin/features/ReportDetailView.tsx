@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { api } from "../api/mockAdapter";
-import { ReportRecord } from "../domain/types";
+import { api } from "../api";
+import type { ReportRecord } from "../domain/types";
+import { adres, git, sorguDegeri } from "../yol";
+import { tarihSaat } from "../../src/lib/sozluk";
 import { ScoreGauge } from "../components/ScoreGauge";
 import { TestCard } from "../components/TestCard";
 import { NetworkSnapshotView } from "../components/NetworkSnapshotView";
@@ -24,9 +25,9 @@ import {
 } from "lucide-react";
 
 export const ReportDetailView: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { t } = useI18n();
+  // Rapor kimliği sorgu dizesinde taşınır: /admin/rapor?id=NCHK-…
+  const id = sorguDegeri("id");
+  const { t, locale } = useI18n();
   const { addToast } = useToast();
 
   const [loading, setLoading] = useState(true);
@@ -38,18 +39,22 @@ export const ReportDetailView: React.FC = () => {
   const [confirmToggleShare, setConfirmToggleShare] = useState(false);
 
   const fetchReport = async () => {
-    if (!id) return;
+    if (!id) {
+      setError(t("reportDetailNotFound"));
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
       const data = await api.getReportById(id);
       if (!data) {
-        setError("Rapor bulunamadı veya silinmiş olabilir.");
+        setError(t("reportDetailNotFound"));
       } else {
         setReport(data);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t("errorDesc"));
+    } catch {
+      setError(t("errorDesc"));
     } finally {
       setLoading(false);
     }
@@ -59,14 +64,14 @@ export const ReportDetailView: React.FC = () => {
     fetchReport();
   }, [id]);
 
-  const handleRevealSensitive = async (field: string, val: string) => {
+  const handleRevealSensitive = async (field: string, _val: string) => {
     try {
+      // Görüntüleyen yönetici arka uçta oturumdan belirlenir; gerekçe olarak alan adı yazılır.
       await api.logAuditEvent({
-        actorId: "adm-001",
         action: "pii.reveal",
         entity: "Report",
         entityId: report?.id ?? "unknown",
-        reason: `${field} hassas alanı yönetici tarafından görüntülendi`,
+        reason: field,
       });
       addToast(t("toastPiiRevealed"), "info");
     } catch (err) {
@@ -82,7 +87,7 @@ export const ReportDetailView: React.FC = () => {
       setReport(updated);
       setConfirmToggleShare(false);
       addToast(
-        nextState ? "Rapor paylaşımı açıldı." : "Rapor paylaşımı kapatıldı.",
+        nextState ? t("reportDetailSharingOpened") : t("reportDetailSharingClosed"),
         "success"
       );
     } catch {
@@ -93,9 +98,9 @@ export const ReportDetailView: React.FC = () => {
   const handleDelete = async (reason?: string) => {
     if (!report) return;
     try {
-      await api.deleteReport(report.id, reason || "Yönetici tarafından silindi");
+      await api.deleteReport(report.id, reason ?? "");
       addToast(t("toastSuccessDelete"), "success");
-      navigate("/raporlar");
+      git(adres("raporlar"));
     } catch {
       addToast(t("toastActionError"), "error");
     }
@@ -108,7 +113,7 @@ export const ReportDetailView: React.FC = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-slate-300 dark:bg-slate-700" />
+        <div className="h-8 w-48 animate-pulse rounded bg-kenar" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <CardSkeleton />
           <div className="lg:col-span-2">
@@ -131,15 +136,14 @@ export const ReportDetailView: React.FC = () => {
       >
         <AlertCircle className="w-10 h-10 mb-3" style={{ color: "var(--durum-hata)" }} />
         <h3 className="text-lg font-semibold mb-1" style={{ color: "var(--yazi)" }}>
-          {error ?? "Rapor Bulunamadı"}
+          {error ?? t("reportDetailNotFoundTitle")}
         </h3>
         <p className="text-sm max-w-md mb-6" style={{ color: "var(--yazi-soluk)" }}>
-          Aradığınız rapor kimliği mevcut veri tabanında bulunamadı veya silinmiş olabilir.
+          {t("reportDetailNotFoundDesc")}
         </p>
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => navigate("/raporlar")}
+          <a
+            href={adres("raporlar")}
             className="cursor-pointer px-4 py-2 text-xs font-semibold rounded-lg border hover:opacity-80"
             style={{
               backgroundColor: "var(--zemin)",
@@ -147,8 +151,8 @@ export const ReportDetailView: React.FC = () => {
               color: "var(--yazi)",
             }}
           >
-            Rapor Listesine Dön
-          </button>
+            {t("reportDetailBackToList")}
+          </a>
           <button
             type="button"
             onClick={fetchReport}
@@ -166,28 +170,27 @@ export const ReportDetailView: React.FC = () => {
     );
   }
 
-  const createdDate = new Date(report.createdAt);
-
   return (
     <div className="space-y-6">
       {/* Back & Breadcrumb */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <Link
-            to="/raporlar"
+          <a
+            href={adres("raporlar")}
             className="cursor-pointer p-2 rounded-lg border hover:opacity-80 transition-colors"
             style={{
               backgroundColor: "var(--kart)",
               borderColor: "var(--kenar)",
               color: "var(--yazi)",
             }}
-            title="Raporlara Dön"
+            title={t("reportDetailBackToList")}
+            aria-label={t("reportDetailBackToList")}
           >
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
+            <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+          </a>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight font-mono" style={{ color: "var(--yazi)" }}>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight font-mono force-ltr" style={{ color: "var(--yazi)" }}>
                 {report.id}
               </h1>
               <CopyText value={report.id} />
@@ -195,20 +198,20 @@ export const ReportDetailView: React.FC = () => {
             <div className="flex items-center gap-4 text-xs mt-1" style={{ color: "var(--yazi-soluk)" }}>
               <span className="flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5" />
-                {createdDate.toLocaleString("tr-TR")}
+                {tarihSaat(report.createdAt, locale)}
               </span>
               <span className="flex items-center gap-1">
                 <Layers className="w-3.5 h-3.5" />
                 {t("reportRuleVersion")}: v{report.ruleVersion}
               </span>
-              <Link
-                to={`/cihazlar?q=${report.deviceId}`}
+              <a
+                href={adres("cihazlar", { q: report.deviceId })}
                 className="flex items-center gap-1 font-mono hover:underline"
                 style={{ color: "var(--renk-ana)" }}
               >
                 <Smartphone className="w-3.5 h-3.5" />
                 {report.deviceId}
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -242,7 +245,7 @@ export const ReportDetailView: React.FC = () => {
             }}
           >
             {report.shared ? <Share2 className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
-            <span>{report.shared ? "Paylaşım Açık" : "Paylaşım Kapalı"}</span>
+            <span>{report.shared ? t("reportDetailSharingOn") : t("reportDetailSharingOff")}</span>
           </button>
 
           <button
@@ -251,7 +254,7 @@ export const ReportDetailView: React.FC = () => {
             className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg hover:opacity-90 transition-opacity"
             style={{
               backgroundColor: "var(--durum-hata)",
-              color: "#ffffff",
+              color: "var(--durum-hata-zemin)",
               borderRadius: "var(--radius)",
             }}
           >
@@ -281,8 +284,8 @@ export const ReportDetailView: React.FC = () => {
           <h2 className="text-base sm:text-lg font-bold" style={{ color: "var(--yazi)" }}>
             {t("testsSection")}
           </h2>
-          <span className="text-xs font-mono font-semibold" style={{ color: "var(--durum-basarili)" }}>
-            {report.passed} / 5 Test Başarılı
+          <span className="text-xs font-semibold" style={{ color: "var(--durum-basarili)" }}>
+            {t("reportDetailTestsPassed", { passed: report.passed, total: report.tests.length })}
           </span>
         </div>
 
@@ -298,16 +301,16 @@ export const ReportDetailView: React.FC = () => {
         isOpen={confirmToggleShare}
         onClose={() => setConfirmToggleShare(false)}
         onConfirm={handleToggleShare}
-        title={report.shared ? "Rapor Paylaşımını Kapat?" : "Raporu Genel Paylaşıma Aç?"}
+        title={report.shared ? t("reportDetailCloseSharingTitle") : t("reportDetailOpenSharingTitle")}
         message={
           report.shared
-            ? "Paylaşımı kapattığınızda genel bağlantıya sahip kullanıcılar artık rapora erişemeyecektir."
-            : "Rapor paylaşıma açıldığında kriptografik kimlikle erişilebilir duruma gelecektir."
+            ? t("reportDetailCloseSharingMessage")
+            : t("reportDetailOpenSharingMessage")
         }
-        confirmLabel={report.shared ? "Paylaşımı Kapat" : "Paylaşıma Aç"}
+        confirmLabel={report.shared ? t("reportDisableSharing") : t("reportDetailOpenSharing")}
         tone={report.shared ? "warning" : "neutral"}
         requireReason={report.shared}
-        reasonPlaceholder="Paylaşımı kapatma nedeni..."
+        reasonPlaceholder={t("reportDetailCloseSharingReason")}
       />
 
       {/* Delete Report Dialog */}
@@ -315,12 +318,12 @@ export const ReportDetailView: React.FC = () => {
         isOpen={confirmDelete}
         onClose={() => setConfirmDelete(false)}
         onConfirm={handleDelete}
-        title="Raporu Kalıcı Olarak Sil?"
-        message={`"${report.id}" kimlikli rapor sistemden kalıcı olarak silinecektir. Bu işlem geri alınamaz ve denetim kütüğüne kaydedilir.`}
-        confirmLabel="Raporu Kalıcı Olarak Sil"
+        title={t("reportDetailDeleteTitle")}
+        message={t("reportDetailDeleteMessage", { id: report.id })}
+        confirmLabel={t("reportDetailDeleteConfirm")}
         tone="danger"
         requireReason={true}
-        reasonPlaceholder="Bu tanılama raporunun silinme gerekçesi..."
+        reasonPlaceholder={t("reportDetailDeleteReason")}
       />
     </div>
   );

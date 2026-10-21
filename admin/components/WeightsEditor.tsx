@@ -1,7 +1,9 @@
 import React from "react";
-import { DiagnosticKind } from "../domain/types";
+import type { DiagnosticKind } from "../domain/types";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useI18n } from "../i18n";
+import type { Translations } from "../i18n/tr";
+import { sozluk, testAdi } from "../../src/lib/sozluk";
 
 export interface WeightsEditorProps {
   weights: Record<DiagnosticKind, number>;
@@ -9,20 +11,22 @@ export interface WeightsEditorProps {
   disabled?: boolean;
 }
 
+// Hedef adresleri veri olarak gösterilir (çevrilmez); test adları uygulamanın sözlüğünden (testAdi),
+// açıklamalar panel sözlüğünden gelir.
+const testList: { id: DiagnosticKind; host?: string; desc: keyof Translations }[] = [
+  { id: "internet", desc: "weightsDescInternet" },
+  { id: "dns", desc: "weightsDescDns" },
+  { id: "gateway", desc: "weightsDescGateway" },
+  { id: "cloudflare", host: "1.1.1.1", desc: "weightsDescCloudflare" },
+  { id: "google", host: "8.8.8.8", desc: "weightsDescGoogle" },
+];
+
 export const WeightsEditor: React.FC<WeightsEditorProps> = ({
   weights,
   onChange,
   disabled = false,
 }) => {
-  const { t } = useI18n();
-
-  const testList: { id: DiagnosticKind; name: string; desc: string }[] = [
-    { id: "internet", name: "İnternet (HTTPS)", desc: "Dış web sunucusuna TLS el sıkışma ve erişim testi" },
-    { id: "dns", name: "DNS Çözümleme", desc: "Domain adını IP adresine dönüştürme performansı" },
-    { id: "gateway", name: "Varsayılan Ağ Geçidi (Gateway)", desc: "Yerel yönlendiriciye (router/modem) doğrudan erişim" },
-    { id: "cloudflare", name: "Cloudflare (1.1.1.1)", desc: "Anycast genel DNS sunucusuna gidiş-dönüş süresi" },
-    { id: "google", name: "Google DNS (8.8.8.8)", desc: "Genel DNS ve rota stabilitesi testi" },
-  ];
+  const { t, locale } = useI18n();
 
   const total = Object.values(weights).reduce((a, b) => a + (Number(b) || 0), 0);
   const isValid = total === 90;
@@ -50,7 +54,7 @@ export const WeightsEditor: React.FC<WeightsEditorProps> = ({
             {t("rulesWeights")}
           </h4>
           <p className="text-xs mt-0.5" style={{ color: "var(--yazi-soluk)" }}>
-            5 temel testin toplam ağırlığı tam 90 puan olmalıdır (kalan 10 puan gecikme bonusudur).
+            {t("weightsHint")}
           </p>
         </div>
 
@@ -64,7 +68,7 @@ export const WeightsEditor: React.FC<WeightsEditorProps> = ({
           }}
         >
           {isValid ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-          <span>Toplam: {total} / 90</span>
+          <span>{t("weightsTotal", { total })}</span>
         </div>
       </div>
 
@@ -79,7 +83,9 @@ export const WeightsEditor: React.FC<WeightsEditorProps> = ({
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>
             {t("rulesWeightsMustTotal90", { sum: total })}.{" "}
-            {total < 90 ? `${90 - total} puan daha eklemelisiniz.` : `${total - 90} puan eksiltmelisiniz.`}
+            {total < 90
+              ? t("weightsAddMore", { points: 90 - total })
+              : t("weightsRemoveSome", { points: total - 90 })}
           </span>
         </div>
       )}
@@ -88,6 +94,8 @@ export const WeightsEditor: React.FC<WeightsEditorProps> = ({
       <div className="space-y-4">
         {testList.map(item => {
           const val = weights[item.id] ?? 0;
+          const ad = testAdi(sozluk[locale], item.id);
+          const name = item.host ? `${ad} (${item.host})` : ad;
           return (
             <div
               key={item.id}
@@ -100,10 +108,10 @@ export const WeightsEditor: React.FC<WeightsEditorProps> = ({
               <div className="flex items-center justify-between">
                 <div>
                   <span className="font-semibold text-xs sm:text-sm" style={{ color: "var(--yazi)" }}>
-                    {item.name}
+                    {name}
                   </span>
                   <p className="text-xs hidden sm:block" style={{ color: "var(--yazi-soluk)" }}>
-                    {item.desc}
+                    {t(item.desc)}
                   </p>
                 </div>
 
@@ -115,14 +123,15 @@ export const WeightsEditor: React.FC<WeightsEditorProps> = ({
                     value={val}
                     disabled={disabled}
                     onChange={e => handleChange(item.id, Number(e.target.value))}
-                    className="w-16 p-1 text-center font-mono font-bold text-sm rounded border bg-transparent focus-visible:outline-none"
+                    aria-label={name}
+                    className="w-16 p-1 text-center font-mono font-bold text-sm rounded border bg-transparent"
                     style={{
                       borderColor: "var(--kenar)",
                       color: "var(--yazi)",
                     }}
                   />
                   <span className="text-xs font-semibold" style={{ color: "var(--yazi-soluk)" }}>
-                    Puan
+                    {t("scoreRulesPoints")}
                   </span>
                 </div>
               </div>
@@ -136,7 +145,8 @@ export const WeightsEditor: React.FC<WeightsEditorProps> = ({
                   value={val}
                   disabled={disabled}
                   onChange={e => handleChange(item.id, Number(e.target.value))}
-                  className="flex-1 cursor-pointer accent-cyan-600 dark:accent-cyan-400"
+                  aria-label={name}
+                  className="flex-1 cursor-pointer accent-ana"
                 />
               </div>
             </div>

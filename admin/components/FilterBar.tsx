@@ -67,7 +67,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {onSearchChange !== undefined && (
           <div className="relative flex-1 min-w-[240px]">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+              className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
               style={{ color: "var(--yazi-soluk)" }}
               aria-hidden="true"
             />
@@ -76,7 +76,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               value={search ?? ""}
               onChange={e => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder ?? t("searchPlaceholder")}
-              className="w-full text-xs sm:text-sm pl-9 pr-8 py-2 rounded-lg border transition-colors focus-visible:outline-none"
+              className="w-full text-xs sm:text-sm ps-9 pe-8 py-2 rounded-lg border transition-colors"
               style={{
                 backgroundColor: "var(--kart)",
                 borderColor: "var(--kenar)",
@@ -88,9 +88,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <button
                 type="button"
                 onClick={() => onSearchChange("")}
-                className="cursor-pointer absolute right-2.5 top-1/2 -translate-y-1/2 p-1 hover:opacity-75 focus-visible:outline-none"
+                className="cursor-pointer absolute end-2.5 top-1/2 -translate-y-1/2 p-1 hover:opacity-75"
                 style={{ color: "var(--yazi-soluk)" }}
-                aria-label="Aramayı temizle"
+                aria-label={t("filterClearSearch")}
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -110,7 +110,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   id={`filter-${f.key}`}
                   value={(filterValues[f.key] as string) ?? ""}
                   onChange={e => onFilterChange(f.key, e.target.value || undefined)}
-                  className="cursor-pointer text-xs sm:text-sm py-2 px-3 rounded-lg border appearance-none transition-colors w-full focus-visible:outline-none"
+                  className="cursor-pointer text-xs sm:text-sm py-2 px-3 rounded-lg border appearance-none transition-colors w-full"
                   style={{
                     backgroundColor: "var(--kart)",
                     borderColor: "var(--kenar)",
@@ -118,7 +118,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     borderRadius: "var(--radius)",
                   }}
                 >
-                  <option value="">{f.label}: Tümü</option>
+                  <option value="">{t("filterAll", { label: f.label })}</option>
                   {f.options?.map(opt => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -136,7 +136,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           <button
             type="button"
             onClick={onClear}
-            className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border hover:opacity-80 transition-colors focus-visible:outline-none ml-auto"
+            className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border hover:opacity-80 transition-colors ms-auto"
             style={{
               backgroundColor: "var(--zemin)",
               borderColor: "var(--kenar)",
@@ -154,8 +154,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {activeChips.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
           <span className="flex items-center gap-1 text-xs font-medium" style={{ color: "var(--yazi-soluk)" }}>
-            <Filter className="w-3 h-3" />
-            <span>Aktif Filtreler:</span>
+            <Filter className="w-3 h-3" aria-hidden="true" />
+            <span>{t("filterActive")}</span>
           </span>
           {activeChips.map(chip => (
             <span
@@ -172,9 +172,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <button
                 type="button"
                 onClick={() => onFilterChange(chip.key, undefined)}
-                className="cursor-pointer ml-1 hover:opacity-75 focus-visible:outline-none"
+                className="cursor-pointer ms-1 hover:opacity-75"
                 style={{ color: "var(--yazi-soluk)" }}
-                aria-label={`${chip.label} filtresini kaldır`}
+                aria-label={t("filterRemove", { label: chip.label })}
               >
                 <X className="w-3 h-3" />
               </button>

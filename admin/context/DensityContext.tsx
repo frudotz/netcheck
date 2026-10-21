@@ -9,17 +9,28 @@ interface DensityContextType {
 
 const DensityContext = createContext<DensityContextType | null>(null);
 
+// Yalnız panele ait tercih (uygulamada tablo yok).
 const STORAGE_KEY = "netcheck-admin:density";
 
-export const DensityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [density, setDensityState] = useState<Density>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as Density;
+function savedDensity(): Density {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
     return saved === "compact" || saved === "comfortable" ? saved : "default";
-  });
+  } catch {
+    return "default";
+  }
+}
+
+export const DensityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [density, setDensityState] = useState<Density>(savedDensity);
 
   const setDensity = (d: Density) => {
     setDensityState(d);
-    localStorage.setItem(STORAGE_KEY, d);
+    try {
+      localStorage.setItem(STORAGE_KEY, d);
+    } catch {
+      // Depolama kullanılamıyorsa seçim yalnızca bu oturumda geçerlidir.
+    }
   };
 
   return (
