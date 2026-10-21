@@ -41,8 +41,8 @@ Work that is planned, blocked, or in progress, highest priority first.
 
 Course task 09.1: the "Protectmaster" ruleset protects only the default branch with PR, status-check, deletion and force-push rules.
 
-- Priority P0 · Status `in progress` · Depends on: merging the Task 09.1 PR; the settings themselves were fixed by the owner on 2026-10-21.
-- Evidence: rows R09.1-a to R09.1-k in [[docs/course-compliance.md]]. The "PR güvenliği" section of [[docs/kurallar.md]] records the configuration read from the GitHub API, with [[docs/kanit/master-korumasi.png]] as the screenshot.
+- Priority P0 · Status `in progress` · Depends on: the owner's optional direct-push self-test; the settings were fixed on 2026-10-21 and the documentation merged in PR #34 (`9970845`).
+- Evidence: rows R09.1-a to R09.1-k in [[docs/course-compliance.md]]. The "PR güvenliği" section of [[docs/kurallar.md]] records the configuration read from the GitHub API, with [[docs/kanit/master-korumasi.png]] as the screenshot; the prompt log is [[docs/istemler/09-1-master-korumasi.md]].
 - Open: the direct-push self-test (R09.1-d) was deliberately not performed; the configuration is the evidence.
 - Acceptance: every Task 09.1 checklist item is met; the self-test result is recorded if the owner runs it.
 
@@ -73,10 +73,10 @@ The AGENTS.md documentation index must list every `docs/*.md`; [[docs/backend.md
 
 ### NC-14 Week 04 course tasks
 
-Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]] have no recorded work.
+Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]]; only Task 10 has started.
 
-- Priority P1 · Status `planned` · Depends on: [[tasks#Open work#NC-15 Master protection ruleset]] (the Task 09.1 prerequisite) and, for Tasks 11, 13 and 14, [[tasks#Open work#NC-16 Conflicting course requirements]].
-- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. No `docs/istemler/` logs or `feature/NN-*` branches exist. Parts are already met by existing code, for example typed IPC in [[src/lib/native.ts]] and 22 Rust tests.
+- Priority P1 · Status `in progress` · Depends on: [[tasks#Open work#NC-15 Master protection ruleset]] (the Task 09.1 prerequisite) and, for Tasks 11, 13 and 14, [[tasks#Open work#NC-16 Conflicting course requirements]].
+- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Parts of Tasks 11–15 are already met by existing code, for example typed IPC in [[src/lib/native.ts]] and 22 Rust tests.
 - Acceptance: as defined in each task file, one branch, PR and prompt log per task. Deadline and grading are announced in class (Task 16).
 
 ### NC-04 iOS local network permission

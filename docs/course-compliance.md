@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 15 | 12 | 20 | 2 | 49 |
-| **All** | **52** | **19** | **20** | **4** | **95** |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 19 | 13 | 15 | 2 | 49 |
+| **All** | **56** | **20** | **15** | **4** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot are added on the Task 09.1 branch; only the direct-push self-test was not performed. Tasks 10–16 have not started.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Task 10 (working method) is on its branch; Tasks 11–16 have not started.
 
 ## Week 3 — Batch 01
 
@@ -145,18 +145,18 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 | R09.1-g | Only the student, teammates and the instructor are collaborators | PASS | `frudotz` (admin), `keyvanarasteh` (write) |
 | R09.1-h | Fork PR workflows require approval for all external contributors | PASS | `approval_policy=all_external_contributors` |
 | R09.1-i | Workflow permissions read-only | PASS | `default_workflow_permissions=read` |
-| R09.1-j | "PR güvenliği" section in `docs/kurallar.md`, linked from AGENTS.md | PASS (Task 09.1 branch) | [`docs/kurallar.md` § PR güvenliği](kurallar.md#pr-güvenliği), linked from AGENTS.md §3 and the documentation index |
-| R09.1-k | Screenshot `docs/kanit/master-korumasi.png` | PASS (Task 09.1 branch) | [`docs/kanit/master-korumasi.png`](kanit/master-korumasi.png), the saved ruleset, captured by the owner. The status-check list is collapsed in the image and is evidenced through the API |
+| R09.1-j | "PR güvenliği" section in `docs/kurallar.md`, linked from AGENTS.md | PASS | [`docs/kurallar.md` § PR güvenliği](kurallar.md#pr-güvenliği), linked from AGENTS.md §3 and the documentation index; merged in PR #34 (`9970845`) |
+| R09.1-k | Screenshot `docs/kanit/master-korumasi.png` | PASS | [`docs/kanit/master-korumasi.png`](kanit/master-korumasi.png), the saved ruleset, captured by the owner; merged in PR #34. The status-check list is collapsed in the image and is evidenced through the API |
 
 ### Task 10 — Working method
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R10-a | `docs/gorev-sartnamesi.md` with five headings | FAIL | Absent — P1, NC-14 |
-| R10-b | `docs/istemler/README.md` and log `docs/istemler/10-calisma-yontemi.md` | FAIL | Absent — P1 |
-| R10-c | AGENTS.md "Çalışma döngüsü": plan first, branch + PR, clean build | PARTIAL | AGENTS.md §3 has the branch, PR and build rules; there is no plan-first loop section — P1 |
-| R10-d | New-chat rule test answer recorded in the log | FAIL | No log — P1 |
-| R10-e | Branch `feature/10-calisma-yontemi` with a PR | FAIL | Not created — P1 |
+| R10-a | `docs/gorev-sartnamesi.md` with five headings | PASS (Task 10 branch) | [`docs/gorev-sartnamesi.md`](gorev-sartnamesi.md): the five headings with NetCheck example lines |
+| R10-b | `docs/istemler/README.md` and log `docs/istemler/10-calisma-yontemi.md` | PASS (Task 10 branch) | [`docs/istemler/README.md`](istemler/README.md) (naming, sections, rules) and [`10-calisma-yontemi.md`](istemler/10-calisma-yontemi.md); the Task 09.1 log was backfilled |
+| R10-c | AGENTS.md "Çalışma döngüsü": plan first, branch + PR, clean build | PASS (Task 10 branch) | [AGENTS.md § Çalışma döngüsü](../AGENTS.md#çalışma-döngüsü); both new documents are in the AGENTS.md index |
+| R10-d | New-chat rule test answer recorded in the log | PARTIAL | The Task 10 log records two answers that describe the AGENTS.md cycle: a context-free subagent (proxy) and the student's question in an existing ChatGPT conversation that already carried project context. Neither is a new chat. **Missing:** a new-chat test and the screenshots required by the checklist — P1, student action |
+| R10-e | Branch `feature/10-calisma-yontemi` with a PR | PASS (Task 10 branch) | Branch created from `9970845`; PR #35, linked in the log |
 
 ### Task 11 — Data contract
 
@@ -218,7 +218,7 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | FAIL | No such branches or logs — P1, NC-14 |
+| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Task 09.1 (PR #34, log backfilled) and Task 10 follow it; Tasks 11–15 not started — P1, NC-14 |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
 
 ## Conflicts requiring an instructor decision
@@ -233,7 +233,7 @@ These requirements contradict binding rules already in the project. Resolve them
 
 Ordered by priority. Nothing in this plan is implemented by this audit.
 
-1. **Done except the self-test — Task 09.1 (NC-15).** The owner fixed the settings on 2026-10-21. The "PR güvenliği" section, its AGENTS.md link and `docs/kanit/master-korumasi.png` are added on `feature/09-1-master-korumasi`. **Remaining:** the direct-push self-test (R09.1-d), which the owner chose not to perform.
+1. **Done except the self-test — Task 09.1 (NC-15).** The owner fixed the settings on 2026-10-21. The "PR güvenliği" section, its AGENTS.md link and `docs/kanit/master-korumasi.png` were merged in PR #34. **Remaining:** the direct-push self-test (R09.1-d), which the owner chose not to perform.
 2. **P1 — Decisions C-1 to C-3 (NC-16).** **Acceptance:** each decision is recorded in AGENTS.md, which is the single source for rules.
 3. **Done in PR #33 — Documentation index (NC-17).** `docs/backend.md` added to the AGENTS.md index.
 4. **P1 — Tasks 10 → 15 in order (NC-14).** One `feature/NN-*` branch, PR and `docs/istemler/` log per task. Run each task's own audit prompt first and implement only the PARTIAL and FAIL rows above. **Acceptance:** each task's "Görev bittiğinde repoda ne olacak" list and checklist are met, with `bun run build` at 0 errors.
