@@ -1,19 +1,26 @@
 <script lang="ts">
-  // Genel Bakış — Rust'tan alınan gerçek ağ anlık görüntüsü, hızlı bağlantı kontrolü ve son skor
+  // Genel Bakış — Rust'tan alınan gerçek ağ anlık görüntüsü, hızlı bağlantı kontrolü ve son skor.
+  // Ağ bilgileri ve arayüzler genel Kart bileşeniyle listelenir (Görev 12); metinler sözlükten gelir.
   import { onMount } from "svelte";
-  import type { DiagnosticOutcome, LinkState, NetworkSnapshot } from "$lib/types";
-  import { getNetworkSnapshot, runDiagnostic } from "$lib/native";
-  import { connectionTypeLabel, errorMessage, formatLatency, NOT_FOUND, UNAVAILABLE } from "$lib/labels";
-  import { reports, reportHref, formatDateTime } from "$lib/reports.svelte";
-  import { SCORE_NOTE } from "$lib/score";
+  import type { DiagnosticOutcome, KartOzellikleri, LinkState, NetworkSnapshot } from "$lib/types";
+  import { getNetworkSnapshot, NativeUnavailableError, runDiagnostic } from "$lib/native";
+  import { formatLatency } from "$lib/labels";
+  import { reports, reportHref } from "$lib/reports.svelte";
+  import { dil } from "$lib/dil.svelte";
+  import { baglantiTuruEtiketi, tarihSaat } from "$lib/sozluk";
+  import Kart from "$lib/components/ui/Kart.svelte";
   import ScoreGauge from "./ScoreGauge.svelte";
+
+  const m = $derived(dil.metin);
+  const ok = $derived(dil.kod === "ar" || dil.kod === "fa" ? "←" : "→");
 
   let snapshot = $state<NetworkSnapshot | null>(null);
   let internet = $state<DiagnosticOutcome | null>(null);
   let ping = $state<DiagnosticOutcome | null>(null);
   let loading = $state(true);
   let checking = $state(false);
-  let error = $state("");
+  // Hata metni dil değişince yeniden çizilsin diye tür olarak saklanır.
+  let hata = $state<"yalniz-uygulamada" | "alinamadi" | null>(null);
   let mounted = $state(false);
 
   async function quickCheck() {
@@ -31,13 +38,13 @@
 
   async function load() {
     loading = true;
-    error = "";
+    hata = null;
     try {
       snapshot = await getNetworkSnapshot();
       void quickCheck();
     } catch (e) {
       snapshot = null;
-      error = errorMessage(e, "Ağ bilgileri alınamadı. Lütfen tekrar deneyin.");
+      hata = e instanceof NativeUnavailableError ? "yalniz-uygulamada" : "alinamadi";
     } finally {
       loading = false;
     }
@@ -56,52 +63,53 @@
     return internet ? "no-internet" : "unknown";
   });
 
-  const linkLabel: Record<LinkState, string> = {
-    checking: "Kontrol ediliyor...",
-    online: "Bağlı",
-    "no-internet": "İnternet Yok",
-    offline: "Bağlantı Yok",
-    unknown: "Bilinmiyor",
-  };
+  const linkLabel = $derived<Record<LinkState, string>>({
+    checking: m.linkKontrol,
+    online: m.linkBagli,
+    "no-internet": m.linkInternetYok,
+    offline: m.linkBaglantiYok,
+    unknown: m.bilinmiyor,
+  });
 
   const linkHint = $derived.by(() => {
     if (!snapshot) return "";
     switch (linkState) {
       case "online":
-        return `${connectionTypeLabel[snapshot.connectionType]}${snapshot.interfaceName ? ` · ${snapshot.interfaceName}` : ""}`;
+        return `${baglantiTuruEtiketi(m, snapshot.connectionType)}${snapshot.interfaceName ? ` · ${snapshot.interfaceName}` : ""}`;
       case "no-internet":
-        return snapshot.gateway ? "Yerel ağa bağlı, ancak internete erişilemiyor." : "Gateway bulunamadı.";
+        return snapshot.gateway ? m.ipucuYerelAg : m.ipucuGatewayYok;
       case "offline":
-        return "Etkin bir ağ bağlantısı bulunamadı.";
+        return m.ipucuBaglantiYok;
       case "checking":
-        return "HTTPS bağlantısı test ediliyor.";
+        return m.ipucuKontrol;
       default:
-        return "Bağlantı durumu belirlenemedi.";
+        return m.ipucuBilinmiyor;
     }
   });
 
   const latencyText = $derived(
-    ping?.status === "success" ? formatLatency(ping.latencyMs) : checking ? "…" : UNAVAILABLE,
+    ping?.status === "success" ? formatLatency(ping.latencyMs) : checking ? "…" : m.kullanilamiyor,
   );
 
-  const rows = $derived(
+  /** Ağ bilgileri kartları: ekran veriyi kartın genel girdilerine dönüştürür. */
+  const bilgiKartlari = $derived<KartOzellikleri[]>(
     snapshot
       ? [
           {
-            label: "Genel IP",
-            value: internet?.status === "success" && internet.detail ? internet.detail : checking ? "…" : "Alınamadı",
-            mono: true,
+            baslik: m.genelIp,
+            altMetin: internet?.status === "success" && internet.detail ? internet.detail : checking ? "…" : m.alinamadi,
+            altMetinEsAralikli: true,
           },
-          { label: "Yerel IPv4", value: snapshot.localIPv4 ?? UNAVAILABLE, mono: true },
-          { label: "IPv6", value: snapshot.localIPv6 ?? UNAVAILABLE, mono: true },
-          { label: "Gateway", value: snapshot.gateway ?? NOT_FOUND, mono: true },
+          { baslik: m.yerelIpv4, altMetin: snapshot.localIPv4 ?? m.kullanilamiyor, altMetinEsAralikli: true },
+          { baslik: "IPv6", altMetin: snapshot.localIPv6 ?? m.kullanilamiyor, altMetinEsAralikli: true },
+          { baslik: m.gateway, altMetin: snapshot.gateway ?? m.bulunamadi, altMetinEsAralikli: true },
           {
-            label: "DNS",
-            value: snapshot.dnsServers.length ? snapshot.dnsServers.join(", ") : NOT_FOUND,
-            mono: true,
+            baslik: "DNS",
+            altMetin: snapshot.dnsServers.length ? snapshot.dnsServers.join(", ") : m.bulunamadi,
+            altMetinEsAralikli: true,
           },
-          { label: "Cihaz adı", value: snapshot.hostname ?? UNAVAILABLE, mono: false },
-          { label: "Bağlantı türü", value: connectionTypeLabel[snapshot.connectionType], mono: false },
+          { baslik: m.cihazAdi, altMetin: snapshot.hostname ?? m.kullanilamiyor },
+          { baslik: m.baglantiTuru, altMetin: baglantiTuruEtiketi(m, snapshot.connectionType) },
         ]
       : [],
   );
@@ -111,21 +119,21 @@
 
 <div class="sayfa">
   <div class="baslik">
-    <h1>Genel Bakış</h1>
-    <button class="yenile" onclick={load} disabled={loading || checking} aria-label="Ağ bilgilerini yenile">
+    <h1>{m.menuGenelBakis}</h1>
+    <button class="yenile" onclick={load} disabled={loading || checking} aria-label={m.agBilgileriniYenile}>
       <svg viewBox="0 0 24 24" aria-hidden="true" class:doner={loading || checking}>
         <path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6" />
       </svg>
-      {loading ? "Yenileniyor…" : "Yenile"}
+      {loading ? m.yenileniyor : m.yenile}
     </button>
   </div>
 
   {#if loading && !snapshot}
-    <p class="kart durum-metin" role="status">Ağ bilgileri alınıyor...</p>
-  {:else if error}
+    <p class="kart durum-metin" role="status">{m.agBilgileriAliniyor}</p>
+  {:else if hata}
     <div class="kart durum-metin" role="alert">
-      <p>{error}</p>
-      <button class="btn ikincil" onclick={load}>Tekrar dene</button>
+      <p>{hata === "yalniz-uygulamada" ? m.yalnizUygulamada : m.agBilgileriAlinamadi}</p>
+      <button class="btn ikincil" onclick={load}>{m.tekrarDene}</button>
     </div>
   {:else if snapshot}
     <div class="pano">
@@ -133,19 +141,19 @@
         <div class="durum-ust">
           <span class="nokta" aria-hidden="true"></span>
           <div>
-            <span class="etiket">Bağlantı Durumu</span>
+            <span class="etiket">{m.baglantiDurumu}</span>
             <strong>{linkLabel[linkState]}</strong>
           </div>
         </div>
         <p class="ipucu">{linkHint}</p>
         <div class="olcu">
           <div>
-            <span class="etiket">Gecikme (1.1.1.1)</span>
+            <span class="etiket">{m.gecikme}</span>
             <strong class="mono">{latencyText}</strong>
           </div>
           <div>
-            <span class="etiket">Bağlantı türü</span>
-            <strong>{connectionTypeLabel[snapshot.connectionType]}</strong>
+            <span class="etiket">{m.baglantiTuru}</span>
+            <strong>{baglantiTuruEtiketi(m, snapshot.connectionType)}</strong>
           </div>
         </div>
       </section>
@@ -154,48 +162,47 @@
         {#if latest}
           <ScoreGauge score={latest.score} size={96} />
           <div class="skor-metin">
-            <span class="etiket">Bağlantı Skoru</span>
-            <p class="not">{SCORE_NOTE}</p>
-            <a class="satir-link" href={reportHref(latest.id)}>Son rapor · {formatDateTime(latest.createdAt)} →</a>
+            <span class="etiket">{m.baglantiSkoru}</span>
+            <p class="not">{m.skorNotu}</p>
+            <Kart href={reportHref(latest.id)} baslik={`${m.sonRapor} ${ok}`} altMetin={tarihSaat(latest.createdAt, dil.kod)} />
           </div>
         {:else}
           <div class="skor-metin">
-            <span class="etiket">Bağlantı Skoru</span>
-            <p class="not">Henüz tanılama yapılmadı. Skor, ilk tanılamadan sonra burada görünür.</p>
-            <a class="btn" href="/tanilama">Tanılamayı Başlat</a>
+            <span class="etiket">{m.baglantiSkoru}</span>
+            <p class="not">{m.henuzTanilamaYok}</p>
+            <a class="btn" href="/tanilama">{m.tanilamayiBaslat}</a>
           </div>
         {/if}
       </section>
 
-      <section class="kart bilgiler-kart">
-        <h2>Ağ Bilgileri</h2>
-        <dl class="anahtar-deger bilgiler">
-          {#each rows as r (r.label)}
-            <div>
-              <dt>{r.label}</dt>
-              <dd class:mono={r.mono}>{r.value}</dd>
-            </div>
+      <section class="bilgiler" aria-labelledby="ag-bilgileri">
+        <h2 id="ag-bilgileri">{m.agBilgileri}</h2>
+        <ul class="kart-listesi">
+          {#each bilgiKartlari as k (k.baslik)}
+            <li><Kart {...k} /></li>
           {/each}
-        </dl>
+        </ul>
       </section>
 
-      <section class="kart arayuzler">
-        <h2>Ağ Arayüzleri</h2>
-        <div class="arayuz-liste">
-        <!-- Arayüz adı benzersiz değildir (macOS'ta iki "iPhone" arayüzü görüldü); anahtar sıra + ad. -->
-        {#each snapshot.interfaces as i, n (`${n}:${i.name}`)}
-          <div class="arayuz">
-            <div class="ad">
-              <strong>{i.name}</strong>
-              {#if i.isDefault}<span class="rozet">Varsayılan</span>{/if}
-            </div>
-            <p class="mono">{i.ipv4 ?? UNAVAILABLE}{i.ipv6 ? ` · ${i.ipv6}` : ""}</p>
-            <p>{connectionTypeLabel[i.type]}{i.mac ? ` · ${i.mac}` : ""}</p>
-          </div>
+      <section class="arayuzler" aria-labelledby="ag-arayuzleri">
+        <h2 id="ag-arayuzleri">{m.agArayuzleri}</h2>
+        {#if snapshot.interfaces.length}
+          <ul class="kart-listesi">
+            <!-- Arayüz adı benzersiz değildir (macOS'ta iki "iPhone" arayüzü görüldü); anahtar sıra + ad. -->
+            {#each snapshot.interfaces as i, n (`${n}:${i.name}`)}
+              <li>
+                <Kart
+                  baslik={i.name}
+                  altMetin={[i.ipv4 ?? m.kullanilamiyor, i.ipv6, baglantiTuruEtiketi(m, i.type), i.mac].filter(Boolean).join(" · ")}
+                  etiket={i.isDefault ? m.varsayilan : undefined}
+                  etiketTuru="bilgi"
+                />
+              </li>
+            {/each}
+          </ul>
         {:else}
-          <p class="bos-metin">Etkin ağ arayüzü bulunamadı.</p>
-        {/each}
-        </div>
+          <p class="bos-metin">{m.arayuzYok}</p>
+        {/if}
       </section>
     </div>
   {/if}
@@ -211,8 +218,7 @@
   }
 
   h2 {
-    margin: 0;
-    padding: 0.875rem var(--bosluk-4) 0.375rem;
+    margin: 0 0 var(--bosluk-2);
     font-size: var(--yazi-orta);
   }
 
@@ -295,7 +301,7 @@
       grid-area: skor;
     }
 
-    .bilgiler-kart {
+    .bilgiler {
       grid-area: bilgi;
     }
 
@@ -401,53 +407,23 @@
     color: var(--yazi-soluk);
   }
 
-  .skor-metin .satir-link {
-    font-size: var(--yazi-ince);
-  }
-
-  .bilgiler {
-    padding: 0 var(--bosluk-4) var(--bosluk-2);
-  }
-
-  /* Arayüz listesi: geniş ekranda birden çok sütuna yayılır. */
-  .arayuz-liste {
+  /* Kart listesi: dar ekranda tek sütun, genişte kartlar birden çok sütuna yayılır. */
+  .kart-listesi {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
-    column-gap: var(--bosluk-4);
-    padding: 0 var(--bosluk-4) 0.375rem;
-  }
-
-  .arayuz {
-    min-width: 0;
-    padding: 0.625rem 0;
-    border-top: 1px solid var(--kenar);
-  }
-
-  .arayuz .ad {
-    display: flex;
-    align-items: center;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
     gap: var(--bosluk-2);
   }
 
-  .arayuz p {
-    margin: 0.125rem 0 0;
-    font-size: var(--yazi-ince);
-    color: var(--yazi-soluk);
-    overflow-wrap: anywhere;
-  }
-
-  .rozet {
-    padding: 1px var(--bosluk-2);
-    border-radius: 999px;
-    background: var(--renk-ana);
-    color: var(--renk-ana-yazi);
-    font-size: var(--yazi-mini);
-    font-weight: 600;
+  .kart-listesi li {
+    display: flex;
+    min-width: 0;
   }
 
   .bos-metin {
     margin: 0;
-    padding: var(--bosluk-2) 0 var(--bosluk-4);
     color: var(--yazi-soluk);
   }
 </style>

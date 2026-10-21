@@ -6,7 +6,7 @@ The UI is five Turkish app screens plus multilingual information pages, sharing 
 
 Each app route mounts one Svelte component; all network data comes from [[architecture#IPC contract]].
 
-- **Genel Bakış** (`/`, [[src/components/Overview.svelte]]): a quick check runs the `internet` and `cloudflare` diagnostics. The link state is "Bağlı" when the HTTPS `internet` test succeeds, "Bağlantı Yok" when there is no local IPv4 or IPv6, and otherwise "İnternet Yok". ICMP latency is shown separately. The screen also shows snapshot fields, interfaces, and the latest report score.
+- **Genel Bakış** (`/`, [[src/components/Overview.svelte]]): a quick check runs the `internet` and `cloudflare` diagnostics. The link state is "Bağlı" when the HTTPS `internet` test succeeds, "Bağlantı Yok" when there is no local IPv4 or IPv6, and otherwise "İnternet Yok". ICMP latency is shown separately. Snapshot fields and interfaces are listed as cards ([[frontend#Shared UI components]]), and the latest report score links to that report through a card.
 - **Tanılama** (`/tanilama`, [[src/components/Diagnostics.svelte]]): runs all five tests in parallel with live rows, then shows the score and a link to the new report ([[architecture#Diagnostic run data flow]]).
 - **Rapor** (`/rapor?id=`, [[src/components/ReportView.svelte]]): score, test results, and network facts of one stored report; unknown IDs show "Rapor bulunamadı". The page has no `h1` (see [[tasks#Deferred#NC-07 Report page heading]]).
 - **Geçmiş** (`/gecmis`, [[src/components/History.svelte]]): stored reports with counts, and clearing history behind a confirmation step.
@@ -24,11 +24,17 @@ Reports live only on the device, in `localStorage` under [[src/lib/reports.svelt
 
 Stored entries are shape-checked when loaded, so malformed data is dropped instead of crashing the screen. Storage is per WebView data directory, so changing the app identifier or uninstalling the app clears history; an in-place update keeps it (seen on Android). The theme choice is stored the same way by [[src/lib/tema.svelte.ts#tema]] (day, night, or system).
 
+## Shared UI components
+
+Data-agnostic components live in `src/lib/components/ui/`; their inputs are typed in [[src/lib/types/ui.ts]] and every color, spacing and radius comes from `src/styles/app.css` variables.
+
+[[src/lib/components/ui/Kart.svelte]] (course Task 12) takes a title, optional subtitle, image with required alt text, label and label kind (`bilgi`, `basari`, `uyari`, `hata`, colored by the `--durum-*` tokens). With `href` it renders a link, with `onclick` a button, otherwise a plain card, so interactive cards are keyboard-focusable and open with Enter. Screens convert their data into these inputs; the card never imports app data types. Monospace values (`.mono`) are isolated as left-to-right so addresses and latencies read correctly in RTL.
+
 ## Localization
 
 App screens default to Turkish and can be switched to English, Arabic or Persian; the four information pages exist in all four languages on their own routes. Arabic and Persian render right-to-left.
 
-The app language lives in [[src/lib/dil.svelte.ts#dil]] and is stored in `localStorage` under `dil`. An inline script in [[src/layouts/Layout.astro]] applies it before first paint and after each client-side navigation, except on information pages, whose route fixes the language (`data-sabit-dil`). Texts come from [[src/lib/sozluk.ts#sozluk]], keyed identically in all four languages. So far the shell (header and menu) and Settings use it; older texts in [[src/lib/labels.ts]] and the remaining screens are still Turkish.
+The app language lives in [[src/lib/dil.svelte.ts#dil]] and is stored in `localStorage` under `dil`. An inline script in [[src/layouts/Layout.astro]] applies it before first paint and after each client-side navigation, except on information pages, whose route fixes the language (`data-sabit-dil`). Texts come from [[src/lib/sozluk.ts#sozluk]], keyed identically in all four languages. So far the shell (header and menu), Settings, Genel Bakış and the score ring use it; older texts in [[src/lib/labels.ts]] and the remaining screens are still Turkish.
 
 [[src/lib/i18n.ts#LOCALES]] lists the locales and [[src/lib/i18n.ts#dirOf]] sets `dir="rtl"` for `ar` and `fa`. Turkish pages live at the root and the others under `/en`, `/ar`, `/fa`. Layout uses logical CSS properties so the navigation rail and borders mirror in RTL. Translations are maintained by hand in the MDX/Astro pages, so changes to the Turkish source must be applied to all four.
 

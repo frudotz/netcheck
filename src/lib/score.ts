@@ -34,10 +34,6 @@ export function scoreLevel(score: number): ScoreLevel {
   return "zayif";
 }
 
-export const scoreLevelLabel: Record<ScoreLevel, string> = {
-  iyi: "İyi",
-  orta: "Orta",
-  zayif: "Zayıf",
-};
-
+// Seviye adları dört dilde src/lib/sozluk.ts içindedir (skorSeviyesiEtiketi).
+// Henüz sözlüğe geçmemiş ekranlar (Tanılama, Rapor) için Türkçe not:
 export const SCORE_NOTE = "Temel bağlantı ve tanılama sonuçlarına göre hesaplanan basit bir değerlendirmedir.";
