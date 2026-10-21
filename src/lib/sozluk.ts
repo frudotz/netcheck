@@ -2,7 +2,7 @@
 // anahtarları taşımak zorundadır (eksik anahtar `bun run check` ile yakalanır).
 // Yeni ya da değiştirilen her görünür metin buraya dört dilde eklenir (AGENTS.md § 4, "Dil").
 // Henüz taşınmamış eski metinler src/lib/labels.ts ve bileşenlerde Türkçe durur.
-import type { IcmpBackend, Locale, OsName, PlatformFamily } from "./types";
+import type { ConnectionType, IcmpBackend, Locale, OsName, PlatformFamily, ScoreLevel } from "./types";
 
 const tr = {
   // Kabuk: başlık ve menü
@@ -49,6 +49,51 @@ const tr = {
   icmpSistemPing: "Sistem ping komutu",
   icmpSoket: "ICMP soketi (ayrıcalıksız)",
   icmpYok: "Bu platformda kullanılamıyor",
+
+  // Ortak değerler
+  kullanilamiyor: "Kullanılamıyor",
+  bulunamadi: "Bulunamadı",
+  alinamadi: "Alınamadı",
+  tekrarDene: "Tekrar dene",
+  yalnizUygulamada: "Ağ bilgileri yalnızca NetCheck uygulamasında alınabilir. Tarayıcı önizlemesinde gerçek ağ verisine erişilemez.",
+  baglantiTuru: "Bağlantı türü",
+  turEthernet: "Ethernet (kablolu)",
+  turWifi: "Wi-Fi (kablosuz)",
+  turHucresel: "Mobil veri (hücresel)",
+  baglantiSkoru: "Bağlantı Skoru",
+  skorNotu: "Temel bağlantı ve tanılama sonuçlarına göre hesaplanan basit bir değerlendirmedir.",
+  skorIyi: "İyi",
+  skorOrta: "Orta",
+  skorZayif: "Zayıf",
+
+  // Genel Bakış
+  yenile: "Yenile",
+  yenileniyor: "Yenileniyor…",
+  agBilgileriniYenile: "Ağ bilgilerini yenile",
+  agBilgileriAliniyor: "Ağ bilgileri alınıyor...",
+  agBilgileriAlinamadi: "Ağ bilgileri alınamadı. Lütfen tekrar deneyin.",
+  baglantiDurumu: "Bağlantı Durumu",
+  linkKontrol: "Kontrol ediliyor...",
+  linkBagli: "Bağlı",
+  linkInternetYok: "İnternet Yok",
+  linkBaglantiYok: "Bağlantı Yok",
+  ipucuYerelAg: "Yerel ağa bağlı, ancak internete erişilemiyor.",
+  ipucuGatewayYok: "Gateway bulunamadı.",
+  ipucuBaglantiYok: "Etkin bir ağ bağlantısı bulunamadı.",
+  ipucuKontrol: "HTTPS bağlantısı test ediliyor.",
+  ipucuBilinmiyor: "Bağlantı durumu belirlenemedi.",
+  gecikme: "Gecikme (1.1.1.1)",
+  sonRapor: "Son rapor",
+  henuzTanilamaYok: "Henüz tanılama yapılmadı. Skor, ilk tanılamadan sonra burada görünür.",
+  tanilamayiBaslat: "Tanılamayı Başlat",
+  agBilgileri: "Ağ Bilgileri",
+  genelIp: "Genel IP",
+  yerelIpv4: "Yerel IPv4",
+  gateway: "Gateway",
+  cihazAdi: "Cihaz adı",
+  agArayuzleri: "Ağ Arayüzleri",
+  varsayilan: "Varsayılan",
+  arayuzYok: "Etkin ağ arayüzü bulunamadı.",
 };
 
 export type Metinler = { [K in keyof typeof tr]: string };
@@ -96,6 +141,49 @@ const en: Metinler = {
   icmpSistemPing: "System ping command",
   icmpSoket: "ICMP socket (unprivileged)",
   icmpYok: "Not available on this platform",
+
+  kullanilamiyor: "Unavailable",
+  bulunamadi: "Not found",
+  alinamadi: "Could not get",
+  tekrarDene: "Try again",
+  yalnizUygulamada: "Network information is only available in the NetCheck app. The browser preview cannot access real network data.",
+  baglantiTuru: "Connection type",
+  turEthernet: "Ethernet (wired)",
+  turWifi: "Wi-Fi (wireless)",
+  turHucresel: "Mobile data (cellular)",
+  baglantiSkoru: "Connection Score",
+  skorNotu: "A simple rating calculated from basic connection and diagnostic results.",
+  skorIyi: "Good",
+  skorOrta: "Fair",
+  skorZayif: "Poor",
+
+  yenile: "Refresh",
+  yenileniyor: "Refreshing…",
+  agBilgileriniYenile: "Refresh network information",
+  agBilgileriAliniyor: "Loading network information...",
+  agBilgileriAlinamadi: "Could not get network information. Please try again.",
+  baglantiDurumu: "Connection Status",
+  linkKontrol: "Checking...",
+  linkBagli: "Connected",
+  linkInternetYok: "No Internet",
+  linkBaglantiYok: "No Connection",
+  ipucuYerelAg: "Connected to the local network, but the internet is unreachable.",
+  ipucuGatewayYok: "No gateway found.",
+  ipucuBaglantiYok: "No active network connection found.",
+  ipucuKontrol: "Testing the HTTPS connection.",
+  ipucuBilinmiyor: "Could not determine the connection status.",
+  gecikme: "Latency (1.1.1.1)",
+  sonRapor: "Latest report",
+  henuzTanilamaYok: "No diagnostics yet. The score appears here after the first run.",
+  tanilamayiBaslat: "Start Diagnostics",
+  agBilgileri: "Network Information",
+  genelIp: "Public IP",
+  yerelIpv4: "Local IPv4",
+  gateway: "Gateway",
+  cihazAdi: "Device name",
+  agArayuzleri: "Network Interfaces",
+  varsayilan: "Default",
+  arayuzYok: "No active network interface found.",
 };
 
 const ar: Metinler = {
@@ -141,6 +229,49 @@ const ar: Metinler = {
   icmpSistemPing: "أمر ping في النظام",
   icmpSoket: "مقبس ICMP (دون صلاحيات خاصة)",
   icmpYok: "غير متاح على هذه المنصة",
+
+  kullanilamiyor: "غير متاح",
+  bulunamadi: "غير موجود",
+  alinamadi: "تعذّر الحصول عليه",
+  tekrarDene: "إعادة المحاولة",
+  yalnizUygulamada: "لا يمكن الحصول على معلومات الشبكة إلا في تطبيق NetCheck. لا تصل معاينة المتصفح إلى بيانات الشبكة الحقيقية.",
+  baglantiTuru: "نوع الاتصال",
+  turEthernet: "Ethernet (سلكي)",
+  turWifi: "Wi-Fi (لاسلكي)",
+  turHucresel: "بيانات الجوال (خلوية)",
+  baglantiSkoru: "درجة الاتصال",
+  skorNotu: "تقييم بسيط يُحسب من نتائج الاتصال والتشخيص الأساسية.",
+  skorIyi: "جيد",
+  skorOrta: "متوسط",
+  skorZayif: "ضعيف",
+
+  yenile: "تحديث",
+  yenileniyor: "جارٍ التحديث…",
+  agBilgileriniYenile: "تحديث معلومات الشبكة",
+  agBilgileriAliniyor: "جارٍ جلب معلومات الشبكة...",
+  agBilgileriAlinamadi: "تعذّر جلب معلومات الشبكة. يرجى المحاولة مرة أخرى.",
+  baglantiDurumu: "حالة الاتصال",
+  linkKontrol: "جارٍ الفحص...",
+  linkBagli: "متصل",
+  linkInternetYok: "لا يوجد إنترنت",
+  linkBaglantiYok: "لا يوجد اتصال",
+  ipucuYerelAg: "متصل بالشبكة المحلية، لكن لا يمكن الوصول إلى الإنترنت.",
+  ipucuGatewayYok: "لم يُعثر على البوابة.",
+  ipucuBaglantiYok: "لم يُعثر على اتصال شبكة نشط.",
+  ipucuKontrol: "جارٍ اختبار اتصال HTTPS.",
+  ipucuBilinmiyor: "تعذّر تحديد حالة الاتصال.",
+  gecikme: "زمن الاستجابة (1.1.1.1)",
+  sonRapor: "آخر تقرير",
+  henuzTanilamaYok: "لم يُجرَ أي تشخيص بعد. ستظهر الدرجة هنا بعد أول تشخيص.",
+  tanilamayiBaslat: "بدء التشخيص",
+  agBilgileri: "معلومات الشبكة",
+  genelIp: "عنوان IP العام",
+  yerelIpv4: "عنوان IPv4 المحلي",
+  gateway: "البوابة",
+  cihazAdi: "اسم الجهاز",
+  agArayuzleri: "واجهات الشبكة",
+  varsayilan: "افتراضية",
+  arayuzYok: "لم يُعثر على واجهة شبكة نشطة.",
 };
 
 const fa: Metinler = {
@@ -186,6 +317,49 @@ const fa: Metinler = {
   icmpSistemPing: "فرمان ping سیستم",
   icmpSoket: "سوکت ICMP (بدون دسترسی ویژه)",
   icmpYok: "در این پلتفرم در دسترس نیست",
+
+  kullanilamiyor: "در دسترس نیست",
+  bulunamadi: "پیدا نشد",
+  alinamadi: "دریافت نشد",
+  tekrarDene: "تلاش دوباره",
+  yalnizUygulamada: "اطلاعات شبکه فقط در برنامهٔ NetCheck در دسترس است. پیش‌نمایش مرورگر به داده‌های واقعی شبکه دسترسی ندارد.",
+  baglantiTuru: "نوع اتصال",
+  turEthernet: "Ethernet (سیمی)",
+  turWifi: "Wi-Fi (بی‌سیم)",
+  turHucresel: "دادهٔ همراه (سلولی)",
+  baglantiSkoru: "امتیاز اتصال",
+  skorNotu: "ارزیابی ساده‌ای که از نتایج پایهٔ اتصال و عیب‌یابی محاسبه می‌شود.",
+  skorIyi: "خوب",
+  skorOrta: "متوسط",
+  skorZayif: "ضعیف",
+
+  yenile: "به‌روزرسانی",
+  yenileniyor: "در حال به‌روزرسانی…",
+  agBilgileriniYenile: "به‌روزرسانی اطلاعات شبکه",
+  agBilgileriAliniyor: "در حال دریافت اطلاعات شبکه...",
+  agBilgileriAlinamadi: "دریافت اطلاعات شبکه ممکن نشد. لطفاً دوباره تلاش کنید.",
+  baglantiDurumu: "وضعیت اتصال",
+  linkKontrol: "در حال بررسی...",
+  linkBagli: "متصل",
+  linkInternetYok: "بدون اینترنت",
+  linkBaglantiYok: "بدون اتصال",
+  ipucuYerelAg: "به شبکهٔ محلی متصل است، اما اینترنت در دسترس نیست.",
+  ipucuGatewayYok: "دروازه پیدا نشد.",
+  ipucuBaglantiYok: "اتصال شبکهٔ فعالی پیدا نشد.",
+  ipucuKontrol: "در حال آزمایش اتصال HTTPS.",
+  ipucuBilinmiyor: "وضعیت اتصال مشخص نشد.",
+  gecikme: "تأخیر (1.1.1.1)",
+  sonRapor: "آخرین گزارش",
+  henuzTanilamaYok: "هنوز عیب‌یابی انجام نشده است. امتیاز پس از نخستین عیب‌یابی اینجا نمایش داده می‌شود.",
+  tanilamayiBaslat: "شروع عیب‌یابی",
+  agBilgileri: "اطلاعات شبکه",
+  genelIp: "IP عمومی",
+  yerelIpv4: "IPv4 محلی",
+  gateway: "دروازه",
+  cihazAdi: "نام دستگاه",
+  agArayuzleri: "رابط‌های شبکه",
+  varsayilan: "پیش‌فرض",
+  arayuzYok: "رابط شبکهٔ فعالی پیدا نشد.",
 };
 
 export const sozluk: Record<Locale, Metinler> = { tr, en, ar, fa };
@@ -202,6 +376,28 @@ const isletimSistemi: Record<OsName, string> = {
 export function platformEtiketi(m: Metinler, family: PlatformFamily, os: OsName): string {
   const aile = family === "mobile" ? m.mobilUygulama : m.masaustuUygulamasi;
   return `${aile} · ${isletimSistemi[os] ?? os}`;
+}
+
+export function baglantiTuruEtiketi(m: Metinler, tur: ConnectionType): string {
+  const etiket: Record<ConnectionType, string> = {
+    ethernet: m.turEthernet,
+    wifi: m.turWifi,
+    cellular: m.turHucresel,
+    unknown: m.bilinmiyor,
+  };
+  return etiket[tur];
+}
+
+export function skorSeviyesiEtiketi(m: Metinler, seviye: ScoreLevel): string {
+  const etiket: Record<ScoreLevel, string> = { iyi: m.skorIyi, orta: m.skorOrta, zayif: m.skorZayif };
+  return etiket[seviye];
+}
+
+const tarihYerelAyari: Record<Locale, string> = { tr: "tr-TR", en: "en-GB", ar: "ar", fa: "fa-IR" };
+
+/** ISO tarihini seçili dilde kısa tarih ve saat olarak gösterir. */
+export function tarihSaat(iso: string, kod: Locale): string {
+  return new Date(iso).toLocaleString(tarihYerelAyari[kod], { dateStyle: "medium", timeStyle: "short" });
 }
 
 export function icmpEtiketi(m: Metinler, icmp: IcmpBackend): string {

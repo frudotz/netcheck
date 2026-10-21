@@ -29,8 +29,9 @@ netcheck/
 ├── src/                     # Ön yüz kaynak kodları (Frontend)
 │   ├── layouts/             # Sayfa iskeletleri (Layout.astro, ortak header/nav, ClientRouter)
 │   ├── pages/               # Dosya tabanlı rota sistemi (URL rotaları: .astro, .mdx)
-│   ├── components/          # Yeniden kullanılabilir UI bileşenleri (.svelte, .tsx)
+│   ├── components/          # Ekran bileşenleri (.svelte, .tsx)
 │   ├── lib/                 # İş mantığı, Rust IPC sarmalayıcıları, Svelte 5 store'ları ($state)
+│   │   ├── components/ui/   # Veri tipi tanımayan genel arayüz bileşenleri (Kart …)
 │   │   ├── types/           # Veri sözleşmesi: TypeScript tipleri (.ts)
 │   │   └── veri/            # Görev 11 örnek verisi (ekranlar kullanmaz)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)
@@ -62,8 +63,9 @@ netcheck/
 - **Ne konur?** Kullanıcının gezeceği sayfalar: uygulama ekranları (`index.astro`, `tanilama.astro`, `rapor.astro`, `gecmis.astro`, `ayarlar.astro`) ve bilgi sayfaları (`hakkinda.mdx`, `iletisim.astro`, `kosullar.mdx`, `gizlilik.mdx`; diğer diller `en/`, `ar/`, `fa/` alt klasörlerinde). Sayfa listesi: [`docs/mimari-agac.md`](mimari-agac.md).
 - **Kural:** Dosya adı doğrudan URL yolu olur. İçerik ağırlıklı sayfalar için `.mdx`, dinamik veya bileşen içeren sayfalar için `.astro` kullanılır.
 
-### 6. `src/components/` (Yeniden Kullanılabilir UI Bileşenleri)
-- **Ne konur?** Butonlar, kartlar, formlar, üst/alt barlar (`.svelte` veya `.tsx`).
+### 6. `src/components/` ve `src/lib/components/ui/` (UI Bileşenleri)
+- **`src/components/`:** Ekranlar ve ekrana bağlı parçalar: Genel Bakış, Tanılama, Geçmiş, üst/alt bar, formlar (`.svelte` veya `.tsx`).
+- **`src/lib/components/ui/`:** Hiçbir veri tipini tanımayan genel bileşenler (Görev 12 `Kart.svelte`). Girdi tipleri `src/lib/types/ui.ts` içindedir; renk, boşluk ve köşe değerleri yalnız `src/styles/app.css` değişkenlerinden gelir.
 - **Kural:** Birden fazla sayfada tekrar eden veya bağımsız bir işlevi olan görsel parçalar burada toplanır. Svelte veya React ile yazılabilir.
 
 ### 7. `src/lib/` (Durum ve İş Mantığı)
