@@ -49,6 +49,8 @@ pub fn run() {
             backend::commands::auth_login,
             backend::commands::auth_logout,
             backend::commands::auth_me,
+            backend::commands::auth_setup_required,
+            backend::commands::contact_message_assignees,
             backend::commands::user_index,
             backend::commands::user_store,
             backend::commands::user_sync_roles,
@@ -73,6 +75,7 @@ pub fn run() {
             backend::commands::contact_submit,
             backend::domain::report_submit,
             backend::domain::report_show,
+            backend::domain::report_set_sharing,
             backend::domain::score_rule_publish,
             backend::domain::score_rule_preview,
             backend::domain::report_dashboard

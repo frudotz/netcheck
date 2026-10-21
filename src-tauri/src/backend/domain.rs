@@ -241,6 +241,28 @@ pub fn do_report_show(app: &AppState, id: &str, reveal: bool) -> AppResult<Value
     })
 }
 
+pub fn do_report_set_sharing(app: &AppState, id: &str, shared: bool, reason: Option<&str>) -> AppResult<Value> {
+    app.db.with(|c| {
+        let uid = authorize(c, app.user(), "Update:Report")?;
+        let before = crud::find(c, &schema::REPORT, &json!(id))?;
+        let mut after = crud::update(c, &schema::REPORT, &json!(id), &json!({ "shared": shared }))?;
+        audit::record(
+            c,
+            Some(uid),
+            if shared { "report.enable_sharing" } else { "report.disable_sharing" },
+            "Report",
+            id,
+            reason,
+            Some(&json!({ "shared": before["shared"] })),
+            Some(&json!({ "shared": after["shared"] })),
+        )?;
+        if let Some(network) = after.get("network").cloned() {
+            after["network"] = mask_network(&network);
+        }
+        Ok(after)
+    })
+}
+
 /// Taslak kuralı yayınlar (`Publish:ScoreRule`). Eski raporlar kendi `ruleVersion` değerini korur.
 pub fn do_score_rule_publish(app: &AppState, version: i64, note: Option<&str>) -> AppResult<Value> {
     app.db.with(|c| {
@@ -322,6 +344,7 @@ pub fn do_report_dashboard(app: &AppState, from: Option<&str>, to: Option<&str>)
         };
         Ok(json!({
             "total": total, "avgScore": avg, "levels": { "iyi": iyi, "orta": orta, "zayif": zayif },
+            "thresholds": { "iyi": rule.levels.iyi, "orta": rule.levels.orta },
             "testRates": test_rates, "platforms": platforms, "trend": trend, "ruleVersion": rule.version,
         }))
     })
@@ -336,6 +359,10 @@ pub fn report_submit(state: State<'_, AppState>, input: Value) -> AppResult<Valu
 #[tauri::command]
 pub fn report_show(state: State<'_, AppState>, id: String, reveal: Option<bool>) -> AppResult<Value> {
     do_report_show(&state, &id, reveal.unwrap_or(false))
+}
+#[tauri::command]
+pub fn report_set_sharing(state: State<'_, AppState>, id: String, shared: bool, reason: Option<String>) -> AppResult<Value> {
+    do_report_set_sharing(&state, &id, shared, reason.as_deref())
 }
 #[tauri::command]
 pub fn score_rule_publish(state: State<'_, AppState>, version: i64, note: Option<String>) -> AppResult<Value> {

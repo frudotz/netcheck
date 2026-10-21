@@ -34,6 +34,8 @@ netcheck/
 │   ├── types/               # TypeScript tip tanımları ve arayüzler (.ts)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)
 │
+├── src-admin/               # Astro yönetim rotalarında kullanılan React ekranları ve prototip verileri
+│
 └── docs/                    # Proje dokümantasyonu, görevler ve mimari rehberler
 ```
 
@@ -78,6 +80,11 @@ netcheck/
 
 ### 10. `docs/` (Dokümantasyon)
 - **Ne konur?** Mimari kararlar, marka renkleri, görev kılavuzları ve proje planları.
+
+### 11. `src-admin/` (Yönetim Arayüzü Kaynakları)
+- **Ne konur?** Astro'nun `src/pages/admin/` rotalarında kullanılan React bileşenleri, stiller ve prototip verileri.
+- **Sınır:** Arayüz Astro/React entegrasyonuyla derlenir; örnek veriler gerçek cihaz veya sunucu verisi değildir.
+- **Komutlar:** Yönetim arayüzü ana Astro uygulamasıyla birlikte [`docs/kurulum.md`](kurulum.md) içindeki standart komutlarla çalıştırılır ve derlenir.
 
 ---
 

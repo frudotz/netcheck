@@ -26,6 +26,14 @@ pub fn auth_logout(state: State<'_, AppState>) {
 pub fn auth_me(state: State<'_, AppState>) -> AppResult<Value> {
     c::auth_me(&state)
 }
+#[tauri::command]
+pub fn auth_setup_required(state: State<'_, AppState>) -> AppResult<bool> {
+    c::auth_setup_required(&state)
+}
+#[tauri::command]
+pub fn contact_message_assignees(state: State<'_, AppState>) -> AppResult<Vec<Value>> {
+    c::contact_message_assignees(&state)
+}
 
 // ── Kullanıcılar ──
 #[tauri::command]
