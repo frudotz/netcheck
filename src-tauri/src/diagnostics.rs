@@ -166,6 +166,7 @@ fn parse_trace_ip(body: &str) -> Option<String> {
 mod tests {
     use super::*;
 
+    // @lat: [[tests#Diagnostics#Trace IP parsing]]
     #[test]
     fn trace_ip_parsing() {
         assert_eq!(parse_trace_ip("fl=1\nip=203.0.113.7\nts=1"), Some("203.0.113.7".into()));
@@ -174,6 +175,7 @@ mod tests {
         assert_eq!(parse_trace_ip("fl=1\n"), None);
     }
 
+    // @lat: [[tests#Diagnostics#Live diagnostics smoke]]
     #[test]
     fn all_diagnostics_return_without_panicking() {
         for kind in [
