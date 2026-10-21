@@ -156,7 +156,7 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 | R10-b | `docs/istemler/README.md` and log `docs/istemler/10-calisma-yontemi.md` | PASS (Task 10 branch) | [`docs/istemler/README.md`](istemler/README.md) (naming, sections, rules) and [`10-calisma-yontemi.md`](istemler/10-calisma-yontemi.md); the Task 09.1 log was backfilled |
 | R10-c | AGENTS.md "Çalışma döngüsü": plan first, branch + PR, clean build | PASS (Task 10 branch) | [AGENTS.md § Çalışma döngüsü](../AGENTS.md#çalışma-döngüsü); both new documents are in the AGENTS.md index |
 | R10-d | New-chat rule test answer recorded in the log | PARTIAL | A context-free subagent's answer is recorded as a proxy in the Task 10 log. **Missing:** the student's own new-chat test and the screenshots required by the checklist — P1, student action |
-| R10-e | Branch `feature/10-calisma-yontemi` with a PR | PASS (Task 10 branch) | Branch created from `9970845`; PR linked in the log |
+| R10-e | Branch `feature/10-calisma-yontemi` with a PR | PASS (Task 10 branch) | Branch created from `9970845`; PR #35, linked in the log |
 
 ### Task 11 — Data contract
 

@@ -168,4 +168,4 @@ Yanıt `AGENTS.md`'deki döngüyü adım adım anlatıyor. Sondaki not doğruydu
 
 ## PR
 
-Bu günlüğü içeren PR'ın bağlantısı PR açıldıktan sonra eklenir.
+[#35](https://github.com/frudotz/netcheck/pull/35)
