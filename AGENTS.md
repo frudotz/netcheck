@@ -13,7 +13,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 | [`docs/branding.md`](docs/branding.md) | Marka, renk token'ları, ikonlar | Ad-hoc renk yazılmaz; yalnızca `src/styles/app.css` içindeki CSS değişkenleri kullanılır. Yeni token önce burada tanımlanır. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa ağacı, platformlar, breakpoint'ler | Yeni rota veya sayfa eklerken bu ağaca uyulur ve ağaç güncellenir. |
 | [`docs/kurulum.md`](docs/kurulum.md) | Kurulum ve çalıştırma | Komutlar yalnızca burada ayrıntılandırılır; değiştirilen her komut gerçekten çalıştırılarak doğrulanır. |
-| [`docs/kurallar.md`](docs/kurallar.md) | Kurallar indeksi | Kuralların kaynağı bu dosyadır (AGENTS.md); `kurallar.md` buraya yönlendirir. |
+| [`docs/kurallar.md`](docs/kurallar.md) | Kurallar indeksi ve PR güvenliği | Kuralların kaynağı bu dosyadır (AGENTS.md); `kurallar.md` buraya yönlendirir. Tek istisna "PR güvenliği" bölümüdür; yalnız `kurallar.md` içinde tanımlanır. |
 | [`docs/kaynaklar.md`](docs/kaynaklar.md) | Tasarım ve teknik referanslar | Tasarım kararlarında bu referanslar esas alınır. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim adımları ve tarihler | Etiket/ZIP/Blackboard adımları buradadır. |
 | [`docs/agent-compliance-test.md`](docs/agent-compliance-test.md) | Ajan uyum testi kaydı (görev 08) | Kural uyumu kanıtı; kurallar burada tekrarlanmaz. |
@@ -42,7 +42,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 1. **Doğrudan `master`/`main`'e commit atılmaz.** Her iş kendi dalında yapılır:
    - Özellik: `feature/<kisa-ad>` · Hata düzeltme: `fix/<kisa-ad>` · Yalnızca doküman: `docs/<kisa-ad>`
    - **Bir dal = bir özellik.** İlgisiz değişiklikler aynı dala karıştırılmaz.
-2. **Pull Request zorunludur.** Dal GitHub'a gönderilir, PR açılır; açıklamada *ne değişti, neden, nasıl test edildi, bilinen sınırlamalar* yazılır. Files changed incelendikten sonra `master`'a birleştirilir.
+2. **Pull Request zorunludur.** Dal GitHub'a gönderilir, PR açılır; açıklamada *ne değişti, neden, nasıl test edildi, bilinen sınırlamalar* yazılır. Files changed incelendikten sonra `master`'a birleştirilir. `master` koruması, merge yetkisi ve dışarıdan gelen PR'ların incelenmesi: [`docs/kurallar.md` § PR güvenliği](docs/kurallar.md#pr-güvenliği).
 3. **Commit mesajları** `feat:` / `fix:` / `docs:` önekiyle anlamlı yazılır (`update`, `wip` gibi mesajlar kullanılmaz). Git geçmişi yeniden yazılmaz.
 4. **Kanıtsız teslim yapılmaz:** Her değişiklikten sonra `bun run build` 0 hata ile tamamlanmalı; Rust değiştiyse `cargo test` geçmeli; arayüz değiştiyse ilgili ekran çalışan uygulamada denenmelidir.
 5. **Kapsam koruma:** Yalnızca görevin gerektirdiği dosyalara dokunulur; izinsiz büyük refactor veya "temizlik" yapılmaz.
@@ -68,7 +68,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
   2. `http://127.0.0.1:9222/json/version` içindeki `webSocketDebuggerUrl` ile `agent-browser connect <ws-url>`.
 - Android'de WebView, debug APK'da `adb forward tcp:<port> localabstract:webview_devtools_remote_<pid>` ile aynı CDP yöntemiyle denetlenir. Emülatör ve `adb` iş bitince kapatılır.
 - `bun run dev` (tarayıcı) yalnızca Tauri dışı hata yolunu ("yalnızca masaüstü uygulamasında") test eder.
-- Ekran görüntüsü, kayıt ve geçici otomasyon dosyaları depoya commit edilmez.
+- Ekran görüntüsü, kayıt ve geçici otomasyon dosyaları depoya commit edilmez. İstisna: bir görev dosyasının açıkça istediği kanıt görseli (örn. `docs/kanit/master-korumasi.png`); kişisel veri, genel IP veya gizli bilgi içeremez.
 
 ## 6. Güvenlik ve Kapsam Sınırları
 

@@ -32,9 +32,10 @@ A change is not done until the checks matching what it touched pass; CI enforces
 
 Every change goes through a branch and a pull request into a protected `master`.
 
-- Branches: `feature/<name>`, `fix/<name>`, `docs/<name>`; one logical change per branch. The active "Protectmaster" ruleset blocks deletion and force-push, but GitHub does not yet enforce pull requests on `master`, so the PR rule currently relies on discipline ([[tasks#Open work#NC-15 Master protection ruleset]]).
+- Branches: `feature/<name>`, `fix/<name>`, `docs/<name>`; one logical change per branch. The "Protectmaster" ruleset on the default branch requires a pull request and the five CI checks with the branch up to date, and blocks deletion and force-push; other branches are unprotected and merged head branches are deleted automatically ([[tasks#Open work#NC-15 Master protection ruleset]]).
+- Who may merge and how outside PRs are reviewed is defined only in the "PR güvenliği" section of [[docs/kurallar.md]].
 - Commit prefixes `feat:`, `fix:`, `docs:`. No history rewriting or force-push. PR descriptions state what changed, why, how it was tested, and known limitations.
-- Screenshots, recordings, and automation scripts are never committed. Device screenshots may contain public IPs.
+- Screenshots, recordings, and automation scripts are not committed, except evidence images a task file explicitly requires, such as [[docs/kanit/master-korumasi.png]]. Device screenshots may contain public IPs.
 - `upstream` (`keyvanarasteh/hello-mobil`) is fetch-only; nothing is pushed there.
 
 ## Release and verification requirements
@@ -49,4 +50,4 @@ Releases are annotated tags on `master`; the course baseline tag is immutable.
 
 The traceable audit of all instructor requirements lives in [[docs/course-compliance.md]]; its gaps are tracked here as `NC` tasks rather than repeated.
 
-The audit covers the Week 3 and Week 4 task files under [[docs/tasks]] and the instructor's Batch 01 evaluation [[docs/k1/01.review.md]] (107/108). For `dbe4c91` plus this branch's documentation fixes it counts 46 PASS, 20 PARTIAL, 26 FAIL and 3 UNVERIFIED requirements. Batch 01 is essentially complete. Batch 02 has not started and its prerequisite is misconfigured ([[tasks#Open work#NC-15 Master protection ruleset]]). Three requirements conflict with project rules and need an instructor decision ([[tasks#Open work#NC-16 Conflicting course requirements]]). Remaining work is tracked in [[tasks#Open work#NC-14 Week 04 course tasks]], [[tasks#Open work#NC-17 Documentation index completeness]], [[tasks#Open work#NC-10 Documentation consistency]] and [[tasks#Open work#NC-18 Ad-hoc colors and template leftovers]]. A file named `hoca-raporu.md` was not found anywhere accessible, so the audit does not rely on it.
+The audit covers the Week 3 and Week 4 task files under [[docs/tasks]] and the instructor's Batch 01 evaluation [[docs/k1/01.review.md]] (107/108). It counts 52 PASS, 19 PARTIAL, 20 FAIL and 4 UNVERIFIED requirements, including the Task 09.1 settings re-checked on 2026-10-21. Batch 01 is essentially complete. The Batch 02 prerequisite is configured, apart from the unperformed direct-push self-test ([[tasks#Open work#NC-15 Master protection ruleset]]); Tasks 10–16 have not started. Three requirements conflict with project rules and need an instructor decision ([[tasks#Open work#NC-16 Conflicting course requirements]]). Remaining work is tracked in [[tasks#Open work#NC-14 Week 04 course tasks]], [[tasks#Open work#NC-17 Documentation index completeness]], [[tasks#Open work#NC-10 Documentation consistency]] and [[tasks#Open work#NC-18 Ad-hoc colors and template leftovers]]. A file named `hoca-raporu.md` was not found anywhere accessible, so the audit does not rely on it.

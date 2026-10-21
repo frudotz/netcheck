@@ -2,7 +2,7 @@
 
 Traceable audit of every instructor requirement in [`docs/tasks/`](tasks/) and the instructor evaluation [`docs/k1/01.review.md`](k1/01.review.md), checked against the repository, GitHub settings and CI. It is not a statement of grades.
 
-- **Audited state:** `origin/master` at `dbe4c91` (2026-10-21), plus the documentation fixes in PR #33 (marked "fixed in PR #33"). GitHub repository settings were read through the API on the same day and re-read before the final update; they were unchanged.
+- **Audited state:** `origin/master` at `dbe4c91` (2026-10-21), plus the documentation fixes in PR #33 (marked "fixed in PR #33"). GitHub repository settings were read through the API on the same day and re-read before the final update; they were unchanged. The Task 09.1 rows were re-checked later on 2026-10-21, after the owner changed the settings (ruleset saved at 20:16); its documentation rows are met on `feature/09-1-master-korumasi`.
 - **Sources:** the 18 files in [`docs/tasks/week-3/`](tasks/week-3/) and [`docs/tasks/week-4/`](tasks/week-4/), plus [`docs/k1/01.review.md`](k1/01.review.md).
 - **Not found:** `hoca-raporu.md` is not in this repository, its Git history, any fetched branch, the upstream `keyvanarasteh/hello-mobil` repository, GitHub PRs, or local folders. This matrix does not reconstruct it. The instructor-authored evaluation that does exist is `docs/k1/01.review.md` (Batch 01: 107/108 at `9992001`).
 - **Method:** each row was checked directly in code, files, Git, the GitHub API or CI output. A row marked "instructor-verified" relies on `01.review.md` because it cannot be checked from the repository; it was re-checked where possible.
@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 9 | 13 | 26 | 1 | 49 |
-| **All** | **46** | **20** | **26** | **3** | **95** |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 15 | 12 | 20 | 2 | 49 |
+| **All** | **52** | **19** | **20** | **4** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02 work has not started, and its prerequisite (Task 09.1) is misconfigured: `master` does not require a pull request.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot are added on the Task 09.1 branch; only the direct-push self-test was not performed. Tasks 10–16 have not started.
 
 ## Week 3 — Batch 01
 
@@ -132,21 +132,21 @@ Deadline, submission format and the Task 16 audit are "announced in class" ([`we
 
 ### Task 09.1 — Master protection (prerequisite)
 
-If the ruleset is not effective, Task 16 gives no points for configuration. Settings come from the GitHub API on 2026-10-21.
+If the ruleset is not effective, Task 16 gives no points for configuration. Settings were re-read from the GitHub API on 2026-10-21 after the owner's change (ruleset saved at 20:16).
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R09.1-a | Active ruleset targeting the default branch | PARTIAL | Ruleset "Protectmaster" is `active` but targets `~ALL` branches; the task names it "master koruması". **Missing:** target the default branch only — P0, NC-15 |
+| R09.1-a | Active ruleset targeting the default branch | PASS | Ruleset "Protectmaster" is `active`, targets `~DEFAULT_BRANCH` (`master` only) and has an empty bypass list. The task suggests the name "master koruması"; the owner kept "Protectmaster", and the checklist does not require the name |
 | R09.1-b | Restrict deletions and block force pushes | PASS | Rules `deletion`, `non_fast_forward` |
-| R09.1-c | Require a pull request before merging | **FAIL** | No `pull_request` rule in the ruleset. **Missing:** add it with 0 required approvals — P0, NC-15 |
-| R09.1-d | Direct `git push origin master` rejected (self-test) | FAIL | Follows from R09.1-c (derived from the configuration; no push to `master` was attempted). **Missing:** after the fix, run the task's self-test — P0 |
+| R09.1-c | Require a pull request before merging | PASS | `pull_request` rule with 0 required approvals and required review-thread resolution; also `required_status_checks` with the five CI jobs in strict mode |
+| R09.1-d | Direct `git push origin master` rejected (self-test) | UNVERIFIED | Not attempted, by the owner's decision. R09.1-a to R09.1-c imply rejection, but the self-test itself is not recorded — owner action |
 | R09.1-e | Merge commits allowed | PASS | `allow_merge_commit=true` |
-| R09.1-f | Head branches deleted automatically | FAIL | `delete_branch_on_merge=false`; the `~ALL` deletion rule would also block deleting branches. **Missing:** enable it after fixing R09.1-a — P0 |
+| R09.1-f | Head branches deleted automatically | PASS | `delete_branch_on_merge=true`; the deletion rule now applies to `master` only |
 | R09.1-g | Only the student, teammates and the instructor are collaborators | PASS | `frudotz` (admin), `keyvanarasteh` (write) |
-| R09.1-h | Fork PR workflows require approval for all external contributors | FAIL | `approval_policy=first_time_contributors`. **Missing:** set it to all external contributors — P0 |
+| R09.1-h | Fork PR workflows require approval for all external contributors | PASS | `approval_policy=all_external_contributors` |
 | R09.1-i | Workflow permissions read-only | PASS | `default_workflow_permissions=read` |
-| R09.1-j | "PR güvenliği" section in `docs/kurallar.md`, linked from AGENTS.md | FAIL | Section absent. **Missing:** P0 |
-| R09.1-k | Screenshot `docs/kanit/master-korumasi.png` | FAIL | File absent. **Missing:** P0 |
+| R09.1-j | "PR güvenliği" section in `docs/kurallar.md`, linked from AGENTS.md | PASS (Task 09.1 branch) | [`docs/kurallar.md` § PR güvenliği](kurallar.md#pr-güvenliği), linked from AGENTS.md §3 and the documentation index |
+| R09.1-k | Screenshot `docs/kanit/master-korumasi.png` | PASS (Task 09.1 branch) | [`docs/kanit/master-korumasi.png`](kanit/master-korumasi.png), the saved ruleset, captured by the owner. The status-check list is collapsed in the image and is evidenced through the API |
 
 ### Task 10 — Working method
 
@@ -233,14 +233,7 @@ These requirements contradict binding rules already in the project. Resolve them
 
 Ordered by priority. Nothing in this plan is implemented by this audit.
 
-1. **P0 — Task 09.1 settings (NC-15).** The repository owner does this in GitHub settings (not a code change):
-   - Retarget the ruleset to the default branch.
-   - Add "Require a pull request before merging" with 0 approvals.
-   - Enable automatic deletion of head branches.
-   - Require approval for all external contributors' fork workflows.
-   - Self-test: a direct push must be rejected.
-   - Then, on a `docs/` branch, add the "PR güvenliği" section to `docs/kurallar.md` with a link from AGENTS.md, and add `docs/kanit/master-korumasi.png`.
-   - **Acceptance:** every 09.1 checklist item is ticked with evidence.
+1. **Done except the self-test — Task 09.1 (NC-15).** The owner fixed the settings on 2026-10-21. The "PR güvenliği" section, its AGENTS.md link and `docs/kanit/master-korumasi.png` are added on `feature/09-1-master-korumasi`. **Remaining:** the direct-push self-test (R09.1-d), which the owner chose not to perform.
 2. **P1 — Decisions C-1 to C-3 (NC-16).** **Acceptance:** each decision is recorded in AGENTS.md, which is the single source for rules.
 3. **Done in PR #33 — Documentation index (NC-17).** `docs/backend.md` added to the AGENTS.md index.
 4. **P1 — Tasks 10 → 15 in order (NC-14).** One `feature/NN-*` branch, PR and `docs/istemler/` log per task. Run each task's own audit prompt first and implement only the PARTIAL and FAIL rows above. **Acceptance:** each task's "Görev bittiğinde repoda ne olacak" list and checklist are met, with `bun run build` at 0 errors.
