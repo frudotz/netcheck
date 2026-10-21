@@ -92,4 +92,4 @@ Tek kod tabanı, tek sayfa kümesi: telefon, tablet, masaüstü ve büyük ekran
 - **Dil:** uygulama ekranlarının varsayılanı Türkçedir; Ayarlar'dan TR / EN / AR / FA seçilir ve `<html lang dir>` değişir. Bilgi sayfaları her dilde ayrı rotadadır (`/`, `/en/`, `/ar/`, `/fa/`). AR ve FA sağdan soladır.
 - **Odak / TV:** üzerine gelmeye (hover) bağlı etkileşim yoktur; klavye ve uzaktan kumanda için `:focus-visible` halkası vardır.
 
-Varsayılan Tauri penceresi: 420 × 820 (telefon düzeni). Pencere genişletildiğinde masaüstü düzenine geçilir.
+Varsayılan Tauri penceresi: 420 × 820 (telefon düzeni); en küçük boyut 320 × 480 (`minWidth` / `minHeight`, Görev 16). 320 px düzenin doğrulandığı en dar genişliktir. Pencere genişletildiğinde masaüstü düzenine geçilir.
