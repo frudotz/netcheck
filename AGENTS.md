@@ -19,6 +19,8 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 | [`docs/agent-compliance-test.md`](docs/agent-compliance-test.md) | Ajan uyum testi kaydı (görev 08) | Kural uyumu kanıtı; kurallar burada tekrarlanmaz. |
 | [`docs/backend.md`](docs/backend.md) | Geçici yerel SQLite arka ucu (migration, rol/izin, komutlar) | Arka uç tabloları, rolleri ve komutları yalnız burada ayrıntılandırılır. Kapsam kararı bekliyor: [`docs/course-compliance.md`](docs/course-compliance.md) C-3. |
 | [`docs/course-compliance.md`](docs/course-compliance.md) | Ders gereksinimleri uyum matrisi | Her görev gereksinimi için durum ve kanıt; kurallar burada tekrarlanmaz, görevler `lat.md/tasks.md`'de izlenir. |
+| [`docs/gorev-sartnamesi.md`](docs/gorev-sartnamesi.md) | Görev şartnamesi şablonu | Her görevden önce doldurulur; plan buna göre sunulur ([Çalışma döngüsü](#çalışma-döngüsü)). |
+| [`docs/istemler/`](docs/istemler/README.md) | Görev başına istem günlükleri | Her görev için `NN-kisa-ad.md`; dosya adı ve bölümler `README.md`'de. |
 | [`docs/tasks/`](docs/tasks/) | Eğitmen görev dokümanları | Haftalık görevler bağlayıcıdır; değiştirilmez. |
 
 ## 2. Teknoloji Yığını ve Komutlar
@@ -48,9 +50,22 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 5. **Kapsam koruma:** Yalnızca görevin gerektirdiği dosyalara dokunulur; izinsiz büyük refactor veya "temizlik" yapılmaz.
 6. **Bağımlılık:** Yeni paket eklemeden önce mevcut bağımlılıklarla çözülüp çözülemeyeceği kontrol edilir; eklenen her bağımlılığın gerekçesi PR'da yazılır.
 
+### Çalışma döngüsü
+
+Her görev bu sırayla yapılır: **şartname → plan → onay → değişiklik → doğrulama → PR → onay ile merge**.
+
+1. **Gereksinimi oku:** kaynak görev dosyasıdır (`docs/tasks/`), özet veya eski rapor değil. Görev bir proje kuralıyla çelişiyorsa ajan kendisi çözmez; kullanıcıya sorar.
+2. **Şartname ve plan:** [`docs/gorev-sartnamesi.md`](docs/gorev-sartnamesi.md) doldurulur. Ajan hangi dosyaları neden değiştireceğini ve nasıl doğrulayacağını plan olarak sunar ve **onay bekler**; onaydan önce dosya değiştirmez.
+3. **Dal ve günlük:** güncel `master`'dan `feature/NN-kisa-ad` açılır (bir görev = bir dal = bir PR). İstem günlüğü [`docs/istemler/NN-kisa-ad.md`](docs/istemler/README.md) aynı dalda tutulur.
+4. **Değişiklik:** yalnız plandaki ve görev kapsamındaki dosyalar değişir (madde 5).
+5. **Doğrulama:** `bun run build` 0 hata vermeden iş bitmiş sayılmaz; Rust değiştiyse `cargo test`, `lat.md/` değiştiyse `lat check`, arayüz değiştiyse çalışan uygulamada deneme (madde 4). Sonuçlar günlüğe olduğu gibi yazılır; çalıştırılmayan kontrol "geçti" sayılmaz. Diff baştan sona okunur.
+6. **PR:** açıklamada ne değişti, neden, nasıl test edildi, bilinen sınırlamalar ve günlük bağlantısı yer alır (madde 2). Beş CI kontrolü PR'ın son commit'inde geçmelidir; dal `master`'ın gerisinde kalırsa `master` dala merge edilir (rebase yok).
+7. **Merge:** ajan PR'ı kendisi merge etmez; kullanıcının onayını bekler.
+
 ## 4. Kod Yazım Kuralları
 
 - **Dil:** Kullanıcıya görünen tüm metinler Türkçedir (`src/lib/labels.ts`); yeni kod tanımlayıcıları İngilizcedir. Mevcut CSS token adları (`--renk-ana` …) korunur.
+- **Yazı sistemi:** Ajanın ürettiği hiçbir metinde (kod, yorum, belge, commit/PR mesajı, yanıt) Çince veya Japonca karakter (Han, Hiragana, Katakana) kullanılmaz. Kullanıcının verdiği ya da bir kaynaktan aynen aktarılan metin olduğu gibi korunur.
 - **Svelte 5 Runes:** Yeni bileşenlerde yalnızca `$state`, `$derived`, `$props`; Svelte 4 sözdizimi (`export let`, `$:`) kullanılmaz.
 - **SSR güvenliği:** `window`, `document`, `localStorage` yalnızca istemcide (`onMount` içinde) veya `typeof … !== "undefined"` korumasıyla kullanılır. localStorage'dan gelen liste `onMount` sonrası çizilir.
 - **Platform sınırı:** İşletim sistemine göre değişen Rust kodu (`#[cfg(windows)]`, `cfg(mobile)` …) yalnızca [`src-tauri/src/platform/`](src-tauri/src/platform/) altında yazılır; diğer modüller platformdan bağımsız kalır. Bir platformda olmayan yetenek sahte değer yerine açıkça "kullanılamıyor" döner. Platform farkı ön yüzde `get_platform_info` ile okunur, tarayıcı/OS tahmini yapılmaz.

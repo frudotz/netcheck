@@ -5,6 +5,7 @@ Bu depodaki tüm geliştirme kuralları **tek kaynakta** tutulur: [`AGENTS.md`](
 | Konu | Bölüm |
 |---|---|
 | Git akışı (feature/fix/docs dalı → PR → merge), commit mesajları, derleme kanıtı | [`AGENTS.md` § 3](../AGENTS.md#3-geliştirme-ve-git-kuralları) |
+| Görev çalışma döngüsü (şartname, plan, onay, doğrulama, PR) | [`AGENTS.md` § Çalışma döngüsü](../AGENTS.md#çalışma-döngüsü) |
 | `master` koruması, merge yetkisi ve dışarıdan gelen PR'ların incelenmesi | [PR güvenliği](#pr-güvenliği) (bu dosya) |
 | Kod yazım kuralları (Svelte 5 Runes, SSR güvenliği, Rust ↔ TS, sahte veri yasağı) | [`AGENTS.md` § 4](../AGENTS.md#4-kod-yazım-kuralları) |
 | Arayüz doğrulama ve tarayıcı otomasyonu | [`AGENTS.md` § 5](../AGENTS.md#5-arayüz-doğrulama-tarayıcı-otomasyonu) |
