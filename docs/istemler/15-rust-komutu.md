@@ -71,4 +71,4 @@ Genel istem ayrı onay turu istemediği için plan onay beklemeden uygulandı.
 
 ## PR
 
-Bu günlüğü içeren PR'ın bağlantısı PR açıldıktan sonra eklenir.
+[#41](https://github.com/frudotz/netcheck/pull/41) (taban: #40'ın dalı).
