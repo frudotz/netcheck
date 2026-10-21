@@ -104,7 +104,7 @@ Android release APKs are unsigned; there is no keystore, AAB, or store configura
 
 Move the AI Studio admin panel into the main project as an interface that follows the project rules (instructor's 21.10.2026 status report).
 
-- Priority P1 · Status `in progress` · Evidence: branch `feature/admin-panel-tasima` with its log [[docs/istemler/admin-panel-tasima.md]]; [[architecture#Admin panel]] describes the result and [[docs/yonetim-paneli.md]] the rules. Checked in the running Windows app and in a browser on the production build: 11 screens at 320–1280 px in TR, AR and FA, both themes.
+- Priority P1 · Status `in progress` · Evidence: PR #42 (`feature/admin-panel-tasima`) with its log [[docs/istemler/admin-panel-tasima.md]]; [[architecture#Admin panel]] describes the result and [[docs/yonetim-paneli.md]] the rules. Checked in the running Windows app and in a browser on the production build: 11 screens at 320–1280 px in TR, AR and FA, both themes.
 - Open: archiving the separate repository is the owner's step after merge; whether the panel is reachable from the app or ships in mobile builds is undecided (RA-f in [[docs/course-compliance.md]]).
 - Acceptance: merged with 0 hex/rgb/palette classes and no visible text outside the dictionaries in `admin/`; the app's CSS unchanged apart from the new token.
 

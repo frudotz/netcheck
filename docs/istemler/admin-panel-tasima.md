@@ -109,4 +109,4 @@ Genel yetkiyle verilen küçük ve geri alınabilir kararlar ([`docs/course-comp
 
 ## PR
 
-Açılacak (taban: #41'in dalı).
+[#42](https://github.com/frudotz/netcheck/pull/42) (taban: #41'in dalı).

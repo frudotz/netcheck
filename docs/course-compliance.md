@@ -229,7 +229,7 @@ Source: the instructor's status report of 2026-10-21, shared privately and kept 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
 | RA-a | The panel lives in the main project (e.g. `admin/`), not only in a separate repository | PASS (admin branch) | `admin/` with 11 screens; pages in `src/pages/admin/`; the build produces 32 pages (11 under `/admin`). [`docs/yonetim-paneli.md`](yonetim-paneli.md) |
-| RA-b | Moved on a branch with a PR | PASS (admin branch) | `feature/admin-panel-tasima` and its log [`docs/istemler/admin-panel-tasima.md`](istemler/admin-panel-tasima.md); PR #32 untouched |
+| RA-b | Moved on a branch with a PR | PASS (admin branch) | PR #42 (`feature/admin-panel-tasima`) and its log [`docs/istemler/admin-panel-tasima.md`](istemler/admin-panel-tasima.md); PR #32 untouched |
 | RA-c | No hard-coded colour codes | PASS (admin branch) | Scan of `admin/`: 0 hex/rgb/hsl values, 0 Tailwind palette classes, 0 `dark:` variants. The Tailwind palette is disabled in `admin/styles/admin.css` and colour utilities map to `app.css` tokens; one token added (`--renk-koyu-yazi`, [`docs/branding.md`](branding.md)) |
 | RA-d | Texts come from a dictionary | PASS (admin branch) | `admin/i18n/{tr,en,ar,fa}.ts`, 410 keys each, parity enforced by the `Translations` type; no visible text outside dictionaries (scan). Shared labels come from `src/lib/sozluk.ts` |
 | RA-e | Archive the separate repository afterwards | UNVERIFIED | Owner's step after this branch is merged and verified; the source repository is unchanged until then |
