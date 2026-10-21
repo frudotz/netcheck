@@ -31,7 +31,7 @@ netcheck/
 │   ├── pages/               # Dosya tabanlı rota sistemi (URL rotaları: .astro, .mdx)
 │   ├── components/          # Ekran bileşenleri (.svelte, .tsx)
 │   ├── lib/                 # İş mantığı, Rust IPC sarmalayıcıları, Svelte 5 store'ları ($state)
-│   │   ├── components/ui/   # Veri tipi tanımayan genel arayüz bileşenleri (Kart …)
+│   │   ├── components/ui/   # Veri tipi tanımayan genel bileşenler (Kart, Yukleniyor, BosDurum, HataDurumu)
 │   │   ├── types/           # Veri sözleşmesi: TypeScript tipleri (.ts)
 │   │   └── veri/            # Görev 11 örnek verisi (ekranlar kullanmaz)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)
@@ -65,7 +65,7 @@ netcheck/
 
 ### 6. `src/components/` ve `src/lib/components/ui/` (UI Bileşenleri)
 - **`src/components/`:** Ekranlar ve ekrana bağlı parçalar: Genel Bakış, Tanılama, Geçmiş, üst/alt bar, formlar (`.svelte` veya `.tsx`).
-- **`src/lib/components/ui/`:** Hiçbir veri tipini tanımayan genel bileşenler (Görev 12 `Kart.svelte`). Girdi tipleri `src/lib/types/ui.ts` içindedir; renk, boşluk ve köşe değerleri yalnız `src/styles/app.css` değişkenlerinden gelir.
+- **`src/lib/components/ui/`:** Hiçbir veri tipini tanımayan genel bileşenler: Görev 12 `Kart.svelte`; Görev 13 `Yukleniyor.svelte`, `BosDurum.svelte`, `HataDurumu.svelte`. Girdi tipleri `src/lib/types/ui.ts` içindedir; renk, boşluk ve köşe değerleri yalnız `src/styles/app.css` değişkenlerinden gelir.
 - **Kural:** Birden fazla sayfada tekrar eden veya bağımsız bir işlevi olan görsel parçalar burada toplanır. Svelte veya React ile yazılabilir.
 
 ### 7. `src/lib/` (Durum ve İş Mantığı)

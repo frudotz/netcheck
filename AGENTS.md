@@ -14,6 +14,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 | [`docs/branding.md`](docs/branding.md) | Marka, renk token'ları, ikonlar | Ad-hoc renk yazılmaz; yalnızca `src/styles/app.css` içindeki CSS değişkenleri kullanılır. Yeni token önce burada tanımlanır. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa ağacı, platformlar, breakpoint'ler | Yeni rota veya sayfa eklerken bu ağaca uyulur ve ağaç güncellenir. |
 | [`docs/kurulum.md`](docs/kurulum.md) | Kurulum ve çalıştırma | Komutlar yalnızca burada ayrıntılandırılır; değiştirilen her komut gerçekten çalıştırılarak doğrulanır. |
+| [`docs/gelistirme-notlari.md`](docs/gelistirme-notlari.md) | Geliştirme yardımcıları (liste hallerini zorlama) | Yalnız geliştirme sunucusunda çalışan yardımcılar burada anlatılır; derleme çıktısını etkilemezler. |
 | [`docs/kurallar.md`](docs/kurallar.md) | Kurallar indeksi ve PR güvenliği | Kuralların kaynağı bu dosyadır (AGENTS.md); `kurallar.md` buraya yönlendirir. Tek istisna "PR güvenliği" bölümüdür; yalnız `kurallar.md` içinde tanımlanır. |
 | [`docs/kaynaklar.md`](docs/kaynaklar.md) | Tasarım ve teknik referanslar | Tasarım kararlarında bu referanslar esas alınır. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim adımları ve tarihler | Etiket/ZIP/Blackboard adımları buradadır. |

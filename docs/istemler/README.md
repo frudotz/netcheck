@@ -36,3 +36,4 @@ Her günlük bu sırayla şu başlıkları taşır:
 | 11 Veri sözleşmesi | [`11-veri-sozlesmesi.md`](11-veri-sozlesmesi.md) |
 | Uygulama dili (Görev 12–14 hazırlığı, karar C-2) | [`uygulama-dili.md`](uygulama-dili.md) |
 | 12 Kart bileşeni | [`12-kart-bileseni.md`](12-kart-bileseni.md) |
+| 13 Liste ve üç durum | [`13-liste-ve-uc-durum.md`](13-liste-ve-uc-durum.md) |

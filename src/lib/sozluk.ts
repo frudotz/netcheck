@@ -94,6 +94,27 @@ const tr = {
   agArayuzleri: "Ağ Arayüzleri",
   varsayilan: "Varsayılan",
   arayuzYok: "Etkin ağ arayüzü bulunamadı.",
+
+  // Durum bileşenleri ve Geçmiş (Görev 13)
+  yukleniyor: "Yükleniyor…",
+  gecmisAciklama: "Raporlar yalnızca bu cihazda saklanır.",
+  gecmisBos: "Henüz test yapılmadı",
+  gecmisBosAciklama: "İlk tanılamadan sonra raporlar burada listelenir.",
+  gecmisHata: "Kayıtlı raporlar okunamadı.",
+  ara: "Ara",
+  araIpucu: "Rapor kimliği ya da tarih",
+  seviyeSuzgeci: "Skor seviyesi",
+  tumu: "Tümü",
+  sonucYok: "Aramaya uyan rapor yok",
+  sonucYokAciklama: "Aramayı ya da süzgeci değiştirin.",
+  suzgeciTemizle: "Süzgeci temizle",
+  basarili: "başarılı",
+  basarisiz: "başarısız",
+  gecmisiTemizle: "Geçmişi Temizle",
+  temizlemeOnayi: "{n} rapor kalıcı olarak silinecek.",
+  temizlemeOnayiEtiketi: "Geçmişi temizleme onayı",
+  evetTemizle: "Evet, temizle",
+  vazgec: "Vazgeç",
 };
 
 export type Metinler = { [K in keyof typeof tr]: string };
@@ -184,6 +205,26 @@ const en: Metinler = {
   agArayuzleri: "Network Interfaces",
   varsayilan: "Default",
   arayuzYok: "No active network interface found.",
+
+  yukleniyor: "Loading…",
+  gecmisAciklama: "Reports are stored only on this device.",
+  gecmisBos: "No tests yet",
+  gecmisBosAciklama: "Reports are listed here after the first diagnostic run.",
+  gecmisHata: "Saved reports could not be read.",
+  ara: "Search",
+  araIpucu: "Report ID or date",
+  seviyeSuzgeci: "Score level",
+  tumu: "All",
+  sonucYok: "No reports match your search",
+  sonucYokAciklama: "Change the search or the filter.",
+  suzgeciTemizle: "Clear filters",
+  basarili: "passed",
+  basarisiz: "failed",
+  gecmisiTemizle: "Clear History",
+  temizlemeOnayi: "{n} reports will be deleted permanently.",
+  temizlemeOnayiEtiketi: "Confirm clearing history",
+  evetTemizle: "Yes, clear",
+  vazgec: "Cancel",
 };
 
 const ar: Metinler = {
@@ -272,6 +313,26 @@ const ar: Metinler = {
   agArayuzleri: "واجهات الشبكة",
   varsayilan: "افتراضية",
   arayuzYok: "لم يُعثر على واجهة شبكة نشطة.",
+
+  yukleniyor: "جارٍ التحميل…",
+  gecmisAciklama: "تُحفظ التقارير على هذا الجهاز فقط.",
+  gecmisBos: "لم يُجرَ أي اختبار بعد",
+  gecmisBosAciklama: "تظهر التقارير هنا بعد أول تشخيص.",
+  gecmisHata: "تعذّرت قراءة التقارير المحفوظة.",
+  ara: "بحث",
+  araIpucu: "معرّف التقرير أو التاريخ",
+  seviyeSuzgeci: "مستوى الدرجة",
+  tumu: "الكل",
+  sonucYok: "لا توجد تقارير مطابقة للبحث",
+  sonucYokAciklama: "غيّر البحث أو عامل التصفية.",
+  suzgeciTemizle: "مسح عوامل التصفية",
+  basarili: "ناجح",
+  basarisiz: "فاشل",
+  gecmisiTemizle: "مسح السجل",
+  temizlemeOnayi: "سيُحذف {n} من التقارير نهائيًا.",
+  temizlemeOnayiEtiketi: "تأكيد مسح السجل",
+  evetTemizle: "نعم، امسح",
+  vazgec: "إلغاء",
 };
 
 const fa: Metinler = {
@@ -360,9 +421,34 @@ const fa: Metinler = {
   agArayuzleri: "رابط‌های شبکه",
   varsayilan: "پیش‌فرض",
   arayuzYok: "رابط شبکهٔ فعالی پیدا نشد.",
+
+  yukleniyor: "در حال بارگذاری…",
+  gecmisAciklama: "گزارش‌ها فقط روی همین دستگاه ذخیره می‌شوند.",
+  gecmisBos: "هنوز آزمایشی انجام نشده است",
+  gecmisBosAciklama: "گزارش‌ها پس از نخستین عیب‌یابی اینجا فهرست می‌شوند.",
+  gecmisHata: "گزارش‌های ذخیره‌شده خوانده نشدند.",
+  ara: "جستجو",
+  araIpucu: "شناسهٔ گزارش یا تاریخ",
+  seviyeSuzgeci: "سطح امتیاز",
+  tumu: "همه",
+  sonucYok: "گزارشی با جستجوی شما مطابقت ندارد",
+  sonucYokAciklama: "جستجو یا فیلتر را تغییر دهید.",
+  suzgeciTemizle: "پاک کردن فیلترها",
+  basarili: "موفق",
+  basarisiz: "ناموفق",
+  gecmisiTemizle: "پاک کردن تاریخچه",
+  temizlemeOnayi: "{n} گزارش برای همیشه حذف می‌شود.",
+  temizlemeOnayiEtiketi: "تأیید پاک کردن تاریخچه",
+  evetTemizle: "بله، پاک کن",
+  vazgec: "انصراف",
 };
 
 export const sozluk: Record<Locale, Metinler> = { tr, en, ar, fa };
+
+/** "{n} rapor" gibi metinlerdeki yer tutucuları doldurur. */
+export function bicim(metin: string, degerler: Record<string, string | number>): string {
+  return metin.replace(/\{(\w+)\}/g, (_, ad: string) => String(degerler[ad] ?? `{${ad}}`));
+}
 
 const isletimSistemi: Record<OsName, string> = {
   windows: "Windows",
