@@ -55,4 +55,4 @@ Genel istem ayrı onay turu istemediği için plan onay beklemeden uygulandı.
 
 ## PR
 
-Açılacak (taban: #42'nin dalı).
+[#43](https://github.com/frudotz/netcheck/pull/43) (taban: #42'nin dalı).
