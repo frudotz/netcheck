@@ -37,12 +37,46 @@ The Tauri iOS project exists and the app runs in the iOS simulator using only iO
 
 Work that is planned, blocked, or in progress, highest priority first.
 
+### NC-15 Master protection ruleset
+
+Course task 09.1 is misconfigured: the active "Protectmaster" ruleset blocks deletion and force-push on all branches but does not require a pull request.
+
+- Priority P0 · Status `planned` · Depends on: the repository owner changing GitHub settings (not a code change).
+- Evidence: rows R09.1-a to R09.1-k in [[docs/course-compliance.md]]. Head branches are not deleted automatically, fork workflows need approval only for first-time contributors, and the "PR güvenliği" section and screenshot are missing.
+- Acceptance: every Task 09.1 checklist item is met, and a direct push to `master` is rejected in the self-test.
+
 ### NC-05 Physical iPhone validation
 
 Record a reproducible physical-iPhone run; smoke tests are reported as successful but no record exists ([[platforms#Historical claims]]).
 
 - Priority P1 · Status `in progress` (reported, unrecorded) · Depends on: a local signing identity and development team on the Mac, never committed.
 - Acceptance: a PR records device, iOS version, build commit, and results for Wi-Fi and mobile data. Results cover all five diagnostics, the DNS server list versus the DNS test, touch navigation across the five screens, rotation, information pages in all four languages with RTL, and history persistence. Unverified items are listed as such.
+
+### NC-16 Conflicting course requirements
+
+Three Week 4 requirements contradict binding project rules and need an instructor decision before implementation.
+
+- Priority P1 · Status `blocked` · Depends on: the instructor's answer.
+- Conflicts C-1 to C-3 in [[docs/course-compliance.md]]:
+  - Task 11 sample data versus [[project#Product rules]] (no fake data).
+  - Four-language state and detail texts versus [[decisions#Turkish-first interface]].
+  - The AGENTS.md out-of-scope list versus [[architecture#Local SQLite backend]].
+- Acceptance: each decision is recorded once in [[AGENTS.md]] and reflected here.
+
+### NC-17 Documentation index completeness
+
+The AGENTS.md documentation index no longer lists every `docs/*.md`: [[docs/backend.md]] from PR #31 is missing, a Task 08 regression.
+
+- Priority P1 · Status `planned` · Depends on: none.
+- Acceptance: every top-level `docs/*.md` appears in the AGENTS.md index with a working link (row R08-a).
+
+### NC-14 Week 04 course tasks
+
+Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]] have no recorded work.
+
+- Priority P1 · Status `planned` · Depends on: [[tasks#Open work#NC-15 Master protection ruleset]] (the Task 09.1 prerequisite) and, for Tasks 11, 13 and 14, [[tasks#Open work#NC-16 Conflicting course requirements]].
+- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. No `docs/istemler/` logs or `feature/NN-*` branches exist. Parts are already met by existing code, for example typed IPC in [[src/lib/native.ts]] and 22 Rust tests.
+- Acceptance: as defined in each task file, one branch, PR and prompt log per task. Deadline and grading are announced in class (Task 16).
 
 ### NC-04 iOS local network permission
 
@@ -86,12 +120,13 @@ Repository documents contradict each other on iOS status and on whether the app 
 - Priority P2 · Status `planned` · Depends on: none.
 - Acceptance: [[README.md]], [[docs/proje-fikri.md]], [[docs/klasor-mimarisi.md]], and the four Hakkında pages match [[platforms#Support matrix]]. README's "no database" sentence reflects the unused SQLite backend, and [[docs/backend.md]] §8 matches the actual tests.
 
-### NC-14 Week 04 course tasks
+### NC-18 Ad-hoc colors and template leftovers
 
-Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]] have no recorded work yet; task 09.1 is done.
+Two files bypass the color-token rule: the React demo badge hard-codes colors, and an unused template stylesheet keeps the old palette.
 
-- Priority P1 · Status `planned` · Evidence for 09.1: the "Protectmaster" ruleset is active on `master`. No `docs/istemler/` records exist for tasks 10–15. Whether existing code already satisfies parts of them has not been audited.
-- Acceptance: as defined in each task file; deadline and grading are announced in class (Task 16).
+- Priority P2 · Status `planned` · Depends on: none.
+- Evidence: [[src/components/react/CanliRozet.tsx]] and [[src/app.css]], which nothing imports (row R05-f).
+- Acceptance: no hex colors outside [[src/styles/app.css]], and the unused file is removed.
 
 ## Deferred
 

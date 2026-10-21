@@ -17,6 +17,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 | [`docs/kaynaklar.md`](docs/kaynaklar.md) | Tasarım ve teknik referanslar | Tasarım kararlarında bu referanslar esas alınır. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim adımları ve tarihler | Etiket/ZIP/Blackboard adımları buradadır. |
 | [`docs/agent-compliance-test.md`](docs/agent-compliance-test.md) | Ajan uyum testi kaydı (görev 08) | Kural uyumu kanıtı; kurallar burada tekrarlanmaz. |
+| [`docs/course-compliance.md`](docs/course-compliance.md) | Ders gereksinimleri uyum matrisi | Her görev gereksinimi için durum ve kanıt; kurallar burada tekrarlanmaz, görevler `lat.md/tasks.md`'de izlenir. |
 | [`docs/tasks/`](docs/tasks/) | Eğitmen görev dokümanları | Haftalık görevler bağlayıcıdır; değiştirilmez. |
 
 ## 2. Teknoloji Yığını ve Komutlar
