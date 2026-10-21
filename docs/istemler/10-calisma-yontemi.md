@@ -160,10 +160,33 @@ Dikkat edilecek bir nokta: "Çalışma döngüsü" bölümü henüz commit edilm
 
 Yanıt `AGENTS.md`'deki döngüyü adım adım anlatıyor. Sondaki not doğruydu: test, değişiklikler commit edilmeden ve iki günlük yazılmadan önce yapıldı.
 
+**Öğrencinin testi, mevcut sohbette (yeni sohbet değil):** öğrenci soruyu, bu görev boyunca kullandığı ve proje bağlamını zaten taşıyan bir ChatGPT sohbetinde sordu. Görevin istediği gibi **yeni bir sohbet açılmadı** ve **ekran görüntüsü yok**. Bu yüzden yanıt, kuralın yalnız `AGENTS.md`'den öğrenildiğini kanıtlamaz; sohbet geçmişinden de gelmiş olabilir.
+
+Soru: `bu repoda bir görevi hangi sırayla yaparsın?`
+
+Yanıt (öğrencinin aktardığı haliyle):
+
+```text
+1. Görev şartnamesini okuruz. `docs/tasks/` altındaki asıl görev dosyasını ve ilgili proje kurallarını inceleriz. Özetlerden hareketle gereksinim uydurmayız.
+2. Şartname ve plan hazırlarız. Amacı, kapsam dışı işleri, kabul ölçütlerini, değişecek dosyaları ve doğrulama adımlarını yazarız.
+3. Onay bekleriz. Planı kullanıcıya sunarız. Kurallarla çelişen veya karara bağlanmamış bir konu varsa kendimiz karar vermeyiz.
+4. Görev dalını oluştururuz. Güncel `master` üzerinden `feature/NN-kisa-ad` biçiminde ayrı dal açarız. Her görev için bir dal ve bir PR kullanırız.
+5. İstem günlüğünü tutarız. `docs/istemler/NN-kisa-ad.md` içine kullanılan istemi, planı, düzeltmeleri, doğrulama sonuçlarını ve sınırlamaları kaydederiz.
+6. Yalnızca onaylanan kapsamı uygularız. İlgisiz değişiklik, izinsiz refactor veya gerekçesiz yeni bağımlılık eklemeyiz.
+7. Test ve doğrulama yaparız. `bun run build` çalıştırırız; Rust değiştiyse `cargo test`, `lat.md/` değiştiyse `lat check` ve arayüz değiştiyse uygun uygulama testlerini de yaparız. Çalıştırılmayan kontrolleri başarılı göstermeyiz.
+8. Diff'i baştan sona inceleriz. İstenmeyen dosyaları, güvenlik sorunlarını, kırık bağlantıları ve test eksiklerini kontrol ederiz.
+9. PR açarız. Değişiklikleri, gerekçeyi, test sonuçlarını, bilinen sınırlamaları ve istem günlüğü bağlantısını yazarız. Beş zorunlu CI kontrolünün de son commit'te başarılı olmasını bekleriz.
+10. Merge için kullanıcı onayı alırız. PR'ı otomatik birleştirmeyiz. Onaydan sonra birleştirir ve sonraki göreve geçeriz.
+```
+
+Öğrencinin özetine göre yanıt ayrıca şunları söyledi: görev gereksinimlerinin kaynağı görev dosyalarıdır, proje kurallarının bağlayıcı kaynağı `AGENTS.md`'dir ve çelişkiler uygulamadan önce kullanıcıya bildirilir. Bu kısım aynen aktarılmadı.
+
+Yanıt `AGENTS.md`'deki döngünün bütün adımlarını içeriyor: plan ve onay, görev başına dal ve PR, istem günlüğü, derleme şartı, diff okuma, beş CI kontrolü, merge için onay.
+
 ## Bilinen sınırlamalar ve açık maddeler
 
-- **Öğrencinin kendi kural testi yapılmadı.** Görev, öğrencinin yeni bir sohbet açıp soruyu sormasını ve yanıtı günlüğe eklemesini istiyor. Yukarıdaki alt ajan testi bunun yerine geçmez.
-- **Ekran görüntüleri yok.** Kontrol listesindeki "ekran görüntüleri günlükte" maddesi öğrencinin elle yapacağı adımlara bağlı. Görüntüler `docs/kanit/10-calisma-yontemi-*.png` adıyla eklenebilir.
+- **Yeni sohbet testi yapılmadı (görev § 3.3, rubrik "Kural testi").** Soru yeni bir sohbette değil, proje bağlamını taşıyan mevcut bir ChatGPT sohbetinde soruldu. Yukarıdaki iki yanıt da (alt ajan ve mevcut sohbet) bu ölçütün yerine geçmez; ölçüt doğrulanmamış sayılır.
+- **Ekran görüntüleri yok.** Kontrol listesindeki "ekran görüntüleri günlükte" maddesi karşılanmadı. Görüntüler `docs/kanit/10-calisma-yontemi-*.png` adıyla eklenebilir.
 - Plan onayı adımı bu görevde ayrı yapılmadı (yukarıda, "Plan").
 
 ## PR
