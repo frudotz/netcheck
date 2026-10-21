@@ -1,5 +1,5 @@
 // Bilgi sayfaları için dil tanımları (görev 06: TR / EN / AR / FA).
-// Uygulama ekranları Türkçedir; yalnızca bilgi sayfaları çok dillidir.
+// Bilgi sayfaları dil başına ayrı rotadadır; uygulama ekranlarının dili src/lib/dil.svelte.ts'tedir.
 
 import type { InfoSlug, Locale } from "./types";
 

@@ -67,7 +67,7 @@ netcheck/
 - **Kural:** Birden fazla sayfada tekrar eden veya bağımsız bir işlevi olan görsel parçalar burada toplanır. Svelte veya React ile yazılabilir.
 
 ### 7. `src/lib/` (Durum ve İş Mantığı)
-- **Ne konur?** Svelte 5 `$state` store'ları (`diagnostics`, `reports`, `tema`), Rust `invoke` sarmalayıcıları (`native.ts`), skor hesabı (`score.ts`) ve Türkçe metinler (`labels.ts`).
+- **Ne konur?** Svelte 5 `$state` store'ları (`diagnostics`, `reports`, `tema`, `dil`), Rust `invoke` sarmalayıcıları (`native.ts`), skor hesabı (`score.ts`), dört dilli metin sözlüğü (`sozluk.ts`) ve henüz sözlüğe taşınmamış Türkçe metinler (`labels.ts`).
 - **Nasıl import edilir?** `$lib/native` veya `$lib/reports.svelte` şeklinde alias ile çağrılır.
 
 ### 8. `src/lib/types/` ve `src/lib/veri/` (Veri Sözleşmesi)

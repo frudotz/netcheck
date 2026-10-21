@@ -57,10 +57,10 @@ Record a reproducible physical-iPhone run; smoke tests are reported as successfu
 
 Three Week 4 requirements contradict binding project rules and need an instructor decision before implementation.
 
-- Priority P1 · Status `blocked` · Depends on: the instructor's answer for C-2 and C-3.
+- Priority P1 · Status `blocked` · Depends on: the instructor's answer for C-3, and confirmation of the C-1 and C-2 decisions.
 - Conflicts C-1 to C-3 in [[docs/course-compliance.md]]:
   - Task 11 sample data versus [[project#Product rules]] (no fake data). Decided on 2026-10-21 under the owner's general authorization: documentation-range records in [[src/lib/veri/ornek.ts]] that no screen imports, recorded in [[AGENTS.md]]; instructor confirmation pending.
-  - Four-language state and detail texts versus [[decisions#Turkish-first interface]].
+  - Four-language state and detail texts versus Turkish-only app screens. Decided on 2026-10-21 under the same authorization: an app language setting with a dictionary ([[decisions#Turkish-first interface]]), recorded in [[AGENTS.md]]; instructor confirmation pending.
   - The AGENTS.md out-of-scope list versus [[architecture#Local SQLite backend]].
 - Acceptance: each decision is recorded once in [[AGENTS.md]] and reflected here.
 

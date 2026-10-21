@@ -65,7 +65,7 @@ Her görev bu sırayla yapılır: **şartname → plan → onay → değişiklik
 
 ## 4. Kod Yazım Kuralları
 
-- **Dil:** Kullanıcıya görünen tüm metinler Türkçedir (`src/lib/labels.ts`); yeni kod tanımlayıcıları İngilizcedir. Mevcut CSS token adları (`--renk-ana` …) korunur.
+- **Dil:** Uygulamanın varsayılan dili Türkçedir. Kullanıcı Ayarlar'dan TR / EN / AR / FA seçebilir; seçim uygulama ekranlarında `<html lang dir>` değerini değiştirir (AR ve FA sağdan sola), bilgi sayfaları kendi dil rotasında kalır. Yeni ya da değiştirilen her görünür metin [`src/lib/sozluk.ts`](src/lib/sozluk.ts) sözlüğüne dört dilde eklenir; henüz taşınmamış eski metinler (`src/lib/labels.ts` ve bazı ekranlar) Türkçe görünür. Yeni kod tanımlayıcıları İngilizcedir. Mevcut CSS token adları (`--renk-ana` …) korunur.
 - **Yazı sistemi:** Ajanın ürettiği hiçbir metinde (kod, yorum, belge, commit/PR mesajı, yanıt) Çince veya Japonca karakter (Han, Hiragana, Katakana) kullanılmaz. Kullanıcının verdiği ya da bir kaynaktan aynen aktarılan metin olduğu gibi korunur.
 - **Svelte 5 Runes:** Yeni bileşenlerde yalnızca `$state`, `$derived`, `$props`; Svelte 4 sözdizimi (`export let`, `$:`) kullanılmaz.
 - **SSR güvenliği:** `window`, `document`, `localStorage` yalnızca istemcide (`onMount` içinde) veya `typeof … !== "undefined"` korumasıyla kullanılır. localStorage'dan gelen liste `onMount` sonrası çizilir.

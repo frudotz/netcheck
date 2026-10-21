@@ -16,7 +16,7 @@ The runtime is a Tauri v2 shell around a statically built web frontend, with all
 
 NetCheck is a basic diagnostic tool; the feature set is intentionally small and fixed.
 
-In scope: network snapshot ([[networking#Network snapshot]]), five diagnostics ([[networking#Diagnostics]]), connection score ([[frontend#Connection score]]), reports and local history ([[frontend#Reports and history]]), theme, settings, and four-language information pages ([[frontend#Localization]]).
+In scope: network snapshot ([[networking#Network snapshot]]), five diagnostics ([[networking#Diagnostics]]), connection score ([[frontend#Connection score]]), reports and local history ([[frontend#Reports and history]]), theme, settings, a four-language app setting and four-language information pages ([[frontend#Localization]]).
 
 Out of scope, per [[AGENTS.md]]: login/registration in the app, server/API, cloud sync, analytics, AI features, speed test, port or subnet scanning, packet capture, traceroute UI, VPN detection, and remote management. A temporary local SQLite backend exists in the code but is not used by any screen; see [[architecture#Local SQLite backend]].
 
@@ -28,4 +28,4 @@ These rules apply to every change and are the main review criteria for features.
 - **Fixed targets.** Diagnostic targets live in Rust; the frontend only sends a [[src-tauri/src/diagnostics.rs#DiagnosticKind]]. User input never reaches a shell, PowerShell, CMD, or any spawned process.
 - **Least privilege.** Tauri capabilities stay at `core:default` and `opener:default`; Android requests only `INTERNET` and `ACCESS_NETWORK_STATE`.
 - **Honest capability reporting.** A platform that cannot do something reports it as unavailable; another check is never relabeled as ICMP (see [[decisions#Real ICMP or nothing]]).
-- **Turkish-first UI.** App screens are Turkish; only information pages are multilingual (see [[frontend#Localization]]).
+- **Turkish-first UI.** Turkish is the default; app screens can switch to EN/AR/FA through the dictionary, and every new visible text is added in all four languages (see [[frontend#Localization]]).
