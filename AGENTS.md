@@ -21,6 +21,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 | [`docs/kaynaklar.md`](docs/kaynaklar.md) | Tasarım ve teknik referanslar | Tasarım kararlarında bu referanslar esas alınır. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim adımları ve tarihler | Etiket/ZIP/Blackboard adımları buradadır. |
 | [`docs/agent-compliance-test.md`](docs/agent-compliance-test.md) | Ajan uyum testi kaydı (görev 08) | Kural uyumu kanıtı; kurallar burada tekrarlanmaz. |
+| [`docs/yonetim-paneli.md`](docs/yonetim-paneli.md) | Yönetim paneli (`admin/`): durum, yapı, renk ve metin kuralları, bağımlılıklar | Panel yalnız arayüzdür; veri kaynağı, giriş ve veritabanı bağlantısı C-3 kararından önce eklenmez. |
 | [`docs/backend.md`](docs/backend.md) | Geçici yerel SQLite arka ucu (migration, rol/izin, komutlar) | Arka uç tabloları, rolleri ve komutları yalnız burada ayrıntılandırılır. Kapsam kararı bekliyor: [`docs/course-compliance.md`](docs/course-compliance.md) C-3. |
 | [`docs/course-compliance.md`](docs/course-compliance.md) | Ders gereksinimleri uyum matrisi | Her görev gereksinimi için durum ve kanıt; kurallar burada tekrarlanmaz, görevler `lat.md/tasks.md`'de izlenir. |
 | [`docs/gorev-sartnamesi.md`](docs/gorev-sartnamesi.md) | Görev şartnamesi şablonu | Her görevden önce doldurulur; plan buna göre sunulur ([Çalışma döngüsü](#çalışma-döngüsü)). |
@@ -31,7 +32,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 
 - **Platform:** Tauri v2 (Rust çekirdek + WebView)
 - **Web çatısı:** Astro (`output: 'static'`, port `1420`)
-- **Arayüz:** Svelte 5 (Runes: `$state`, `$derived`, `$props`); React 19 bileşenleri ve MDX (mevcut entegrasyonlar korunur)
+- **Arayüz:** Svelte 5 (Runes: `$state`, `$derived`, `$props`); React 19 bileşenleri ve MDX (mevcut entegrasyonlar korunur). Yönetim paneli (`admin/`) React ve Tailwind ile yazılır; Tailwind yalnız panelde ve yalnız token sınıflarıyla kullanılır.
 - **Paket yöneticisi:** Bun — başka paket yöneticisine veya çatıya geçilmez.
 
 ### Komutlar
@@ -77,6 +78,7 @@ Her görev bu sırayla yapılır: **şartname → plan → onay → değişiklik
 - **Veri sözleşmesi:** Yeni bir veri alanı önce `src/lib/types/` içinde tanımlanır ve [`docs/veri-modeli.md`](docs/veri-modeli.md) tablosuna eklenir; bileşen veya store içinde veri tipi tanımlanmaz (bileşenin kendi `Props` tanımı hariç). `any` kullanılmaz.
 - **Sahte veri yasak:** IP, gateway, DNS, gecikme, bağlantı durumu veya arayüz bilgisi asla uydurulmaz. Değer alınamazsa "Kullanılamıyor" / "Bulunamadı" gösterilir. Tauri dışında (tarayıcı) JS ile yedek veri veya rapor kimliği üretilmez. Görev 11 örnek verisi ([`src/lib/veri/ornek.ts`](src/lib/veri/ornek.ts)) yalnız tip örneğidir: belgeleme adresleri (RFC 5737/3849/7042) kullanır ve hiçbir ekran, store ya da komut onu içe aktarmaz.
 - **Rapor kimliği** yalnızca Rust'ta üretilir (`generate_report_id` → `NCHK-YYYY-XXXXXXXX`).
+- **Yönetim paneli (`admin/`):** görünen her metin `admin/i18n/` sözlüklerinden gelir (dört dil birlikte); renkler yalnız `app.css` token'ları ve onlara eşlenen Tailwind sınıflarıdır (hazır palet kapalı, `dark:` yok). Çekirdek tipler `src/lib/types/`'tan alınır. Panel bir veri kaynağına bağlanana kadar veri ekranları "bağlı değil" durumunu gösterir; örnek kayıt, sahte kişi veya çalışmayan denetim gösterilmez. Ayrıntı: [`docs/yonetim-paneli.md`](docs/yonetim-paneli.md).
 - **Hata gösterimi:** Ham Rust/IPC hataları kullanıcıya gösterilmez. Komutlar düz metin değil tipli hata (`CommandError`, [`docs/komutlar.md`](docs/komutlar.md)) döndürür; makine kodu ön yüzde seçili dilde mesaja çevrilir ve `HataDurumu` ile gösterilir. Her asenkron işlemin yükleniyor / başarı / hata durumu vardır.
 
 ## 5. Arayüz Doğrulama (Tarayıcı Otomasyonu)

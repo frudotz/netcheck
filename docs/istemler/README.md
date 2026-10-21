@@ -39,3 +39,4 @@ Her günlük bu sırayla şu başlıkları taşır:
 | 13 Liste ve üç durum | [`13-liste-ve-uc-durum.md`](13-liste-ve-uc-durum.md) |
 | 14 Detay ekranı | [`14-detay-ekrani.md`](14-detay-ekrani.md) |
 | 15 Rust komutu | [`15-rust-komutu.md`](15-rust-komutu.md) |
+| Yönetim panelini projeye taşıma (eğitmenin 21.10 raporu) | [`admin-panel-tasima.md`](admin-panel-tasima.md) |

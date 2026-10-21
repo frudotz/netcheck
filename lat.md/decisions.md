@@ -68,6 +68,14 @@ Reports, history, and theme are stored in WebView `localStorage`; there is no se
 
 The SQLite backend from PR #31 is a separate, temporary layer meant to keep command names stable when a server is introduced. It does not change where the current screens store data ([[architecture#Local SQLite backend]]).
 
+## Admin panel stays UI only
+
+The admin panel was moved into the project without a data source, login or IPC, and its colors come only from the app's tokens.
+
+The instructor asked for the AI Studio panel to live in the main project, follow the project rules (branch and PR, no hard-coded colors, texts from a dictionary), and then retire the separate repository. Its data features (devices, messages, users, editable targets) need the backend, login and remote management that [[AGENTS.md]] lists as out of scope, which is conflict C-3 in [[docs/course-compliance.md]]. So on 2026-10-21 the owner's general authorization covered only the interface. Mock and seed data were dropped, and data screens say they are not connected ([[architecture#Admin panel]]).
+
+The panel's code is written with Tailwind utilities. Rewriting it in plain CSS was rejected as a large, error-prone change, so Tailwind was kept but limited to `admin/styles/admin.css`, with its palette replaced by token names. `react-router-dom` was dropped in favour of Astro pages.
+
 ## Turkish-first interface
 
 Turkish is the default app language; the user can switch app screens to English, Arabic or Persian, and Arabic and Persian are RTL.
