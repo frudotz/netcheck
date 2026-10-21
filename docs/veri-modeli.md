@@ -56,7 +56,9 @@ PlatformInfo (Rust)    raporla ilişkisi yok; Ayarlar ekranında gösterilir
 | `status` | `DiagnosticStatus` | Z | Testin durumu |
 | `target` | `string` | İ | Hedef; bitmeden açıklama, bitince Rust'un denediği hedef |
 | `latencyMs` | `number` | İ | Gecikme (ms) |
-| `message` | `string` | İ | Türkçe sonuç mesajı |
+| `code` | `DiagnosticCode` | İ | Rust'un sonuç kodu; rapor ekranı mesajı seçili dilde bundan üretir. Görev 14'ten önceki raporlarda yoktur |
+| `detail` | `string` | İ | Rust'un ek bilgisi (DNS'te çözülen adres, HTTPS'te genel IP) |
+| `message` | `string` | İ | Rapor anındaki Türkçe sonuç mesajı; `code` olmayan eski raporlarda gösterilir |
 
 `DiagnosticOutcome` (Rust yanıtı):
 

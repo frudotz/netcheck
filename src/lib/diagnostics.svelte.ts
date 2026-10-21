@@ -69,6 +69,8 @@ class Diagnostics {
         target: outcome.target ?? this.tests[index].target,
         status: outcome.status,
         latencyMs: outcome.latencyMs,
+        code: outcome.code,
+        detail: outcome.detail,
         message: outcomeMessage(kind, outcome),
       };
     } catch (e) {

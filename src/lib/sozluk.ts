@@ -2,7 +2,18 @@
 // anahtarları taşımak zorundadır (eksik anahtar `bun run check` ile yakalanır).
 // Yeni ya da değiştirilen her görünür metin buraya dört dilde eklenir (AGENTS.md § 4, "Dil").
 // Henüz taşınmamış eski metinler src/lib/labels.ts ve bileşenlerde Türkçe durur.
-import type { ConnectionType, IcmpBackend, Locale, OsName, PlatformFamily, ScoreLevel } from "./types";
+import type {
+  ConnectionType,
+  DiagnosticCode,
+  DiagnosticKind,
+  DiagnosticStatus,
+  DiagnosticTest,
+  IcmpBackend,
+  Locale,
+  OsName,
+  PlatformFamily,
+  ScoreLevel,
+} from "./types";
 
 const tr = {
   // Kabuk: başlık ve menü
@@ -115,6 +126,35 @@ const tr = {
   temizlemeOnayiEtiketi: "Geçmişi temizleme onayı",
   evetTemizle: "Evet, temizle",
   vazgec: "Vazgeç",
+
+  // Rapor detayı (Görev 14), test adları, durumlar ve sonuç mesajları
+  raporBaslik: "Tanılama Raporu",
+  testSonuclari: "Test Sonuçları",
+  raporBulunamadi: "Rapor bulunamadı: {id} kimlikli rapor bu cihazda kayıtlı değil.",
+  raporSecilmedi: "Rapor bulunamadı: görüntülenecek bir rapor seçilmedi.",
+  gecmiseDon: "Geçmişe dön",
+  testGateway: "Gateway",
+  testCloudflare: "Cloudflare",
+  testGoogle: "Google DNS",
+  testDns: "DNS Çözümleme",
+  testInternet: "İnternet (HTTPS)",
+  durumBekliyor: "Bekliyor",
+  durumCalisiyor: "Çalışıyor",
+  durumBasarili: "Başarılı",
+  durumBasarisiz: "Başarısız",
+  msjGateway: "Ağ geçidi yanıt verdi.",
+  msjHedef: "Hedef yanıt verdi.",
+  msjDns: "Alan adı çözümlendi.",
+  msjDnsDetay: "cloudflare.com → {detay}",
+  msjInternet: "HTTPS bağlantısı başarılı.",
+  msjInternetDetay: "HTTPS bağlantısı başarılı · Genel IP {detay}",
+  hataZamanAsimi: "Zaman aşımı: yanıt alınamadı.",
+  hataUlasilamadi: "Hedefe ulaşılamadı.",
+  hataPingYok: "Bu platformda ping testi kullanılamıyor.",
+  hataCozumleme: "DNS çözümlemesi başarısız.",
+  hataHttp: "Sunucu beklenmeyen bir yanıt döndürdü.",
+  hataHttps: "HTTPS bağlantısı kurulamadı.",
+  testTamamlanamadi: "Test tamamlanamadı.",
 };
 
 export type Metinler = { [K in keyof typeof tr]: string };
@@ -225,6 +265,34 @@ const en: Metinler = {
   temizlemeOnayiEtiketi: "Confirm clearing history",
   evetTemizle: "Yes, clear",
   vazgec: "Cancel",
+
+  raporBaslik: "Diagnostic Report",
+  testSonuclari: "Test Results",
+  raporBulunamadi: "Report not found: no report with ID {id} is stored on this device.",
+  raporSecilmedi: "Report not found: no report was selected.",
+  gecmiseDon: "Back to History",
+  testGateway: "Gateway",
+  testCloudflare: "Cloudflare",
+  testGoogle: "Google DNS",
+  testDns: "DNS Resolution",
+  testInternet: "Internet (HTTPS)",
+  durumBekliyor: "Pending",
+  durumCalisiyor: "Running",
+  durumBasarili: "Passed",
+  durumBasarisiz: "Failed",
+  msjGateway: "The gateway responded.",
+  msjHedef: "The target responded.",
+  msjDns: "The domain name was resolved.",
+  msjDnsDetay: "cloudflare.com → {detay}",
+  msjInternet: "HTTPS connection succeeded.",
+  msjInternetDetay: "HTTPS connection succeeded · Public IP {detay}",
+  hataZamanAsimi: "Timed out: no response.",
+  hataUlasilamadi: "The target is unreachable.",
+  hataPingYok: "The ping test is not available on this platform.",
+  hataCozumleme: "DNS resolution failed.",
+  hataHttp: "The server returned an unexpected response.",
+  hataHttps: "Could not establish the HTTPS connection.",
+  testTamamlanamadi: "The test could not be completed.",
 };
 
 const ar: Metinler = {
@@ -333,6 +401,34 @@ const ar: Metinler = {
   temizlemeOnayiEtiketi: "تأكيد مسح السجل",
   evetTemizle: "نعم، امسح",
   vazgec: "إلغاء",
+
+  raporBaslik: "تقرير التشخيص",
+  testSonuclari: "نتائج الاختبارات",
+  raporBulunamadi: "التقرير غير موجود: لا يوجد تقرير بالمعرّف {id} محفوظ على هذا الجهاز.",
+  raporSecilmedi: "التقرير غير موجود: لم يُحدَّد أي تقرير لعرضه.",
+  gecmiseDon: "العودة إلى السجل",
+  testGateway: "البوابة",
+  testCloudflare: "Cloudflare",
+  testGoogle: "Google DNS",
+  testDns: "تحليل DNS",
+  testInternet: "الإنترنت (HTTPS)",
+  durumBekliyor: "قيد الانتظار",
+  durumCalisiyor: "قيد التشغيل",
+  durumBasarili: "ناجح",
+  durumBasarisiz: "فاشل",
+  msjGateway: "استجابت البوابة.",
+  msjHedef: "استجاب الهدف.",
+  msjDns: "تم تحليل اسم النطاق.",
+  msjDnsDetay: "cloudflare.com ← {detay}",
+  msjInternet: "نجح اتصال HTTPS.",
+  msjInternetDetay: "نجح اتصال HTTPS · عنوان IP العام {detay}",
+  hataZamanAsimi: "انتهت المهلة: لم يصل أي رد.",
+  hataUlasilamadi: "تعذّر الوصول إلى الهدف.",
+  hataPingYok: "اختبار ping غير متاح على هذه المنصة.",
+  hataCozumleme: "فشل تحليل DNS.",
+  hataHttp: "أعاد الخادم استجابة غير متوقعة.",
+  hataHttps: "تعذّر إنشاء اتصال HTTPS.",
+  testTamamlanamadi: "تعذّر إكمال الاختبار.",
 };
 
 const fa: Metinler = {
@@ -441,6 +537,34 @@ const fa: Metinler = {
   temizlemeOnayiEtiketi: "تأیید پاک کردن تاریخچه",
   evetTemizle: "بله، پاک کن",
   vazgec: "انصراف",
+
+  raporBaslik: "گزارش عیب‌یابی",
+  testSonuclari: "نتایج آزمون‌ها",
+  raporBulunamadi: "گزارش پیدا نشد: گزارشی با شناسهٔ {id} روی این دستگاه ذخیره نشده است.",
+  raporSecilmedi: "گزارش پیدا نشد: گزارشی برای نمایش انتخاب نشده است.",
+  gecmiseDon: "بازگشت به تاریخچه",
+  testGateway: "دروازه",
+  testCloudflare: "Cloudflare",
+  testGoogle: "Google DNS",
+  testDns: "تفکیک DNS",
+  testInternet: "اینترنت (HTTPS)",
+  durumBekliyor: "در انتظار",
+  durumCalisiyor: "در حال اجرا",
+  durumBasarili: "موفق",
+  durumBasarisiz: "ناموفق",
+  msjGateway: "دروازه پاسخ داد.",
+  msjHedef: "مقصد پاسخ داد.",
+  msjDns: "نام دامنه تفکیک شد.",
+  msjDnsDetay: "cloudflare.com ← {detay}",
+  msjInternet: "اتصال HTTPS موفق بود.",
+  msjInternetDetay: "اتصال HTTPS موفق بود · IP عمومی {detay}",
+  hataZamanAsimi: "مهلت تمام شد: پاسخی دریافت نشد.",
+  hataUlasilamadi: "مقصد در دسترس نیست.",
+  hataPingYok: "آزمون پینگ در این پلتفرم در دسترس نیست.",
+  hataCozumleme: "تفکیک DNS ناموفق بود.",
+  hataHttp: "سرور پاسخ غیرمنتظره‌ای داد.",
+  hataHttps: "برقراری اتصال HTTPS ممکن نشد.",
+  testTamamlanamadi: "آزمون کامل نشد.",
 };
 
 export const sozluk: Record<Locale, Metinler> = { tr, en, ar, fa };
@@ -477,6 +601,58 @@ export function baglantiTuruEtiketi(m: Metinler, tur: ConnectionType): string {
 export function skorSeviyesiEtiketi(m: Metinler, seviye: ScoreLevel): string {
   const etiket: Record<ScoreLevel, string> = { iyi: m.skorIyi, orta: m.skorOrta, zayif: m.skorZayif };
   return etiket[seviye];
+}
+
+export function testAdi(m: Metinler, tur: DiagnosticKind): string {
+  const ad: Record<DiagnosticKind, string> = {
+    gateway: m.testGateway,
+    cloudflare: m.testCloudflare,
+    google: m.testGoogle,
+    dns: m.testDns,
+    internet: m.testInternet,
+  };
+  return ad[tur];
+}
+
+export function durumEtiketi(m: Metinler, durum: DiagnosticStatus): string {
+  const etiket: Record<DiagnosticStatus, string> = {
+    pending: m.durumBekliyor,
+    running: m.durumCalisiyor,
+    success: m.durumBasarili,
+    failed: m.durumBasarisiz,
+    unavailable: m.kullanilamiyor,
+  };
+  return etiket[durum];
+}
+
+/**
+ * Testin sonuç mesajı seçili dilde. Mesaj Rust kodundan (`code`, `detail`) üretilir;
+ * kodu olmayan eski raporlarda rapor anında saklanan Türkçe mesaj gösterilir.
+ */
+export function testMesaji(m: Metinler, test: DiagnosticTest): string {
+  if (!test.code) return test.message ?? "";
+  if (test.status === "success") {
+    switch (test.id) {
+      case "gateway":
+        return m.msjGateway;
+      case "dns":
+        return test.detail ? bicim(m.msjDnsDetay, { detay: test.detail }) : m.msjDns;
+      case "internet":
+        return test.detail ? bicim(m.msjInternetDetay, { detay: test.detail }) : m.msjInternet;
+      default:
+        return m.msjHedef;
+    }
+  }
+  const hata: Record<Exclude<DiagnosticCode, "ok">, string> = {
+    no_gateway: m.ipucuGatewayYok,
+    timeout: m.hataZamanAsimi,
+    unreachable: m.hataUlasilamadi,
+    ping_unsupported: m.hataPingYok,
+    resolve_failed: m.hataCozumleme,
+    http_error: m.hataHttp,
+    connection_failed: m.hataHttps,
+  };
+  return test.code === "ok" ? m.testTamamlanamadi : (hata[test.code] ?? m.testTamamlanamadi);
 }
 
 const tarihYerelAyari: Record<Locale, string> = { tr: "tr-TR", en: "en-GB", ar: "ar", fa: "fa-IR" };

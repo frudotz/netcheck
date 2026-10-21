@@ -27,7 +27,7 @@ Connection type, IPv6 choice, and MAC display apply filters so the UI never show
 
 DNS server discovery and the device name depend on what each OS exposes, and may legitimately be empty.
 
-- DNS servers come from `netdev`: Windows APIs, Android `LinkProperties` via JNI, macOS SystemConfiguration, Linux `/etc/resolv.conf`, and on iOS only `/etc/resolv.conf` (SystemConfiguration is excluded from iOS builds, see [[decisions#netdev features per target]]). An empty list renders as [[src/lib/labels.ts#NOT_FOUND]]. This list is independent of the DNS diagnostic, which uses the system resolver, so "Bulunamadı" can coexist with a passing DNS test.
+- DNS servers come from `netdev`: Windows APIs, Android `LinkProperties` via JNI, macOS SystemConfiguration, Linux `/etc/resolv.conf`, and on iOS only `/etc/resolv.conf` (SystemConfiguration is excluded from iOS builds, see [[decisions#netdev features per target]]). An empty list renders as "Bulunamadı" (dictionary key `bulunamadi` in [[src/lib/sozluk.ts#sozluk]]). This list is independent of the DNS diagnostic, which uses the system resolver, so "Bulunamadı" can coexist with a passing DNS test.
 - [[src-tauri/src/platform/device.rs#name]] uses the OS hostname on desktop and iOS. On Android it reads `Settings.Global "device_name"` via JNI, falling back to `Build.MODEL`. On mobile, `localhost` placeholders are hidden.
 
 ## Ping backends
