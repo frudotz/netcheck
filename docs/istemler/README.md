@@ -41,3 +41,4 @@ Her günlük bu sırayla şu başlıkları taşır:
 | 15 Rust komutu | [`15-rust-komutu.md`](15-rust-komutu.md) |
 | Yönetim panelini projeye taşıma (eğitmenin 21.10 raporu) | [`admin-panel-tasima.md`](admin-panel-tasima.md) |
 | 16 Batch 02 denetimi | [`16-batch-02-denetimi.md`](16-batch-02-denetimi.md) |
+| Proje duraklatma ve devir | [`proje-duraklatma.md`](proje-duraklatma.md) |
