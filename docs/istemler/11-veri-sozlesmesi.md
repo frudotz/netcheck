@@ -148,7 +148,8 @@ Nihai hedef: NetCheck'i dürüstçe doğrulanmış, belgelenmiş, release gate'i
 - `git grep "veri/ornek" -- src`: sonuç yok, yani hiçbir dosya örnek veriyi içe aktarmıyor.
 - `any` araması (`: any`, `as any`, `<any>`, `any[]`): sonuç yok.
 - Rust değişmedi; `cargo test` bu görevde çalıştırılmadı.
-- `lat check`, bağlantı kontrolü ve `git diff --check`: sonuçlar PR açıklamasında.
+- `lat check`: geçti. Değişen yedi Markdown dosyasında 84 bağlantı ve başlık çapası: kırık yok. `git diff --check`: temiz.
+- CI sonucu PR'da.
 
 ## Bilinen sınırlamalar ve açık maddeler
 
@@ -158,4 +159,4 @@ Nihai hedef: NetCheck'i dürüstçe doğrulanmış, belgelenmiş, release gate'i
 
 ## PR
 
-Bu günlüğü içeren PR'ın bağlantısı PR açıldıktan sonra eklenir.
+[#36](https://github.com/frudotz/netcheck/pull/36) (taban: #35'in dalı).
