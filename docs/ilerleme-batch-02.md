@@ -23,7 +23,7 @@ PR'lar zincirleme açıldı: her biri bir öncekinin dalı üstünde ve tabanı 
 | 15 Rust komutu ve platform | `docs/platform-destegi.md` (ve tipli hata, `docs/komutlar.md`) | PR açık | #41 | [`platform-destegi.md`](platform-destegi.md); macOS/Linux/iOS çalıştırması ertelendi (R15-h) |
 | Yönetim paneli (Hafta 05) | AI Studio panelini `admin/`'e taşı; sabit renk yok; metinler sözlükten | PR açık | #42 | [`yonetim-paneli.md`](yonetim-paneli.md); kaynak deponun arşivi birleştirmeden sonra |
 | 16 Batch 02 denetimi | `minWidth`/`minHeight`; bu belge; `v0.2.0-batch-02` | PR açık; etiket yok | #43 | Pencere en az 320 × 480 ([aşağıda](#pencere-boyutu)) |
-| Yerel denetim düzeltmeleri (27.10) | Kod incelemesinde bulunan kusurlar (rapor kaybı, test listesi, komut hatası mesajı, bozuk depo, panel `t()`) | PR açık | #45 | [`istemler/yerel-denetim-duzeltmeleri.md`](istemler/yerel-denetim-duzeltmeleri.md) |
+| Yerel denetim düzeltmeleri (27.10) | Kod incelemesinde bulunan kusurlar (rapor kaybı, test listesi, komut hatası mesajı, bozuk depo, panel `t()`) | PR açık | #45 | Günlük #45'in dalında: `docs/istemler/yerel-denetim-duzeltmeleri.md` |
 
 ## Pencere boyutu
 
