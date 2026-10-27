@@ -50,4 +50,4 @@ Plan depo sahibinin istemiyle önceden onaylıydı (ayrı, küçük dal/PR; geç
 
 ## PR
 
-Açılınca buraya yazılır.
+[#46](https://github.com/frudotz/netcheck/pull/46) (taban: `master`).
