@@ -1,6 +1,6 @@
 # Proje Beklemede — Devir Notu
 
-> **Bu belge bir duraklatma anlık görüntüsüdür.** Bir sürüm, tamamlanma ya da onay beyanı değildir. **Batch 02 tamamlanmadı ve yayın için onaylanmadı;** `v0.2.0-batch-02` etiketi yoktur. Aşağıdaki SHA ve CI bilgileri 22.10.2026 tarihlidir. Dönüşte önce [§ 8](#8-komutlar) komutlarıyla güncel durumu kontrol edin.
+> **Bu belge bir duraklatma anlık görüntüsüdür.** Bir sürüm, tamamlanma ya da onay beyanı değildir. **Batch 02 tamamlanmadı ve yayın için onaylanmadı;** `v0.2.0-batch-02` etiketi yoktur. Aşağıdaki SHA ve CI bilgileri 22.10.2026 tarihlidir; 27.10.2026'daki yerel denetimde yeniden okundu ve #43/#44 dışında değişmedi. Dönüşte önce [§ 8](#8-komutlar) komutlarıyla güncel durumu kontrol edin.
 
 ## 1. Tarih ve amaç
 
@@ -50,7 +50,7 @@ Doğrulama düzeyleri:
 | #40 | Görev 14 detay | `feature/14-detay-ekrani` (#39) | `7573746` | 5/5 | Araçla denendi (tarayıcı ve Windows uygulaması) |
 | #41 | Görev 15 Rust komutu | `feature/15-rust-komutu` (#40) | `392c5fd` | 5/5 | Araçla denendi (Windows IPC). macOS, Linux, iOS çalıştırılmadı (R15-h, ertelendi) |
 | #42 | Yönetim paneli (yalnız arayüz) | `feature/admin-panel-tasima` (#41) | `a42ac5b` | 5/5 | Araçla denendi (Windows, üretim derlemesi). Veriyle çalışan kod yolları denenmedi |
-| #43 | Görev 16 Batch 02 denetimi | `feature/16-batch-02-denetimi` (#42) | `70bef01` | 5/5 | Pencere sınırı Windows'ta doğrulandı. Rubrik bilinmiyor; etiket yok (R16-c FAIL) |
+| #43 | Görev 16 Batch 02 denetimi | `feature/16-batch-02-denetimi` (#42) | `1e4d7aa` (27.10, belge düzeltmesi; CI PR sayfasında) | 5/5 (`70bef01`) | Pencere sınırı Windows'ta doğrulandı. Rubrik bilinmiyor; etiket yok (R16-c FAIL) |
 | #32 | Panel + SQLite (eğitmen) | `feature/src-admin-prototype` (`master`) | `c0c1a04` | 5/5, ama 14.10'daki eski tabanda | `master`'ın gerisinde, uygulamada hiç çalıştırılmadı. Birleştirilmemeli (§ 6) |
 
 - #35–#43 GitHub'da `MERGEABLE` ve `CLEAN` görünüyor. Yorum ya da inceleme yok.
