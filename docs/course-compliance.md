@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 44 | 3 | 0 | 2 | 49 |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 44 | 4 | 0 | 2 | 50 |
 | Week 4 — Task 16 (from the 2026-10-21 status report) | 2 | 0 | 1 | 0 | 3 |
 | Instructor status report 2026-10-21 — admin panel | 4 | 0 | 0 | 2 | 6 |
-| **All** | **87** | **10** | **1** | **6** | **104** |
+| **All** | **87** | **11** | **1** | **6** | **105** |
 
 Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–15 and the app-language groundwork for Tasks 12–14 are on their branches. What remains in Week 4 is student-side evidence (R10-d, R13-e) and macOS/Linux/iOS runs (R15-h, deferred by the instructor). The admin panel move from the instructor's status report is on its own branch as an interface without data; archiving the source repository (RA-e) follows its merge. Task 16's window limits and progress document are on their branch. The only FAIL is the `v0.2.0-batch-02` tag (R16-c), which can only be created after the Batch 02 PRs are merged and the owner approves ([`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md)).
 
@@ -222,6 +222,7 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 |---|---|---|---|
 | RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PASS (Task 10–15 branches) | Tasks 09.1 (PR #34, log backfilled) and 10–15 each have a `feature/NN-*` branch, a PR and a `docs/istemler/` log; the app-language groundwork has its own branch, PR and log |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | Not in the repository. The 2026-10-21 status report names the deadline (27.10.2026 23:59) and Task 16's three outputs (R16-a to R16-c); the rubric itself is still to be announced |
+| RG-c | Each task's "§ 3 Kendiniz doğrulayın" steps done by the student, with screenshots in the task's log (checklist item in Tasks 10–15) | PARTIAL | Tool-run equivalents are recorded in every log; the student's own runs and screenshots are missing for all six tasks. R10-d and R13-e are the two task-specific forms of this gap — student action |
 
 ### Task 16 — Batch 02 audit
 

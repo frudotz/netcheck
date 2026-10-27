@@ -43,7 +43,7 @@ Görev 16 dalının son hâlinde (`feature/16-batch-02-denetimi`, Windows):
 | `bun run check` | 0 hata, 0 uyarı |
 | `cargo test --locked` | 24/24 Windows'ta (toplam 25; macOS'a özgü test CI'da) |
 | `lat check` | geçti |
-| CI (5 zorunlu kontrol) | #35–#42 son commit'lerinde 5/5; #43 için PR sayfası |
+| CI (5 zorunlu kontrol) | #35–#43 son commit'lerinde 5/5 (22.10.2026; 27.10'da yeniden okundu, değişmedi) |
 
 ## Yayın kapısı
 
@@ -57,7 +57,7 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
 | K4 | `bun run check` 0 hata, 0 uyarı | PASS | |
 | K5 | Rust testleri geçiyor | PASS | 24/24 Windows; CI'da üç masaüstü işletim sistemi |
 | K6 | `lat check` temiz | PASS | |
-| K7 | Beş zorunlu CI kontrolü her PR'ın son commit'inde | PASS (#35–#42) | #43 için PR sayfası; birleştirme sırasında her dal güncellenince yeniden çalışır |
+| K7 | Beş zorunlu CI kontrolü her PR'ın son commit'inde | PASS (#35–#43) | Birleştirme sırasında her dal güncellenince yeniden çalışır |
 | K8 | Uyum matrisinde etiket dışında FAIL yok | PASS | [`course-compliance.md`](course-compliance.md) özeti; tek FAIL R16-c, yani K13 |
 | K9 | `v0.1.0-batch-01` değişmedi | PASS | `aebd3fe` → `b9fc299` |
 | K10 | Öğrencinin kendi kanıtları | UNVERIFIED | R10-d (yeni sohbette kural testi), R13-e ve görevlerin §3 ekran görüntüleri yalnız öğrenci tarafından yapılabilir |
@@ -92,8 +92,8 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
 ## Öğrencinin yapacakları
 
 - PR'ları yukarıdaki sırayla birleştirmek ve etiketi atmak.
-- Görev 10 § 3: yeni bir sohbette kural testi (R10-d) ve görevlerin § 3 adımları, ekran görüntüleri dahil (R13-e). Görev 15 § 3.6: elinizdeki her cihazda uygulamayı açmak.
+- Görev 10–15'in her birinde "§ 3 Kendiniz doğrulayın" adımları ve kontrol listesindeki "ekran görüntüleri günlükte" maddesi (RG-c); özellikle Görev 10'un yeni sohbet testi (R10-d) ve Görev 13'ün dört hal görüntüsü (R13-e). Görev 15 § 3.6: elinizdeki her cihazda uygulamayı açmak.
 - Yönetim paneli PR'ı (#42) birleşip doğrulandıktan sonra `frudotz/netcheck-gorev-aistudio` deposunu arşivlemek.
-- PR #32 (eğitmenin) için karar: inceleme notlarına göre yorum yazmak. Durum raporu "uygunsa merge edin, değilse yorum yazın" diyor; C-3 ve güvenlik bulguları yüzünden birleştirilmesi önerilmiyor.
+- PR #32 (eğitmenin): durum raporu "uygunsa merge edin, değilse yorum yazın" diyor. Yorum 21.10.2026'da yazıldı (birleştirilmesi önerilmiyor; C-3 ve güvenlik bulguları). Kalan adım: eğitmenin yanıtını beklemek.
 - Kullanılan yapay zeka aracı hakkında geri bildirimi Telegram'daki konuya yazmak (durum raporundaki istek).
 - C-4 (depodaki öğrenci bilgisi) için karar.

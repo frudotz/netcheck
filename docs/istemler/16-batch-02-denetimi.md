@@ -35,6 +35,7 @@ Genel istem ayrı onay turu istemediği için plan onay beklemeden uygulandı.
 
 - **Değerler:** 320 × 480, görev dosyası olmadığı için seçildi; rubrik başka değer isterse tek satırla değişir. Uyum matrisinde (R16-a) ve [`ilerleme-batch-02.md`](../ilerleme-batch-02.md) içinde yazılı.
 - **C-4 kaydedildi:** Görev 03 README'ye öğrenci numarasını yazdırıyor. Durum raporu ise kişisel verinin herkese açık depoya konmamasını istiyor. Bu PR çelişkiyi yalnız kaydediyor: numara silinmedi, geçmiş yeniden yazılmadı.
+- **27.10.2026 yerel denetimi:** "#43 için PR sayfası" ve "PR #32'ye yorum yazılacak" satırları eskimişti (CI 5/5, yorum 21.10'da yazıldı); düzeltildi. Uyum matrisine, Görev 10–15'in tümünde eksik olan öğrenci § 3 adımları için RG-c satırı eklendi.
 - **Etiket atılmadı:** R16-c FAIL olarak kayıtlı. Kapı BLOCKED; nedenleri PR'ların birleşmemiş olması ve onayın gerekmesi.
 - **Yanlış deneme (aracın hatası):** pencere sınırını kullanıcı gibi denemek için ekranın köşesinden sentetik bir fare sürüklemesi gönderildi. Windows odak değişimini engellediği için tıklama, o an önde olan Chrome penceresine (bir YouTube sekmesi) gitti. Uygulama penceresi boyut değiştirmedi. Masaüstüne bir şey bırakılmadığı kontrol edildi; videonun oynatma durumu değişmiş olabilir. Fare otomasyonu bırakıldı. Sınır, girdi göndermeyen bir sorguyla doğrulandı (aşağıda).
 - `SetWindowPos` ile programdan küçültme sınırı aşabiliyor (Windows en küçük boyutu yalnız kullanıcı yeniden boyutlandırırken uygular). Bu yüzden kanıt olarak kullanılmadı.
