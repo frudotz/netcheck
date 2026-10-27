@@ -684,6 +684,7 @@ export function testMesaji(m: Metinler, test: DiagnosticTest): string {
     resolve_failed: m.hataCozumleme,
     http_error: m.hataHttp,
     connection_failed: m.hataHttps,
+    command_failed: m.testTamamlanamadi,
   };
   return test.code === "ok" ? m.testTamamlanamadi : (hata[test.code] ?? m.testTamamlanamadi);
 }

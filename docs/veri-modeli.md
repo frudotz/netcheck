@@ -102,7 +102,7 @@ PlatformInfo (Rust)    raporla ilişkisi yok; Ayarlar ekranında gösterilir
 | `DiagnosticKind` | `gateway`, `cloudflare`, `google`, `dns`, `internet` |
 | `OutcomeStatus` | `success`, `failed`, `unavailable` |
 | `DiagnosticStatus` | `pending`, `running` ve `OutcomeStatus` değerleri |
-| `DiagnosticCode` | `ok`, `no_gateway`, `timeout`, `unreachable`, `ping_unsupported`, `resolve_failed`, `http_error`, `connection_failed` |
+| `DiagnosticCode` | `ok`, `no_gateway`, `timeout`, `unreachable`, `ping_unsupported`, `resolve_failed`, `http_error`, `connection_failed`; yalnız ön yüzde yazılan `command_failed` (komut çağrısının kendisi başarısız olunca) |
 | `ScoreLevel` | `iyi` (≥ 80), `orta` (≥ 50), `zayif` |
 | `OsName` | `windows`, `macos`, `linux`, `android`, `ios` |
 | `PlatformFamily` | `desktop`, `mobile` |

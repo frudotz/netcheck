@@ -10,7 +10,11 @@ export type OutcomeStatus = "success" | "failed" | "unavailable";
 /** Ekrandaki test durumu: Rust sonucu ve çalışma öncesi/sırası halleri. */
 export type DiagnosticStatus = "pending" | "running" | OutcomeStatus;
 
-/** Rust'un makine kodu; ekranda Türkçe mesaja çevrilir (src/lib/labels.ts). */
+/**
+ * Sonuç kodu; ekranda seçili dildeki mesaja çevrilir (src/lib/sozluk.ts). Rust'un ürettiği kodlar
+ * diagnostics.rs ile birebirdir; `command_failed` yalnız ön yüzde yazılır: komut çağrısının kendisi
+ * başarısız olduğunda (tipli komut hatası ya da IPC hatası) test bu kodla "başarısız" olur.
+ */
 export type DiagnosticCode =
   | "ok"
   | "no_gateway"
@@ -19,7 +23,8 @@ export type DiagnosticCode =
   | "ping_unsupported"
   | "resolve_failed"
   | "http_error"
-  | "connection_failed";
+  | "connection_failed"
+  | "command_failed";
 
 /** Rust `run_diagnostic` yanıtı. */
 export interface DiagnosticOutcome {

@@ -28,7 +28,13 @@ const failureMessages: Record<Exclude<DiagnosticCode, "ok">, string> = {
   resolve_failed: "DNS çözümlemesi başarısız.",
   http_error: "Sunucu beklenmeyen bir yanıt döndürdü.",
   connection_failed: "HTTPS bağlantısı kurulamadı.",
+  command_failed: "Test tamamlanamadı.",
 };
+
+/** Rapora yazılan Türkçe başarısızlık mesajı (komut çağrısı başarısız olunca kullanılır). */
+export function failureMessage(code: Exclude<DiagnosticCode, "ok">): string {
+  return failureMessages[code];
+}
 
 export function outcomeMessage(kind: DiagnosticKind, outcome: DiagnosticOutcome): string {
   if (outcome.status === "success") {
