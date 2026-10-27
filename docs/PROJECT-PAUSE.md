@@ -102,8 +102,7 @@ Doğrulama düzeyleri:
   - Bu akışlar canlandırılmamalı; her düzeltmenin gerçek bir testi olmalı.
 - **Belge ile depo arasındaki farklar:**
   - README ve dört Hakkında sayfası "macOS uygulama olarak çalıştırılmadı" diyor. PR #28 ise bir debug `.app` çalıştırmasını kaydetmiş (NC-10). `mimari-agac.md` da "doğrulanmadı" diyor.
-  - Uyum matrisi, öğrenci § 3 kanıtını yalnız Görev 10 ve 13 için satır olarak tutuyor; Görev 11, 12, 14 ve 15 için de eksik.
-  - [`ilerleme-batch-02.md`](ilerleme-batch-02.md) #43'ün CI sonucunu "PR sayfası" diye bırakıyor (şimdi 5/5) ve PR #32 yorumunu yapılacak iş olarak gösteriyor (yapıldı).
+  - Düzeltildi (27.10.2026, #43 dalında `1e4d7aa`): uyum matrisine, Görev 10–15'in tümünde eksik olan öğrenci § 3 adımları için RG-c satırı eklendi; `ilerleme-batch-02.md`'deki iki eski satır (#43 CI, PR #32 yorumu) güncellendi.
 - `master`'daki belgeler eski. Batch 02 belgeleri yalnız açık PR dallarında.
 - Commit'lerdeki e-posta adresi herkese açık; `noreply` adresine geçilmesi önerilir.
 
