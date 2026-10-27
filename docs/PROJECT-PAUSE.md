@@ -51,10 +51,11 @@ Doğrulama düzeyleri:
 | #41 | Görev 15 Rust komutu | `feature/15-rust-komutu` (#40) | `392c5fd` | 5/5 | Araçla denendi (Windows IPC). macOS, Linux, iOS çalıştırılmadı (R15-h, ertelendi) |
 | #42 | Yönetim paneli (yalnız arayüz) | `feature/admin-panel-tasima` (#41) | `a42ac5b` | 5/5 | Araçla denendi (Windows, üretim derlemesi). Veriyle çalışan kod yolları denenmedi |
 | #43 | Görev 16 Batch 02 denetimi | `feature/16-batch-02-denetimi` (#42) | `1e4d7aa` (27.10, belge düzeltmesi; CI PR sayfasında) | 5/5 (`70bef01`) | Pencere sınırı Windows'ta doğrulandı. Rubrik bilinmiyor; etiket yok (R16-c FAIL) |
+| #45 | Yerel denetim düzeltmeleri (27.10): rapor kaybı, test listesi, komut hatası mesajı, bozuk depo, panel `t()` | `fix/yerel-denetim-duzeltmeleri` (#43) | `3dd4c4a` | PR sayfası | Araçla denendi (tarayıcı); Tauri'ye bağlı iki yol denenmedi |
 | #32 | Panel + SQLite (eğitmen) | `feature/src-admin-prototype` (`master`) | `c0c1a04` | 5/5, ama 14.10'daki eski tabanda | `master`'ın gerisinde, uygulamada hiç çalıştırılmadı. Birleştirilmemeli (§ 6) |
 
 - #35–#43 GitHub'da `MERGEABLE` ve `CLEAN` görünüyor. Yorum ya da inceleme yok.
-- **Birleştirme sırası:** #35 → #36 → … → #43, her biri "Create a merge commit" ile.
+- **Birleştirme sırası:** #35 → #36 → … → #43 → #45, her biri "Create a merge commit" ile.
   - Her birleştirmeden sonra sıradaki dal `master` ile merge edilerek güncellenir (rebase yok) ve beş kontrol beklenir.
   - Squash kullanılmaz, zincirdeki dallar çakışır.
   - Komutlar: [`ilerleme-batch-02.md` § Birleştirme ve etiket](ilerleme-batch-02.md#birleştirme-ve-etiket).
