@@ -12,7 +12,7 @@ Claude Code, Claude Fable 5.1 (`claude-fable-5-1`), 2026-10-28. Windows, PowerSh
 
 - **Amaç:** Öğrenci numarasını depodaki güncel dosyalardan kaldırmak; böylece Görev 03'ün README isteği ile durum raporunun kişisel veri kuralı arasındaki çelişki (C-4) güncel dosyalar için kapanır.
 - **Kapsam dışı:** Git geçmişi ve `v0.1.0-batch-01` etiketi yeniden yazılmaz (yasak); numara geçmişte ve etikette kalır. Ad soyad ve GitHub hesabı kaldırılmaz: Görev 03 "Öğrenci satırına adınızı ve öğrenci numaranızı yazın" der, kural yalnız numarayı adlandırır; ad zaten commit yazarlığında herkese açık. "Şube 1" kişisel veri değildir, olduğu gibi kalır (doğrulanmamış, R03-f).
-- **Kabul ölçütleri:** `git grep 2520191010` boş döner; `bun run build` 0 hata; `lat check` geçer; başka içerik değişmez.
+- **Kabul ölçütleri:** numara için `git grep` boş döner; `bun run build` 0 hata; `lat check` geçer; başka içerik değişmez.
 - **Dokunulacak dosyalar:** `README.md` (iki yer), `docs/proje-fikri.md`, `src/pages/hakkinda.mdx` ve `en/`, `ar/`, `fa/` kopyaları (Hakkında sayfasındaki "Öğrenci No" satırı), bu günlük.
 
 ## İstem
@@ -38,8 +38,8 @@ Plan depo sahibinin istemiyle önceden onaylıydı (ayrı, küçük dal/PR; geç
 
 ## Doğrulama
 
-- `git grep -n 2520191010`: sonuç yok (izlenen dosyalar).
-- `bun run build`: 32 sayfa, 0 hata (Windows).
+- Numara için `git grep`: izlenen dosyalarda sonuç yok (numaranın kendisi bu günlüğe de yazılmaz).
+- `bun run build`: 21 sayfa, 0 hata (Windows; `master` tabanı, yönetim paneli sayfaları zincirde).
 - `lat check`: geçti. `git diff --check` temiz; Çince/Japonca taraması temiz.
 - Tarayıcıda denenmedi: değişiklik yalnız metin satırı silmektir.
 
