@@ -1,5 +1,5 @@
 // Tanılama çalıştırıcısı — paylaşılan durum (store). Sayfalar arası geçişte sonuçlar korunur.
-import type { DiagnosticKind, DiagnosticReport, DiagnosticTest } from "../types/netcheck";
+import type { DiagnosticKind, DiagnosticReport, DiagnosticTest } from "./types";
 import { generateReportId, getNetworkSnapshot, NativeUnavailableError, runDiagnostic } from "./native";
 import { diagnosticName, diagnosticTargetHint, errorMessage, outcomeMessage } from "./labels";
 import { computeScore } from "./score";

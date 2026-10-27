@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check": "astro check && svelte-check --tsconfig ./tsconfig.json",
     "astro": "astro",
     "tauri": "tauri"
   },
@@ -24,6 +25,7 @@
     "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.12",
     "@tauri-apps/cli": "^2",
     "@types/node": "^26.6.4",
     "svelte": "^5.56.3",

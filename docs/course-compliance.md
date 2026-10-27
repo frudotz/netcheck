@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 19 | 13 | 15 | 2 | 49 |
-| **All** | **56** | **20** | **15** | **4** | **95** |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 25 | 10 | 12 | 2 | 49 |
+| **All** | **62** | **17** | **12** | **4** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Task 10 (working method) is on its branch; Tasks 11–16 have not started.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method) and 11 (data contract) are on their branches; Tasks 12–16 have not started.
 
 ## Week 3 — Batch 01
 
@@ -162,12 +162,12 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R11-a | `src/lib/types/` with ≥3 types in separate files and `index.ts` | PARTIAL | 11 types exist, all in a single file, `src/types/netcheck.ts`. **Missing:** split and move — P1 |
-| R11-b | One-line comment per field; required and optional separated; status fields as fixed options | PARTIAL | Status fields are literal unions; only 7 comment lines across 70 lines — P1 |
-| R11-c | Sample data in one file, ≥6 records per type | FAIL | None. **Conflict C-1:** AGENTS.md forbids fake network data — P1, needs decision |
-| R11-d | Scattered types moved; no `any` | PARTIAL | No `any` found. Types remain in `Overview.svelte`, `i18n.ts`, `score.ts`, `tema.svelte.ts` — P1 |
-| R11-e | `check` script (`astro check`) in `package.json`, 0 errors | FAIL | No `check` script; CI runs `svelte-check` instead — P1 |
-| R11-f | `docs/veri-modeli.md` and AGENTS.md rule | FAIL | Absent; the model is in `docs/proje-fikri.md` §4 — P1 |
+| R11-a | `src/lib/types/` with ≥3 types in separate files and `index.ts` | PASS (Task 11 branch) | [`src/lib/types/`](../src/lib/types/index.ts): `network.ts`, `diagnostic.ts`, `report.ts`, `platform.ts`, `preferences.ts` and `index.ts`; `src/types/netcheck.ts` removed |
+| R11-b | One-line comment per field; required and optional separated; status fields as fixed options | PASS (Task 11 branch) | Every field has a one-line comment; required fields come first under "Zorunlu", optional ones under "İsteğe bağlı". Rust outcome codes (`DiagnosticCode`) and OS names (`OsName`) are now unions too |
+| R11-c | Sample data in one file, ≥6 records per type | PASS (Task 11 branch) | [`src/lib/veri/ornek.ts`](../src/lib/veri/ornek.ts): 6 each of `NetworkSnapshot`, `DiagnosticTest`, `DiagnosticReport`. Scores recomputed with `computeScore`. Decision C-1 below |
+| R11-d | Scattered types moved; no `any` | PASS (Task 11 branch) | `LinkState`, `ScoreLevel`, `Tema`/`TemaTercihi` and `Locale`/`InfoSlug` moved; no `any`. Component-local `Props` interfaces stay with their components |
+| R11-e | `check` script (`astro check`) in `package.json`, 0 errors | PASS (Task 11 branch) | `bun run check` = `astro check` + `svelte-check`: 0 errors, 0 warnings (one pre-existing hint in `CanliRozet.tsx`, NC-18) |
+| R11-f | `docs/veri-modeli.md` and AGENTS.md rule | PASS (Task 11 branch) | [`docs/veri-modeli.md`](veri-modeli.md), in the AGENTS.md index; AGENTS.md §4 "Veri sözleşmesi" rule. `docs/proje-fikri.md` §4 now links to it |
 
 ### Task 12 — Card component
 
@@ -206,7 +206,7 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 | R15-b | Typed success struct and typed error enum; no panic on invalid input | PARTIAL | Success values are typed structs. Errors are `String` codes (`Result<_, String>` in `lib.rs`). An invalid `kind` is rejected by serde without a panic. The backend's `AppError` is typed but no screen uses it — P1 |
 | R15-c | All Tauri calls go through `src/lib/native.ts` | PARTIAL | `src/components/ExternalLink.svelte` imports `isTauri` and `openUrl` directly — P1 |
 | R15-d | Browser fallback without crashing | PASS | `NativeUnavailableError` and `hasNative` in `src/lib/native.ts` |
-| R15-e | Result and error types in `src/lib/types/`, matching Rust fields | PARTIAL | Types match Rust's camelCase fields but live in `src/types/netcheck.ts` (R11-a) — P1 |
+| R15-e | Result and error types in `src/lib/types/`, matching Rust fields | PARTIAL | Result types are in `src/lib/types/` since Task 11 and match Rust's camelCase fields; there is no typed error type yet (R15-b) — P1 |
 | R15-f | Error shown with `HataDurumu` | FAIL | Component absent; errors are inline messages — P1 |
 | R15-g | ≥2 automated Rust tests; `cargo test` passes | PASS | 22 tests: 21/21 on Windows and 22/22 on macOS CI (PR #33) |
 | R15-h | App works on all five platforms; unsupported features hidden on that platform | PARTIAL | Windows and Android verified. macOS: CI plus a partial run. Linux: CI only. iOS: simulator only ([`lat.md/platforms.md`](../lat.md/platforms.md)). Every platform has a ping backend, so nothing is hidden by platform — P1 |
@@ -218,14 +218,14 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Task 09.1 (PR #34, log backfilled) and Task 10 follow it; Tasks 11–15 not started — P1, NC-14 |
+| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled), 10 and 11 follow it; Tasks 12–15 not started — P1, NC-14 |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
 
 ## Conflicts requiring an instructor decision
 
 These requirements contradict binding rules already in the project. Resolve them before implementing the affected tasks (NC-16).
 
-- **C-1 — Sample data vs. no fake data.** Task 11 asks for ≥6 sample records per type. AGENTS.md §4 forbids fabricated IPs, latencies or reports. One option is clearly labeled fixtures used only in development and tests, never shown as real data.
+- **C-1 — Sample data vs. no fake data.** Task 11 asks for ≥6 sample records per type. AGENTS.md §4 forbids fabricated IPs, latencies or reports. **Decided on 2026-10-21** under the owner's general authorization to finish Batch 02: the records in `src/lib/veri/ornek.ts` use documentation address ranges (RFC 5737/3849/7042), only illustrate the types, and no screen, store or command imports them. The limit is written into AGENTS.md §4. Instructor confirmation is still pending.
 - **C-2 — Four-language state and detail texts vs. Turkish-first screens.** Tasks 13 and 14 require TR/EN/AR/FA texts on app screens. AGENTS.md and [`lat.md/frontend.md`](../lat.md/frontend.md) keep app screens Turkish only.
 - **C-3 — Out-of-scope list vs. merged backend.** AGENTS.md §6 excludes login, server and database, yet PR #31 (instructor-authored) merged a SQLite and auth backend that no screen uses.
 

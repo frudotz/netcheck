@@ -1,6 +1,6 @@
 // Tanılama raporları — paylaşılan durum (store), localStorage'da saklanır.
 // Veritabanı yok; veriler yalnızca bu cihazda kalır.
-import type { DiagnosticReport } from "../types/netcheck";
+import type { DiagnosticReport } from "./types";
 
 const STORAGE_KEY = "netcheck.reports";
 const MAX_REPORTS = 50;

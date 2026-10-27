@@ -32,3 +32,4 @@ Her günlük bu sırayla şu başlıkları taşır:
 |---|---|
 | 09.1 Master dalını koruma | [`09-1-master-korumasi.md`](09-1-master-korumasi.md) |
 | 10 Çalışma yöntemi | [`10-calisma-yontemi.md`](10-calisma-yontemi.md) |
+| 11 Veri sözleşmesi | [`11-veri-sozlesmesi.md`](11-veri-sozlesmesi.md) |

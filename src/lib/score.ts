@@ -1,6 +1,6 @@
 // Bağlantı Skoru — temel tanılama sinyallerinden basit, deterministik bir 0–100 değerlendirme.
 // Profesyonel bir ağ kalitesi ölçümü değildir.
-import type { DiagnosticKind, DiagnosticTest } from "../types/netcheck";
+import type { DiagnosticKind, DiagnosticTest, ScoreLevel } from "./types";
 
 const WEIGHTS: Record<DiagnosticKind, number> = {
   internet: 35,
@@ -27,8 +27,6 @@ export function computeScore(tests: DiagnosticTest[]): number {
   const base = tests.reduce((sum, t) => sum + (t.status === "success" ? WEIGHTS[t.id] : 0), 0);
   return Math.min(100, base + latencyBonus(tests));
 }
-
-export type ScoreLevel = "iyi" | "orta" | "zayif";
 
 export function scoreLevel(score: number): ScoreLevel {
   if (score >= 80) return "iyi";

@@ -1,14 +1,12 @@
 <script lang="ts">
   // Genel Bakış — Rust'tan alınan gerçek ağ anlık görüntüsü, hızlı bağlantı kontrolü ve son skor
   import { onMount } from "svelte";
-  import type { DiagnosticOutcome, NetworkSnapshot } from "../types/netcheck";
+  import type { DiagnosticOutcome, LinkState, NetworkSnapshot } from "$lib/types";
   import { getNetworkSnapshot, runDiagnostic } from "$lib/native";
   import { connectionTypeLabel, errorMessage, formatLatency, NOT_FOUND, UNAVAILABLE } from "$lib/labels";
   import { reports, reportHref, formatDateTime } from "$lib/reports.svelte";
   import { SCORE_NOTE } from "$lib/score";
   import ScoreGauge from "./ScoreGauge.svelte";
-
-  type LinkState = "checking" | "online" | "no-internet" | "offline" | "unknown";
 
   let snapshot = $state<NetworkSnapshot | null>(null);
   let internet = $state<DiagnosticOutcome | null>(null);

@@ -2,7 +2,7 @@
 // NativeUnavailableError fırlatılır ve arayüz bunu "yalnızca NetCheck uygulamasında" olarak gösterir.
 // Platform farkları (masaüstü/mobil) Rust tarafında `src-tauri/src/platform` içinde çözülür.
 import { invoke, isTauri } from "@tauri-apps/api/core";
-import type { DiagnosticKind, DiagnosticOutcome, NetworkSnapshot, PlatformInfo } from "../types/netcheck";
+import type { DiagnosticKind, DiagnosticOutcome, NetworkSnapshot, PlatformInfo } from "./types";
 
 export class NativeUnavailableError extends Error {
   constructor() {

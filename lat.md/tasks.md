@@ -57,9 +57,9 @@ Record a reproducible physical-iPhone run; smoke tests are reported as successfu
 
 Three Week 4 requirements contradict binding project rules and need an instructor decision before implementation.
 
-- Priority P1 · Status `blocked` · Depends on: the instructor's answer.
+- Priority P1 · Status `blocked` · Depends on: the instructor's answer for C-2 and C-3.
 - Conflicts C-1 to C-3 in [[docs/course-compliance.md]]:
-  - Task 11 sample data versus [[project#Product rules]] (no fake data).
+  - Task 11 sample data versus [[project#Product rules]] (no fake data). Decided on 2026-10-21 under the owner's general authorization: documentation-range records in [[src/lib/veri/ornek.ts]] that no screen imports, recorded in [[AGENTS.md]]; instructor confirmation pending.
   - Four-language state and detail texts versus [[decisions#Turkish-first interface]].
   - The AGENTS.md out-of-scope list versus [[architecture#Local SQLite backend]].
 - Acceptance: each decision is recorded once in [[AGENTS.md]] and reflected here.
@@ -73,10 +73,10 @@ The AGENTS.md documentation index must list every `docs/*.md`; [[docs/backend.md
 
 ### NC-14 Week 04 course tasks
 
-Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]]; only Task 10 has started.
+Course tasks 10–15 (method log, data contract, card, list states, detail screen, typed Rust command) from [[docs/tasks/week-4/README.md]]; Tasks 10 and 11 are in review.
 
 - Priority P1 · Status `in progress` · Depends on: [[tasks#Open work#NC-15 Master protection ruleset]] (the Task 09.1 prerequisite) and, for Tasks 11, 13 and 14, [[tasks#Open work#NC-16 Conflicting course requirements]].
-- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Parts of Tasks 11–15 are already met by existing code, for example typed IPC in [[src/lib/native.ts]] and 22 Rust tests.
+- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Task 11 is on `feature/11-veri-sozlesmesi` with its log [[docs/istemler/11-veri-sozlesmesi.md]]. Parts of Tasks 12–15 are already met by existing code, for example typed IPC in [[src/lib/native.ts]] and 22 Rust tests.
 - Acceptance: as defined in each task file, one branch, PR and prompt log per task. Deadline and grading are announced in class (Task 16).
 
 ### NC-04 iOS local network permission
