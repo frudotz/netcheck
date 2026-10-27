@@ -61,4 +61,4 @@ Bu dalın ucunda, Windows:
 
 ## PR
 
-Açılacak (taban: #43'ün dalı).
+[#45](https://github.com/frudotz/netcheck/pull/45) (taban: #43'ün dalı).
