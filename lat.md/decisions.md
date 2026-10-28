@@ -68,11 +68,11 @@ Reports, history, and theme are stored in WebView `localStorage`; there is no se
 
 The SQLite backend from PR #31 is a separate, temporary layer meant to keep command names stable when a server is introduced. It does not change where the current screens store data ([[architecture#Local SQLite backend]]).
 
-## Admin panel stays UI only
+## Admin panel on the local backend
 
-The admin panel was moved into the project without a data source, login or IPC, and its colors come only from the app's tokens.
+The admin panel talks to the local SQLite backend only through the Tauri IPC boundary, behind a local sign-in, with every permission decided in Rust; its colors come only from the app's tokens.
 
-The instructor asked for the AI Studio panel to live in the main project, follow the project rules (branch and PR, no hard-coded colors, texts from a dictionary), and then retire the separate repository. Its data features (devices, messages, users, editable targets) need the backend, login and remote management that [[AGENTS.md]] lists as out of scope, which is conflict C-3 in [[docs/course-compliance.md]]. So on 2026-10-21 the owner's general authorization covered only the interface. Mock and seed data were dropped, and data screens say they are not connected ([[architecture#Admin panel]]).
+The instructor asked for the AI Studio panel to live in the main project, follow the project rules (branch and PR, no hard-coded colors, texts from a dictionary), and then retire the separate repository. On 2026-10-21 the owner's authorization covered only the interface: mock and seed data were dropped and data screens said they were not connected, because the data features need the backend, login and remote management that [[AGENTS.md]] lists as out of scope (conflict C-3 in [[docs/course-compliance.md]]). On 2026-10-28 the owner chose to keep the real integration from PR #32 instead of a mock panel and to harden it first: the backend fixes and tests in [[tests#Local backend]], then one canonical panel in [[admin]] wired through [[admin/api/index.ts#api]] ([[architecture#Admin panel]]). Whether this connection is merged remains the pending C-3 decision; the branch is a merge gate, not an approval.
 
 The panel's code is written with Tailwind utilities. Rewriting it in plain CSS was rejected as a large, error-prone change, so Tailwind was kept but limited to `admin/styles/admin.css`, with its palette replaced by token names. `react-router-dom` was dropped in favour of Astro pages.
 

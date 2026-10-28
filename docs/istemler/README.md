@@ -44,3 +44,4 @@ Her günlük bu sırayla şu başlıkları taşır:
 | Yerel denetim düzeltmeleri (27.10 kod incelemesi) | [`yerel-denetim-duzeltmeleri.md`](yerel-denetim-duzeltmeleri.md) |
 | Kişisel verinin depodan kaldırılması (C-4, 28.10) | [`kisisel-veri-kaldirma.md`](kisisel-veri-kaldirma.md) |
 | Batch 02 yayın kapısı ve belge eşitleme (28.10) | [`batch-02-yayin-kapisi.md`](batch-02-yayin-kapisi.md) |
+| PR #32 arka uç sertleştirme ve panel bağlantısı (28.10) | [`pr32-backend-hardening.md`](pr32-backend-hardening.md) |

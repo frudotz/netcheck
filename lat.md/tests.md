@@ -4,7 +4,7 @@ lat:
 ---
 # Tests
 
-Specifications for every Rust unit test (25 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
+Specifications for every Rust unit test (46 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
 
 Run with `cd src-tauri && cargo test`. Some tests touch the real network or are limited to certain targets, as noted. There are no frontend unit tests; UI behavior is verified manually or with browser automation ([[workflows#Build and checks]]).
 
@@ -116,7 +116,7 @@ Tests for the typed command error in [[src-tauri/src/command_error.rs]] ([[archi
 
 ## Local backend
 
-Tests for the SQLite backend's pure business rules ([[architecture#Local SQLite backend]]); no test opens a database.
+Tests for the SQLite backend ([[architecture#Local SQLite backend]]). The first five cover pure business rules; the rest, in [[src-tauri/src/backend/tests.rs]], run the controllers and domain commands on a migrated in-memory database opened by [[src-tauri/src/backend/mod.rs#boot_memory]] (first user registered as super admin; no file is touched).
 
 ### Email validation
 
@@ -137,3 +137,89 @@ Score levels switch at 80 and 50, and [[src-tauri/src/backend/domain.rs#is_repor
 ### Rule validation and masking
 
 The default rule validates, and a rule whose test weights no longer total 90 is rejected. [[src-tauri/src/backend/domain.rs#mask_network]] masks the hostname, DNS servers, and MAC addresses while keeping interface names.
+
+### Suspended session is rejected
+
+After a support user is suspended, [[src-tauri/src/backend/policy.rs#authorize]] returns `unauthenticated` for the still-open session and [[src-tauri/src/backend/controllers.rs#auth_me]] returns null.
+
+### Suspending the session user ends the session
+
+When the session user is suspended by another super admin, [[src-tauri/src/backend/controllers.rs#user_set_status]] drops the in-memory session; a second active super admin may be suspended.
+
+### No self-promotion to super admin
+
+A user holding only `Update:User` cannot give themselves the `admin` role through [[src-tauri/src/backend/controllers.rs#user_sync_roles]]; the roles stay unchanged.
+
+### Only a super admin grants the admin role
+
+A delegated user with `Update:User` and `Create:User` can neither assign `admin` to another account nor create a user with that role via [[src-tauri/src/backend/controllers.rs#user_store]]; no user row is created on refusal, and other roles stay delegable.
+
+### Only a super admin demotes or suspends an admin
+
+A delegated user cannot remove the `admin` role from, or suspend, a super admin; both calls through [[src-tauri/src/backend/controllers.rs#user_sync_roles]] and [[src-tauri/src/backend/controllers.rs#user_set_status]] are `forbidden` and nothing changes.
+
+### Duplicate e-mail is a conflict
+
+[[src-tauri/src/backend/auth.rs#create_admin]] returns `conflict` for an existing e-mail (case-insensitive) and leaves the password hash, roles and the old login untouched.
+
+### Last active super admin is protected
+
+The only super admin can be neither suspended ([[src-tauri/src/backend/auth.rs#set_status]]) nor demoted; both return `conflict`.
+
+### Suspended admins do not count as active
+
+[[src-tauri/src/backend/auth.rs#active_super_admin_count]] ignores suspended admins, so suspending the second admin and then demoting the first is refused.
+
+### Several active super admins can be managed
+
+With two active super admins, demoting, re-promoting, suspending and reactivating the second and demoting the first all succeed through [[src-tauri/src/backend/controllers.rs#user_sync_roles]] and [[src-tauri/src/backend/controllers.rs#user_set_status]].
+
+### Password change is an explicit flow
+
+[[src-tauri/src/backend/controllers.rs#user_set_password]] replaces the password (old one fails, new one works), writes an audit row without the password, refuses a delegated user changing a super admin's password, allows a user's own change, and rejects a short password.
+
+### User update changes only the name
+
+[[src-tauri/src/backend/controllers.rs#user_update]] changes the name and leaves e-mail, password hash and roles unchanged.
+
+### Published score rule is immutable
+
+[[src-tauri/src/backend/domain.rs#write_policy]] rejects `crud_update` on a published `ScoreRule` with `conflict`, refuses `status: published` and invalid weights through generic CRUD, and still allows creating and editing a valid draft.
+
+### Report fields are protected
+
+Through generic CRUD a `Report` accepts only `shared`; [[src-tauri/src/backend/domain.rs#write_policy]] rejects `score`, `tests`, `network`, `createdAt`, `passed` and `ruleVersion`, and `crud_store` on `Report` is `forbidden`.
+
+### Reply list is not writable through CRUD
+
+[[src-tauri/src/backend/domain.rs#write_policy]] keeps `ContactMessage.replies` and the sender's original fields out of `crud_update`, while `status` stays writable.
+
+### Mutation and audit roll back together
+
+With the audit table renamed away, `crud_update` fails and the row keeps its old value, because `Db::transaction` in [[src-tauri/src/backend/db.rs]] rolls the change back with the failed audit insert.
+
+### Report submission is bounded
+
+[[src-tauri/src/backend/domain.rs#do_report_submit]] rejects a network object above 16 KiB, a non-ISO `createdAt`, a device id longer than 64 characters and fewer than five tests, and stores tests with only `id`, `status` and `latencyMs`.
+
+### Contact submission is bounded
+
+[[src-tauri/src/backend/controllers.rs#contact_submit]] rejects a message above 5000 characters and an e-mail without a domain dot.
+
+### Reply author is the session user
+
+[[src-tauri/src/backend/controllers.rs#contact_message_reply]] stores the caller's id as the author, marks the message answered, audits it, rejects an empty body and refuses a viewer.
+
+### Device purge is atomic
+
+[[src-tauri/src/backend/domain.rs#do_device_purge]] is `forbidden` for a viewer; with the audit table unavailable the device and its reports survive; on success both are gone, another device's report remains and one audit row exists.
+
+### Export is authorized and audited
+
+[[src-tauri/src/backend/domain.rs#do_export_authorize]] is `forbidden` for a viewer and writes no audit row; a support user may export CSV and PDF, each audited; an unknown kind is a validation error; no session is `unauthenticated`.
+
+### PII reveal is per field and audited
+
+[[src-tauri/src/backend/domain.rs#do_report_show]] and `crud_index` stay masked, and [[src-tauri/src/backend/domain.rs#do_report_reveal_field]] opens one field at a time under `Reveal:PII` with one `pii.reveal` audit row naming the field.
+
+Without `Reveal:PII` the reveal is `forbidden` and writes no audit row; a super admin opens `hostname`, `dnsServer[0]` and `Wi-Fi.mac`; a whole-object field is rejected and the stored data is unchanged.

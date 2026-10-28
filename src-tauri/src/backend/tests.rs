@@ -43,6 +43,7 @@ fn status_of(app: &AppState, id: i64) -> String {
 // ───────────────────────── C1: askıya alınan kullanıcı ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Suspended session is rejected]]
 fn suspended_user_loses_authorization_immediately() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -61,6 +62,7 @@ fn suspended_user_loses_authorization_immediately() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Suspending the session user ends the session]]
 fn suspending_the_session_user_ends_the_session() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -78,6 +80,7 @@ fn suspending_the_session_user_ends_the_session() {
 // ───────────────────────── C2: süper yönetici rolü yalnız süper yöneticiden ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#No self-promotion to super admin]]
 fn delegated_user_cannot_promote_self_to_super_admin() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -90,6 +93,7 @@ fn delegated_user_cannot_promote_self_to_super_admin() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Only a super admin grants the admin role]]
 fn delegated_user_cannot_grant_super_admin_to_others() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -115,6 +119,7 @@ fn delegated_user_cannot_grant_super_admin_to_others() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Only a super admin demotes or suspends an admin]]
 fn delegated_user_cannot_strip_super_admin_role() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -133,6 +138,7 @@ fn delegated_user_cannot_strip_super_admin_role() {
 // ───────────────────────── C3: var olan e-posta ile kullanıcı oluşturma ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Duplicate e-mail is a conflict]]
 fn duplicate_email_is_a_conflict_and_changes_nothing() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -151,6 +157,7 @@ fn duplicate_email_is_a_conflict_and_changes_nothing() {
 // ───────────────────────── H1: son etkin süper yönetici ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Last active super admin is protected]]
 fn last_active_super_admin_cannot_be_demoted_or_suspended() {
     let (app, admin) = boot_with_admin();
     let r = c::user_set_status(&app, admin, "suspended", None);
@@ -162,6 +169,7 @@ fn last_active_super_admin_cannot_be_demoted_or_suspended() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Suspended admins do not count as active]]
 fn suspended_super_admins_do_not_count_as_active() {
     let (app, admin) = boot_with_admin();
     let d = add_user(&app, admin, "ikinci@ornek.com", SUPER_ADMIN_ROLE);
@@ -173,6 +181,7 @@ fn suspended_super_admins_do_not_count_as_active() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Several active super admins can be managed]]
 fn multiple_active_super_admins_can_be_managed() {
     let (app, admin) = boot_with_admin();
     let d = add_user(&app, admin, "ikinci@ornek.com", SUPER_ADMIN_ROLE);
@@ -190,6 +199,7 @@ fn multiple_active_super_admins_can_be_managed() {
 // ───────────────────────── C3 devamı: parola ve ad ayrı, yetkili akışlardan ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Password change is an explicit flow]]
 fn password_change_goes_through_the_explicit_flow() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -221,6 +231,7 @@ fn password_change_goes_through_the_explicit_flow() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#User update changes only the name]]
 fn user_update_changes_only_the_name() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -269,6 +280,7 @@ fn find_report(app: &AppState, id: &str) -> Value {
 // ───────────────────────── H2: genel CRUD iş kurallarını atlayamaz ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Published score rule is immutable]]
 fn published_score_rule_cannot_be_edited_through_generic_crud() {
     let (app, _admin) = boot_with_admin();
     let ok_weights = json!({ "internet": 35, "dns": 20, "gateway": 15, "cloudflare": 10, "google": 10 });
@@ -283,6 +295,7 @@ fn published_score_rule_cannot_be_edited_through_generic_crud() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Report fields are protected]]
 fn report_protected_fields_are_rejected() {
     let (app, _admin) = boot_with_admin();
     let id = submit_report(&app, None);
@@ -297,6 +310,7 @@ fn report_protected_fields_are_rejected() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Reply list is not writable through CRUD]]
 fn reply_author_cannot_be_forged_through_generic_crud() {
     let (app, _admin) = boot_with_admin();
     let msg = c::contact_submit(&app, "Ali Veli", "ali@ornek.com", None, "Uygulama açılmıyor, yardım eder misiniz?", Some("tr")).expect("iletişim formu");
@@ -310,6 +324,7 @@ fn reply_author_cannot_be_forged_through_generic_crud() {
 // ───────────────────────── H3: denetim kaydı ile birlikte geri alma ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Mutation and audit roll back together]]
 fn mutation_and_audit_roll_back_together() {
     let (app, _admin) = boot_with_admin();
     let page = c::crud_store(&app, "ContentPage", &json!({ "slug": "hakkinda", "lang": "tr", "title": "Eski", "body": "", "status": "draft" })).expect("sayfa");
@@ -325,6 +340,7 @@ fn mutation_and_audit_roll_back_together() {
 // ───────────────────────── H4: oturumsuz yazma uçları sınır ve biçim denetler ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Report submission is bounded]]
 fn report_submit_rejects_invalid_or_oversized_payloads() {
     let (app, _admin) = boot_with_admin();
     let mut big = report_payload(None);
@@ -348,6 +364,7 @@ fn report_submit_rejects_invalid_or_oversized_payloads() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Contact submission is bounded]]
 fn contact_submit_rejects_oversized_message() {
     let (app, _admin) = boot_with_admin();
     let r = c::contact_submit(&app, "Ali", "ali@ornek.com", None, &"a".repeat(5001), None);
@@ -359,6 +376,7 @@ fn contact_submit_rejects_oversized_message() {
 // ───────────────────────── H2/H3 devamı: arka uca ait yanıt ve cihaz silme ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Reply author is the session user]]
 fn reply_author_is_the_authenticated_user() {
     let (app, admin) = boot_with_admin();
     let b = add_user(&app, admin, "destek@ornek.com", "support");
@@ -385,6 +403,7 @@ fn reply_author_is_the_authenticated_user() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#Device purge is atomic]]
 fn device_purge_is_atomic_and_authorized() {
     let (app, admin) = boot_with_admin();
     submit_report(&app, Some("cihaz-A"));
@@ -416,6 +435,7 @@ fn device_purge_is_atomic_and_authorized() {
 // ───────────────────────── M1: dışa aktarma ve alan bazlı hassas veri açma ─────────────────────────
 
 #[test]
+// @lat: [[tests#Local backend#Export is authorized and audited]]
 fn export_requires_permission_and_is_audited() {
     let (app, admin) = boot_with_admin();
     let v = add_user(&app, admin, "izleyici@ornek.com", "viewer");
@@ -435,6 +455,7 @@ fn export_requires_permission_and_is_audited() {
 }
 
 #[test]
+// @lat: [[tests#Local backend#PII reveal is per field and audited]]
 fn pii_reveal_is_per_field_audited_and_default_stays_masked() {
     let (app, admin) = boot_with_admin();
     let id = submit_report(&app, None);
