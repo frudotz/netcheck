@@ -257,4 +257,3 @@ With expiry enforced, banning the session user still makes the next call `unauth
 ### Diagnostic targets are read only
 
 `DiagnosticTarget` lists its five rows, while `crud_update`, `crud_store` and `crud_destroy` on it are `forbidden` and the stored target stays unchanged ([[src-tauri/src/backend/schema.rs#DIAGNOSTIC_TARGET]]).
-
