@@ -468,5 +468,7 @@ export const en: Translations = {
   permDeniedDesc: "The role of the signed-in account does not allow this screen. A super administrator can grant the permission.",
   adminPassword: "Temporary password",
   adminsPasswordHint: "8–128 characters. The user should change it after the first sign-in.",
+  authErrTooMany: "Too many failed sign-in attempts. Try again in a while.",
+targetsReadOnlyNote: "Diagnostic targets are fixed in Rust and the app does not read this table; the list is informational only. Changing a target requires a code change and review.",
   toastExportDenied: "Exporting requires the Export:Report permission.",
 };

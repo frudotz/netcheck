@@ -21,6 +21,8 @@ pub enum AppError {
     Validation(Vec<FieldError>),
     /// Benzersizlik / durum çakışması (409)
     Conflict(String),
+    /// Giriş denemesi sınırı aşıldı (429); kalan kilit süresi saniye
+    TooManyAttempts(u64),
     Db(String),
     Internal(String),
 }
@@ -38,6 +40,7 @@ impl AppError {
             AppError::NotFound(_) => "not_found",
             AppError::Validation(_) => "validation",
             AppError::Conflict(_) => "conflict",
+            AppError::TooManyAttempts(_) => "too_many_attempts",
             AppError::Db(_) => "db",
             AppError::Internal(_) => "internal",
         }
@@ -47,6 +50,7 @@ impl AppError {
             AppError::Unauthenticated => "Bu işlem için giriş yapmalısın.".into(),
             AppError::Forbidden(m) | AppError::NotFound(m) | AppError::Conflict(m) | AppError::Db(m) | AppError::Internal(m) => m.clone(),
             AppError::Validation(_) => "Gönderilen veri geçerli değil.".into(),
+            AppError::TooManyAttempts(secs) => format!("Çok fazla başarısız giriş denemesi. {secs} saniye sonra yeniden dene."),
         }
     }
 }
@@ -64,11 +68,18 @@ impl Serialize for AppError {
             AppError::Validation(v) => Some(v),
             _ => None,
         };
-        let mut st = s.serialize_struct("AppError", if errors.is_some() { 3 } else { 2 })?;
+        let retry_after = match self {
+            AppError::TooManyAttempts(secs) => Some(*secs),
+            _ => None,
+        };
+        let mut st = s.serialize_struct("AppError", 2 + usize::from(errors.is_some()) + usize::from(retry_after.is_some()))?;
         st.serialize_field("code", self.code())?;
         st.serialize_field("message", &self.message())?;
         if let Some(e) = errors {
             st.serialize_field("errors", e)?;
+        }
+        if let Some(secs) = retry_after {
+            st.serialize_field("retryAfterSecs", &secs)?;
         }
         st.end()
     }

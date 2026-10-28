@@ -39,6 +39,8 @@ export function errorKey(error: unknown): keyof Translations {
         return "authErrValidation";
       case "conflict":
         return "authErrConflict";
+      case "too_many_attempts":
+        return "authErrTooMany";
       default:
         return "authErrGeneric";
     }

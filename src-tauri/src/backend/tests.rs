@@ -496,3 +496,167 @@ fn pii_reveal_is_per_field_audited_and_default_stays_masked() {
     assert_eq!(domain::do_report_show(&app, &id).unwrap()["network"]["hostname"], "••••", "açma sonrası da varsayılan maskeli");
     assert_eq!(find_report(&app, &id)["network"]["hostname"], "cihaz-1", "saklanan veri bozulmaz");
 }
+
+// ═════════════════════════ Takip: giriş sınırı, oturum süresi, ayrılmış rol adı, hedef tablosu ═════════════════════════
+use crate::backend::state::{LOGIN_LOCK_SECS, LOGIN_MAX_FAILURES, SESSION_ABSOLUTE_SECS, SESSION_IDLE_SECS};
+
+const T0: u64 = 1_800_000_000;
+
+fn boot_with_admin_at(now: u64) -> (AppState, i64) {
+    let app = crate::backend::boot_memory().expect("bellek içi veritabanı");
+    app.set_now(now);
+    let v = c::auth_register(&app, "Yönetici", "admin@ornek.com", PW).expect("ilk kayıt");
+    (app, v["user"]["id"].as_i64().unwrap())
+}
+
+// ───────────────────────── M3: ayrılmış rol adı ─────────────────────────
+
+#[test]
+// @lat: [[tests#Local backend#Reserved role name variants are rejected]]
+fn reserved_role_name_variants_are_rejected() {
+    let (app, admin) = boot_with_admin_at(T0);
+    for name in ["Admin", "ADMIN", " admin ", "aDmIn"] {
+        let r = c::role_store(&app, name, &[]);
+        assert!(matches!(r, Err(AppError::Validation(_))), "{name:?} ayrılmış ad olarak reddedilmeli: {r:?}");
+    }
+    let r = c::role_update(&app, "support", "Admin");
+    assert!(matches!(r, Err(AppError::Validation(_))), "yeniden adlandırma ile de alınamaz: {r:?}");
+    let roles: Vec<String> = app.db.with(|conn| Ok(rbac::role_all(conn)?.into_iter().map(|r| r.name).collect())).unwrap();
+    assert_eq!(roles, vec!["admin", "content", "support", "viewer"], "rol listesi değişmemeli: {roles:?}");
+
+    // Delegasyonlu kullanıcı için büyük/küçük harf değişkeni de süper yönetici rolü sayılır.
+    let b = add_user(&app, admin, "destek@ornek.com", "support");
+    let cc = add_user(&app, admin, "icerik@ornek.com", "content");
+    give_role_permissions(&app, "support", &["Update:User", "Create:User"]);
+    app.set_user(Some(b));
+    let r = c::user_sync_roles(&app, cc, &["Admin".into()]);
+    assert!(matches!(r, Err(AppError::Forbidden(_))), "başkasına 'Admin' verememeli: {r:?}");
+    let r = c::user_sync_roles(&app, b, &["ADMIN".into()]);
+    assert!(matches!(r, Err(AppError::Forbidden(_))), "kendine 'ADMIN' verememeli: {r:?}");
+    let r = c::user_store(&app, "Yeni", "yeni@ornek.com", "Admin", Some(PW));
+    assert!(matches!(r, Err(AppError::Forbidden(_))), "'Admin' rolüyle kullanıcı oluşturamamalı: {r:?}");
+    assert_eq!(roles_of(&app, cc), vec!["content".to_string()]);
+    assert_eq!(roles_of(&app, b), vec!["support".to_string()]);
+}
+
+// ───────────────────────── M5: tanılama hedefleri tablosu salt okunur ─────────────────────────
+
+#[test]
+// @lat: [[tests#Local backend#Diagnostic targets are read only]]
+fn diagnostic_targets_are_read_only() {
+    let (app, _admin) = boot_with_admin_at(T0);
+    let listed = c::crud_index(&app, "DiagnosticTarget", ListQuery::default()).expect("liste okunur");
+    assert_eq!(listed.total, 5);
+    let r = c::crud_update(&app, "DiagnosticTarget", &json!("cloudflare"), &json!({ "target": "198.51.100.1" }));
+    assert!(matches!(r, Err(AppError::Forbidden(_))), "hedef adresi değiştirilemez: {r:?}");
+    let r = c::crud_store(&app, "DiagnosticTarget", &json!({ "kind": "gateway", "target": "x" }));
+    assert!(matches!(r, Err(AppError::Forbidden(_))), "hedef eklenemez: {r:?}");
+    let r = c::crud_destroy(&app, "DiagnosticTarget", &json!("dns"), None);
+    assert!(matches!(r, Err(AppError::Forbidden(_))), "hedef silinemez: {r:?}");
+    let target: String = app.db.with(|conn| Ok(conn.query_row("SELECT target FROM diagnostic_targets WHERE kind = 'cloudflare'", [], |r| r.get(0))?)).unwrap();
+    assert_eq!(target, "1.1.1.1", "saklanan satır değişmedi");
+}
+// ───────────────────────── M2: giriş denemesi sınırı ─────────────────────────
+
+#[test]
+// @lat: [[tests#Local backend#Login is locked after repeated failures]]
+fn login_is_locked_after_repeated_failures() {
+    let (app, _admin) = boot_with_admin_at(T0);
+    app.set_user(None);
+    for _ in 0..LOGIN_MAX_FAILURES {
+        let r = c::auth_login(&app, "admin@ornek.com", "yanlis-parola");
+        assert!(r.is_err(), "yanlış parola reddedilir");
+    }
+    // Doğru parola bile kilit süresince kabul edilmez; hata kodu ayrı ve kalan süre bildirilir.
+    let r = c::auth_login(&app, "Admin@Ornek.com", PW);
+    assert!(matches!(r, Err(AppError::TooManyAttempts(secs)) if secs > 0 && secs <= LOGIN_LOCK_SECS), "kilit: {r:?}");
+    assert!(c::auth_me(&app).unwrap().is_null(), "kilitli denemeler oturum açmaz");
+    // Kilit süresi dolunca doğru parola yeniden çalışır ve sayaç temizlenir.
+    app.set_now(T0 + LOGIN_LOCK_SECS + 1);
+    c::auth_login(&app, "admin@ornek.com", PW).expect("kilit dolunca giriş");
+    assert!(app.login_locked_for("admin@ornek.com").is_none());
+}
+
+#[test]
+// @lat: [[tests#Local backend#Login lock is per account and success resets]]
+fn login_lock_is_per_account_and_success_resets() {
+    let (app, admin) = boot_with_admin_at(T0);
+    let _b = add_user(&app, admin, "destek@ornek.com", "support");
+    app.set_user(None);
+    for _ in 0..(LOGIN_MAX_FAILURES - 1) {
+        assert!(c::auth_login(&app, "destek@ornek.com", "yanlis-parola").is_err());
+    }
+    // Dört başarısızlıktan sonra doğru parola kabul edilir ve sayacı sıfırlar.
+    c::auth_login(&app, "destek@ornek.com", PW).expect("sınır altında giriş");
+    app.set_user(None);
+    for _ in 0..(LOGIN_MAX_FAILURES - 1) {
+        assert!(matches!(c::auth_login(&app, "destek@ornek.com", "yanlis-parola"), Err(AppError::Validation(_))), "sayaç sıfırlanmış olmalı");
+    }
+    // Destek hesabının denemeleri yöneticiyi kilitlemez.
+    c::auth_login(&app, "admin@ornek.com", PW).expect("başka hesap etkilenmez");
+}
+
+#[test]
+// @lat: [[tests#Local backend#First-admin bootstrap is not rate limited]]
+fn first_admin_bootstrap_is_not_rate_limited() {
+    let app = crate::backend::boot_memory().unwrap();
+    app.set_now(T0);
+    // Kullanıcı yokken yapılan giriş denemeleri (başarısız) ilk kurulumu engellemez.
+    for _ in 0..(LOGIN_MAX_FAILURES * 2) {
+        let _ = c::auth_login(&app, "admin@ornek.com", "tahmin");
+    }
+    assert!(matches!(c::auth_login(&app, "admin@ornek.com", PW), Err(AppError::TooManyAttempts(_))), "giriş kilitli");
+    let v = c::auth_register(&app, "Yönetici", "admin@ornek.com", PW).expect("ilk kayıt kilitten etkilenmez");
+    assert_eq!(v["superAdmin"], true);
+}
+
+// ───────────────────────── M4: oturum süresi ─────────────────────────
+
+#[test]
+// @lat: [[tests#Local backend#Idle session expires]]
+fn idle_session_expires_and_activity_extends_it() {
+    let (app, _admin) = boot_with_admin_at(T0);
+    // Etkinlik boşta kalma süresini yeniler.
+    app.set_now(T0 + SESSION_IDLE_SECS - 60);
+    assert!(c::user_index(&app).is_ok());
+    app.set_now(T0 + 2 * SESSION_IDLE_SECS - 120);
+    assert!(c::user_index(&app).is_ok(), "son etkinlikten sonra süre yeniden başlar");
+    // Boşta kalma süresi aşılınca korunan komut ve auth_me oturumu düşürür.
+    app.set_now(T0 + 2 * SESSION_IDLE_SECS - 120 + SESSION_IDLE_SECS + 1);
+    assert!(matches!(c::user_index(&app), Err(AppError::Unauthenticated)), "süresi dolan oturum yetkisiz");
+    assert!(c::auth_me(&app).unwrap().is_null());
+    assert!(app.session().is_none(), "oturum kaydı silinir");
+    // Yeniden giriş yeni bir oturum başlatır.
+    c::auth_login(&app, "admin@ornek.com", PW).expect("yeniden giriş");
+    assert!(c::user_index(&app).is_ok());
+}
+
+#[test]
+// @lat: [[tests#Local backend#Absolute session lifetime expires]]
+fn absolute_session_lifetime_expires_despite_activity() {
+    let (app, _admin) = boot_with_admin_at(T0);
+    let step = SESSION_IDLE_SECS / 2;
+    let mut t = T0;
+    while t + step < T0 + SESSION_ABSOLUTE_SECS {
+        t += step;
+        app.set_now(t);
+        assert!(c::auth_me(&app).unwrap().is_object(), "mutlak ömür içinde etkin oturum sürer (t+{})", t - T0);
+    }
+    app.set_now(T0 + SESSION_ABSOLUTE_SECS + 1);
+    assert!(c::auth_me(&app).unwrap().is_null(), "mutlak ömür dolunca oturum düşer");
+    assert!(matches!(c::user_index(&app), Err(AppError::Unauthenticated)));
+}
+
+#[test]
+// @lat: [[tests#Local backend#Suspension still ends the session with expiry in place]]
+fn suspension_still_ends_the_session_with_expiry_in_place() {
+    let (app, admin) = boot_with_admin_at(T0);
+    let b = add_user(&app, admin, "destek@ornek.com", "support");
+    app.set_user(Some(b));
+    assert!(c::crud_index(&app, "ContactMessage", ListQuery::default()).is_ok());
+    app.set_user(Some(admin));
+    c::user_set_status(&app, b, "banned", None).expect("engelle");
+    app.set_user(Some(b));
+    assert!(matches!(c::crud_index(&app, "ContactMessage", ListQuery::default()), Err(AppError::Unauthenticated)));
+    assert!(c::auth_me(&app).unwrap().is_null());
+}

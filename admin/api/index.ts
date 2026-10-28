@@ -26,6 +26,7 @@ export type AdminErrorCode =
   | "not_found"
   | "validation"
   | "conflict"
+  | "too_many_attempts"
   | "db"
   | "internal"
   | "native_unavailable"
@@ -74,9 +75,8 @@ export interface AdminApi {
   saveDraftScoreRule(rule: ScoreRule): Promise<ScoreRule>;
   publishScoreRule(rule: ScoreRule, reason?: string): Promise<ScoreRule>;
   rollbackScoreRule(version: number, reason?: string): Promise<ScoreRule>;
+  /** Salt okunur: hedefler Rust'ta sabittir, tablo yalnız bilgi amaçlıdır (arka uç yazmayı `forbidden` ile reddeder). */
   getTargets(): Promise<DiagnosticTarget[]>;
-  updateTarget(target: DiagnosticTarget): Promise<DiagnosticTarget>;
-  resetTargetsToDefault(): Promise<DiagnosticTarget[]>;
   getContentPages(): Promise<ContentPage[]>;
   updateContentPage(page: ContentPage): Promise<ContentPage>;
   getAdmins(): Promise<AdminUser[]>;
@@ -130,7 +130,7 @@ function errorPayload(error: unknown): { code?: string; message?: string; errors
   return {};
 }
 
-const KNOWN: AdminErrorCode[] = ["unauthenticated", "forbidden", "not_found", "validation", "conflict", "db", "internal"];
+const KNOWN: AdminErrorCode[] = ["unauthenticated", "forbidden", "not_found", "validation", "conflict", "too_many_attempts", "db", "internal"];
 
 function normalizeError(error: unknown): Error {
   if (error instanceof NativeUnavailableError) return new PanelBagliDegil();
@@ -165,6 +165,32 @@ async function listAll<T>(resource: string, query: Record<string, unknown> = {})
     items.push(...next.items);
   }
   return items;
+}
+
+/** Arka ucun `filters` listesindeki sütunlar (schema.rs / schema_common.rs); yalnız bunlar sunucuda süzülür. */
+const SERVER_FILTERS: Record<string, string[]> = {
+  ContactMessage: ["status", "lang", "assignee"],
+  AuditLog: ["actorId", "action", "entity", "entityId", "at"],
+  Device: ["locale", "lastSeenAt"],
+};
+
+/** Sorgu bütünüyle arka uçta çalışabiliyorsa (yalnız sunucu süzgeçleri) `crud_index` sayfalar; aksi halde
+ *  ekranın eski yolu (tüm liste + istemci süzgeci) kullanılır. Böylece yalnız istenen sayfa IPC'den geçer. */
+function serverPageable(resource: string, query?: Partial<ListQuery>, clientOnlySearch = false): boolean {
+  if (clientOnlySearch && query?.search?.trim()) return false;
+  const allowed = SERVER_FILTERS[resource] ?? [];
+  return Object.entries(query?.filters ?? {}).every(([key, value]) => value === undefined || value === "" || allowed.includes(key));
+}
+
+async function pagedFromServer<T>(resource: string, query?: Partial<ListQuery>, defaultSort?: ListQuery["sort"]): Promise<Paged<T>> {
+  const page = Math.max(1, query?.page ?? 1);
+  const pageSize = query?.pageSize ?? 10;
+  const filters = Object.fromEntries(Object.entries(query?.filters ?? {}).filter(([, v]) => v !== undefined && v !== ""));
+  const result = await call<BackendPage<T>>("crud_index", {
+    resource,
+    query: { search: query?.search, filters, sort: query?.sort ?? defaultSort, page, pageSize },
+  });
+  return { items: result.items, total: result.total, page, pageSize };
 }
 
 function valueAt(item: object, key: string): unknown {
@@ -288,6 +314,8 @@ export const api: AdminApi = {
   deleteReport: (id, reason) => call<void>("crud_destroy", { resource: "Report", id, reason }),
 
   async getDevices(query) {
+    // Arama platform alanlarına (JSON) da bakar ve `os` süzgeci JSON içindedir; bunlar varsa istemci yolu kullanılır.
+    if (serverPageable("Device", query, true)) return pagedFromServer<Device>("Device", query, { key: "lastSeenAt", dir: "desc" });
     let devices = await listAll<Device>("Device");
     if (query?.search?.trim()) {
       const needle = query.search.trim().toLocaleLowerCase();
@@ -317,9 +345,9 @@ export const api: AdminApi = {
   },
 
   async getMessages(query) {
+    if (serverPageable("ContactMessage", query)) return pagedFromServer<ContactMessage>("ContactMessage", query, { key: "createdAt", dir: "desc" });
     const items = await listAll<ContactMessage>("ContactMessage", {
       search: query?.search,
-      filters: query?.filters,
       sort: query?.sort ?? { key: "createdAt", dir: "desc" },
     });
     return pageItems(items, query);
@@ -377,26 +405,6 @@ export const api: AdminApi = {
 
   getTargets: () => listAll<DiagnosticTarget>("DiagnosticTarget"),
 
-  updateTarget: target =>
-    call<DiagnosticTarget>("crud_update", {
-      resource: "DiagnosticTarget",
-      id: target.kind,
-      data: { target: target.target, enabled: target.enabled, timeoutMs: target.timeoutMs },
-    }),
-
-  async resetTargetsToDefault() {
-    // Rust'taki sabit hedeflerle aynı (migrations/2026_10_14_000030_seed_reference_data.sql).
-    const defaults: DiagnosticTarget[] = [
-      { kind: "gateway", target: "auto", enabled: true, timeoutMs: 2000 },
-      { kind: "cloudflare", target: "1.1.1.1", enabled: true, timeoutMs: 2000 },
-      { kind: "google", target: "8.8.8.8", enabled: true, timeoutMs: 2000 },
-      { kind: "dns", target: "cloudflare.com", enabled: true, timeoutMs: 3000 },
-      { kind: "internet", target: "www.cloudflare.com", enabled: true, timeoutMs: 5000 },
-    ];
-    for (const target of defaults) await this.updateTarget(target);
-    return this.getTargets();
-  },
-
   getContentPages: () => listAll<ContentPage>("ContentPage"),
 
   async updateContentPage(page) {
@@ -443,9 +451,9 @@ export const api: AdminApi = {
   },
 
   async getAuditLogs(query) {
+    if (serverPageable("AuditLog", query)) return pagedFromServer<AuditLogEntry>("AuditLog", query, { key: "at", dir: "desc" });
     const items = await listAll<AuditLogEntry>("AuditLog", {
       search: query?.search,
-      filters: query?.filters,
       sort: query?.sort ?? { key: "at", dir: "desc" },
     });
     return pageItems(items, query);

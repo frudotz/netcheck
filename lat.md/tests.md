@@ -4,7 +4,7 @@ lat:
 ---
 # Tests
 
-Specifications for every Rust unit test (46 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
+Specifications for every Rust unit test (54 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
 
 Run with `cd src-tauri && cargo test`. Some tests touch the real network or are limited to certain targets, as noted. There are no frontend unit tests; UI behavior is verified manually or with browser automation ([[workflows#Build and checks]]).
 
@@ -116,7 +116,9 @@ Tests for the typed command error in [[src-tauri/src/command_error.rs]] ([[archi
 
 ## Local backend
 
-Tests for the SQLite backend ([[architecture#Local SQLite backend]]). The first five cover pure business rules; the rest, in [[src-tauri/src/backend/tests.rs]], run the controllers and domain commands on a migrated in-memory database opened by [[src-tauri/src/backend/mod.rs#boot_memory]] (first user registered as super admin; no file is touched).
+Tests for the SQLite backend ([[architecture#Local SQLite backend]]): five pure business-rule tests, then controller and domain tests in [[src-tauri/src/backend/tests.rs]] on a migrated in-memory database.
+
+The database comes from [[src-tauri/src/backend/mod.rs#boot_memory]] with the first user registered as super admin; no file is touched. Time-dependent tests pin the clock with `set_now` on [[src-tauri/src/backend/state.rs#AppState]] instead of sleeping.
 
 ### Email validation
 
@@ -223,3 +225,36 @@ With the audit table renamed away, `crud_update` fails and the row keeps its old
 [[src-tauri/src/backend/domain.rs#do_report_show]] and `crud_index` stay masked, and [[src-tauri/src/backend/domain.rs#do_report_reveal_field]] opens one field at a time under `Reveal:PII` with one `pii.reveal` audit row naming the field.
 
 Without `Reveal:PII` the reveal is `forbidden` and writes no audit row; a super admin opens `hostname`, `dnsServer[0]` and `Wi-Fi.mac`; a whole-object field is rejected and the stored data is unchanged.
+
+### Login is locked after repeated failures
+
+After five failed sign-ins for one e-mail, [[src-tauri/src/backend/controllers.rs#auth_login]] returns `too_many_attempts` with the remaining seconds even for the correct password, opens no session, and accepts the password again once the lock has passed.
+
+### Login lock is per account and success resets
+
+Four failures followed by a correct sign-in reset the counter for that e-mail, and another account's failures do not lock the first ([[src-tauri/src/backend/state.rs#AppState]]).
+
+### First-admin bootstrap is not rate limited
+
+Failed sign-ins on an empty database lock that e-mail for `auth_login` but leave `auth_register` ([[src-tauri/src/backend/controllers.rs#auth_register]]) free to create the first super admin.
+
+### Idle session expires
+
+Activity within 30 minutes keeps the session alive and restarts the idle timer; after 30 idle minutes a protected command is `unauthenticated`, `auth_me` is null, the session record is gone, and a new sign-in works ([[src-tauri/src/backend/state.rs#AppState]]).
+
+### Absolute session lifetime expires
+
+A session touched every 15 minutes stays valid for 12 hours and is dropped once the absolute lifetime in [[src-tauri/src/backend/state.rs#AppState]] has passed.
+
+### Suspension still ends the session with expiry in place
+
+With expiry enforced, banning the session user still makes the next call `unauthenticated` and `auth_me` null ([[src-tauri/src/backend/policy.rs#authorize]]).
+
+### Reserved role name variants are rejected
+
+`Admin`, `ADMIN`, ` admin ` and `aDmIn` are refused by [[src-tauri/src/backend/controllers.rs#role_store]] and as a new name in [[src-tauri/src/backend/controllers.rs#role_update]] ([[src-tauri/src/backend/rbac.rs#is_reserved_role_name]]); a delegated user granting such a variant to another account or to themselves is `forbidden`, as is creating a user with it.
+
+### Diagnostic targets are read only
+
+`DiagnosticTarget` lists its five rows, while `crud_update`, `crud_store` and `crud_destroy` on it are `forbidden` and the stored target stays unchanged ([[src-tauri/src/backend/schema.rs#DIAGNOSTIC_TARGET]]).
+

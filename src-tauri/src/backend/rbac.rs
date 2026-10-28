@@ -21,6 +21,12 @@ pub const MODEL_USER: &str = "User";
 /// Shield'in varsayılan eylem kümesinin kullanılan bölümü.
 pub const ACTIONS: [&str; 6] = ["ViewAny", "View", "Create", "Update", "Delete", "DeleteAny"];
 
+/// Süper yönetici rolünün adı ayrılmıştır: boşluk ve büyük/küçük harf değişkenleri de (`Admin`, ` ADMIN `) aynı sayılır.
+/// Rol oluşturma ve yeniden adlandırma bu adları reddeder; rol atamada bu değişkenler `admin` gibi denetlenir.
+pub fn is_reserved_role_name(name: &str) -> bool {
+    name.trim().eq_ignore_ascii_case(SUPER_ADMIN_ROLE)
+}
+
 pub fn permission_name(action: &str, resource: &str) -> String {
     format!("{action}:{resource}")
 }
@@ -131,6 +137,9 @@ fn role_or_fail(conn: &Connection, name: &str) -> AppResult<Role> {
 
 /// `Role::findOrCreate`
 pub fn role_find_or_create(conn: &Connection, name: &str) -> AppResult<Role> {
+    if name != SUPER_ADMIN_ROLE && is_reserved_role_name(name) {
+        return Err(AppError::validation("name", "Bu rol adı ayrılmıştır."));
+    }
     conn.execute(
         &format!("INSERT OR IGNORE INTO roles (name, guard_name, created_at, updated_at) VALUES (?1, ?2, {NOW_SQL}, {NOW_SQL})"),
         params![name, GUARD],
@@ -147,6 +156,9 @@ pub fn role_all(conn: &Connection) -> AppResult<Vec<Role>> {
 pub fn role_rename(conn: &Connection, name: &str, new_name: &str) -> AppResult<()> {
     if name == SUPER_ADMIN_ROLE {
         return Err(AppError::Conflict("Süper yönetici rolü yeniden adlandırılamaz.".into()));
+    }
+    if is_reserved_role_name(new_name) {
+        return Err(AppError::validation("name", "Bu rol adı ayrılmıştır."));
     }
     role_or_fail(conn, name)?;
     conn.execute(

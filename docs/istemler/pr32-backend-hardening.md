@@ -103,4 +103,4 @@ Yapılmadı: `devCsp` (Vite geliştirme sunucusu) çalıştırılmadı; macOS/Li
 
 ## PR
 
-PR açılmadı; dal `fix/pr32-backend-hardening` GitHub'da. Birleştirme ve PR #32'nin akıbeti depo sahibinin ve eğitmenin kararına bağlıdır.
+[#48](https://github.com/frudotz/netcheck/pull/48) — depo sahibi 28.10.2026'da `master`'a birleştirdi (merge commit `9c74c341ea3d4477548cb5975abe9ce489e90b8b`, CI 5/5). Bu birleştirme depo sahibinin uygulama kararıdır; **eğitmenin C-3 kapsam kararı hâlâ beklemektedir** ve birleştirme onay yerine geçmez. PR #32 açık durur; kapatma ya da yerine geçme kararı depo sahibinde. Kalan bulgular (M2–M5, L5) `fix/backend-security-followups` dalında ele alındı ([`backend-security-followups.md`](backend-security-followups.md)).
