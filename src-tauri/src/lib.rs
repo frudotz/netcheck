@@ -56,6 +56,8 @@ pub fn run() {
             backend::commands::user_sync_roles,
             backend::commands::user_sync_permissions,
             backend::commands::user_set_status,
+            backend::commands::user_set_password,
+            backend::commands::user_update,
             backend::commands::role_index,
             backend::commands::role_store,
             backend::commands::role_update,

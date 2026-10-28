@@ -56,6 +56,14 @@ pub fn user_sync_permissions(state: State<'_, AppState>, user_id: i64, permissio
 pub fn user_set_status(state: State<'_, AppState>, user_id: i64, status: String, reason: Option<String>) -> AppResult<Value> {
     c::user_set_status(&state, user_id, &status, reason.as_deref())
 }
+#[tauri::command]
+pub fn user_set_password(state: State<'_, AppState>, user_id: i64, password: String) -> AppResult<Value> {
+    c::user_set_password(&state, user_id, &password)
+}
+#[tauri::command]
+pub fn user_update(state: State<'_, AppState>, user_id: i64, name: String) -> AppResult<Value> {
+    c::user_update(&state, user_id, &name)
+}
 
 // ── Roller ve izinler ──
 #[tauri::command]

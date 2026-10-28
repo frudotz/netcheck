@@ -70,10 +70,12 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 | `auth_logout` | — | Çıkış |
 | `auth_me` | — | Oturumdaki kullanıcı + roller + izinler (yoksa null) |
 | `user_index` | — | Kullanıcı listesi (`ViewAny:User`) |
-| `user_store` | name, email, role, password? | Kullanıcı oluştur/güncelle + rol ata (`Create:User`) |
-| `user_sync_roles` | userId, roles[] | Rolleri eşitle (`Update:User`) |
-| `user_sync_permissions` | userId, permissions[] | Doğrudan izinleri eşitle (`Update:User`) |
-| `user_set_status` | userId, status, reason? | active / suspended / banned (`Update:User`) |
+| `user_store` | name, email, role, password | Yeni kullanıcı oluştur + rol ata (`Create:User`); e-posta kayıtlıysa `conflict`; `admin` rolünü yalnız süper yönetici verir |
+| `user_sync_roles` | userId, roles[] | Rolleri eşitle (`Update:User`); `admin` rolünü vermek/almak ve kendi rollerini değiştirmek yalnız süper yöneticide; son etkin süper yöneticiden `admin` alınamaz |
+| `user_sync_permissions` | userId, permissions[] | Doğrudan izinleri eşitle (`Update:User`); kendi izinleri ve süper yöneticilerin izinleri yalnız süper yöneticide |
+| `user_set_status` | userId, status, reason? | active / suspended / banned (`Update:User`); süper yöneticiyi yalnız süper yönetici; son etkin süper yönetici askıya alınamaz; oturumdaki kullanıcı hedefse oturum düşer |
+| `user_set_password` | userId, password | Parola değiştir (`Update:User`); süper yöneticinin parolasını yalnız kendisi ya da süper yönetici; parola denetim kaydına yazılmaz |
+| `user_update` | userId, name | Ad soyad güncelle (`Update:User`); e-posta ve parola değişmez |
 | `role_index` | — | Roller + izinleri (`ViewAny:Role`) |
 | `role_store` | name, permissions?[] | Rol oluştur (`Create:Role`) |
 | `role_update` | name, newName | Rol adını değiştir (`Update:Role`) |
@@ -125,7 +127,7 @@ Süzgeç anahtarı bir sütun adıysa tam eşleşme, dizi ise `IN`; `<sütun>Min
 
 ## 9. Sınırlar (geçici çözüm)
 
-- Tek kullanıcılı yerel oturum: giriş yapan kullanıcı uygulama belleğinde tutulur; uygulama kapanınca oturum biter.
+- Tek kullanıcılı yerel oturum: giriş yapan kullanıcı uygulama belleğinde tutulur; uygulama kapanınca oturum biter. Her yetki denetimi kullanıcının `active` olduğunu da doğrular: askıya alınan ya da engellenen kullanıcının açık oturumu hemen geçersiz olur (`unauthenticated`).
 - Veri cihazdadır; cihazlar arası eşitleme ve sunucu yoktur. Silinen uygulama verisiyle birlikte veritabanı da gider.
 - Parolalar Argon2id ile özetlenir; yine de bu bir **eğitim ve geliştirme altyapısıdır**, gerçek kullanıcı verisi için denetlenmiş bir sunucu gerekir.
 - İzin önbelleği yoktur; her denetim veritabanından okunur.

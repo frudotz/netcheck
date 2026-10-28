@@ -26,6 +26,24 @@ fn mask_report_network(resource: &str, value: &mut Value) {
     }
 }
 
+/// Süper yönetici rolüne dokunan ya da bir süper yöneticiyi hedef alan işlemler yalnız süper yöneticiden gelir.
+fn require_super_admin(c: &rusqlite::Connection, uid: i64) -> AppResult<()> {
+    if rbac::has_role(c, ModelRef::user(uid), SUPER_ADMIN_ROLE)? {
+        Ok(())
+    } else {
+        Err(AppError::Forbidden("Bu işlem yalnız süper yönetici tarafından yapılabilir.".into()))
+    }
+}
+
+/// Bir kullanıcı kendi rollerini, izinlerini ya da durumunu değiştiremez; süper yönetici bunun dışındadır
+/// (son yönetici koruması onu ayrıca sınırlar).
+fn forbid_self_change(c: &rusqlite::Connection, uid: i64, target: i64) -> AppResult<()> {
+    if uid == target && !rbac::has_role(c, ModelRef::user(uid), SUPER_ADMIN_ROLE)? {
+        return Err(AppError::Forbidden("Kendi yetkini değiştiremezsin.".into()));
+    }
+    Ok(())
+}
+
 // ───────────────────────────── Auth ─────────────────────────────
 
 pub fn auth_register(app: &AppState, name: &str, email: &str, password: &str) -> AppResult<Value> {
@@ -49,10 +67,17 @@ pub fn auth_logout(app: &AppState) {
     app.set_user(None);
 }
 
-/// Oturum yoksa `null`.
+/// Oturum yoksa ya da oturum sahibi artık etkin değilse `null` (oturum düşürülür).
 pub fn auth_me(app: &AppState) -> AppResult<Value> {
     match app.user() {
-        Some(id) => app.db.with(|c| auth::user_with_access(c, id)),
+        Some(id) => match app.db.with(|c| auth::require_active(c, id)) {
+            Ok(()) => app.db.with(|c| auth::user_with_access(c, id)),
+            Err(AppError::Unauthenticated) => {
+                app.set_user(None);
+                Ok(Value::Null)
+            }
+            Err(e) => Err(e),
+        },
         None => Ok(Value::Null),
     }
 }
@@ -173,10 +198,14 @@ pub fn user_index(app: &AppState) -> AppResult<Vec<Value>> {
     })
 }
 
-/// Yeni kullanıcı (`qtoefl:admin` karşılığı): oluşturur ya da günceller ve rolü atar.
+/// Yeni kullanıcı (`qtoefl:admin` karşılığı): oluşturur ve rolü atar. Var olan e-posta `conflict` döner.
+/// `admin` rolü yalnız süper yönetici tarafından verilebilir.
 pub fn user_store(app: &AppState, name: &str, email: &str, role: &str, password: Option<&str>) -> AppResult<Value> {
     app.db.with(|c| {
         let uid = authorize(c, app.user(), "Create:User")?;
+        if role == SUPER_ADMIN_ROLE {
+            require_super_admin(c, uid)?;
+        }
         let u = auth::create_admin(c, email, role, name, password)?;
         audit::record(c, Some(uid), "User.create", "User", &u.id.to_string(), None, None, Some(&json!({ "email": u.email, "role": role })))?;
         auth::user_with_access(c, u.id)
@@ -188,18 +217,18 @@ pub fn user_sync_roles(app: &AppState, user_id: i64, roles: &[String]) -> AppRes
         let uid = authorize(c, app.user(), "Update:User")?;
         let names: Vec<&str> = roles.iter().map(String::as_str).collect();
         let m = ModelRef::user(user_id);
-        auth::user_by_id(c, user_id)?;
+        let target = auth::user_by_id(c, user_id)?;
+        forbid_self_change(c, uid, user_id)?;
         let before = rbac::role_names(c, m)?;
-        // Son süper yöneticiden `admin` rolü alınamaz.
-        if before.iter().any(|r| r == SUPER_ADMIN_ROLE) && !names.contains(&SUPER_ADMIN_ROLE) {
-            let admins: i64 = c.query_row(
-                "SELECT COUNT(*) FROM model_has_roles mr JOIN roles r ON r.id = mr.role_id WHERE r.name = ?1 AND mr.model_type = 'User'",
-                [SUPER_ADMIN_ROLE],
-                |r| r.get(0),
-            )?;
-            if admins <= 1 {
-                return Err(AppError::Conflict("Son süper yöneticiden `admin` rolü alınamaz.".into()));
-            }
+        let was_admin = before.iter().any(|r| r == SUPER_ADMIN_ROLE);
+        let wants_admin = names.contains(&SUPER_ADMIN_ROLE);
+        // `admin` rolünü vermek ya da almak yalnız süper yöneticinin işidir (yetki yükseltme kapısı).
+        if was_admin || wants_admin {
+            require_super_admin(c, uid)?;
+        }
+        // Son etkin süper yöneticiden `admin` rolü alınamaz (askıdaki yöneticiler sayılmaz).
+        if was_admin && !wants_admin && target.status == "active" && auth::active_super_admin_count(c)? <= 1 {
+            return Err(AppError::Conflict("Son etkin süper yöneticiden `admin` rolü alınamaz.".into()));
         }
         rbac::sync_roles(c, m, &names)?;
         audit::record(c, Some(uid), "User.syncRoles", "User", &user_id.to_string(), None, Some(&json!(before)), Some(&json!(roles)))?;
@@ -212,6 +241,10 @@ pub fn user_sync_permissions(app: &AppState, user_id: i64, perms: &[String]) -> 
     app.db.with(|c| {
         let uid = authorize(c, app.user(), "Update:User")?;
         auth::user_by_id(c, user_id)?;
+        forbid_self_change(c, uid, user_id)?;
+        if rbac::has_role(c, ModelRef::user(user_id), SUPER_ADMIN_ROLE)? {
+            require_super_admin(c, uid)?;
+        }
         let names: Vec<&str> = perms.iter().map(String::as_str).collect();
         let m = ModelRef::user(user_id);
         let before = rbac::direct_permissions(c, m)?;
@@ -222,10 +255,50 @@ pub fn user_sync_permissions(app: &AppState, user_id: i64, perms: &[String]) -> 
 }
 
 pub fn user_set_status(app: &AppState, user_id: i64, status: &str, reason: Option<&str>) -> AppResult<Value> {
-    app.db.with(|c| {
+    let u = app.db.with(|c| {
         let uid = authorize(c, app.user(), "Update:User")?;
+        auth::user_by_id(c, user_id)?;
+        forbid_self_change(c, uid, user_id)?;
+        // Bir süper yöneticiyi yalnız süper yönetici askıya alabilir ya da yeniden etkinleştirebilir.
+        if rbac::has_role(c, ModelRef::user(user_id), SUPER_ADMIN_ROLE)? {
+            require_super_admin(c, uid)?;
+        }
         let u = auth::set_status(c, user_id, status)?;
         audit::record(c, Some(uid), "User.setStatus", "User", &user_id.to_string(), reason, None, Some(&json!({ "status": status })))?;
+        Ok(u)
+    })?;
+    // Hedef oturumdaki kullanıcıysa ve artık etkin değilse oturum hemen düşer.
+    if status != "active" && app.user() == Some(user_id) {
+        app.set_user(None);
+    }
+    Ok(json!(u))
+}
+
+/// Parola değişikliği (`Update:User`); süper yöneticinin parolasını yalnız süper yönetici değiştirir.
+/// Denetim kaydına parola yazılmaz.
+pub fn user_set_password(app: &AppState, user_id: i64, password: &str) -> AppResult<Value> {
+    app.db.with(|c| {
+        let uid = authorize(c, app.user(), "Update:User")?;
+        auth::user_by_id(c, user_id)?;
+        if rbac::has_role(c, ModelRef::user(user_id), SUPER_ADMIN_ROLE)? && uid != user_id {
+            require_super_admin(c, uid)?;
+        }
+        let u = auth::set_password(c, user_id, password)?;
+        audit::record(c, Some(uid), "User.setPassword", "User", &user_id.to_string(), None, None, None)?;
+        Ok(json!(u))
+    })
+}
+
+/// Ad soyad güncellemesi (`Update:User`); e-posta ve parola bu yoldan değişmez.
+pub fn user_update(app: &AppState, user_id: i64, name: &str) -> AppResult<Value> {
+    app.db.with(|c| {
+        let uid = authorize(c, app.user(), "Update:User")?;
+        let before = auth::user_by_id(c, user_id)?;
+        if rbac::has_role(c, ModelRef::user(user_id), SUPER_ADMIN_ROLE)? && uid != user_id {
+            require_super_admin(c, uid)?;
+        }
+        let u = auth::set_name(c, user_id, name)?;
+        audit::record(c, Some(uid), "User.update", "User", &user_id.to_string(), None, Some(&json!({ "name": before.name })), Some(&json!({ "name": u.name })))?;
         Ok(json!(u))
     })
 }
@@ -326,6 +399,7 @@ pub fn permission_generate(app: &AppState, extra_resources: &[String]) -> AppRes
 pub fn db_migrate_status(app: &AppState) -> AppResult<Vec<migrate::MigrationStatus>> {
     app.db.with(|c| {
         let uid = app.user().ok_or(AppError::Unauthenticated)?;
+        auth::require_active(c, uid)?;
         if !rbac::has_role(c, ModelRef::user(uid), SUPER_ADMIN_ROLE)? {
             return Err(AppError::Forbidden("Yalnız süper yönetici.".into()));
         }

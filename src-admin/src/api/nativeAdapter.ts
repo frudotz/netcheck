@@ -502,9 +502,11 @@ export const api = {
   },
 
   async updateAdmin(admin: AdminUser): Promise<AdminUser> {
+    // `user_store` yalnız yeni kullanıcı oluşturur (var olan e-posta `conflict`); güncelleme ayrı komutlardan geçer.
+    // E-posta bu yoldan değişmez; parola değişikliği ayrı yetkili akıştır (`user_set_password`).
     const id = Number(admin.id);
+    await call("user_update", { userId: id, name: admin.name });
     await call("user_sync_roles", { userId: id, roles: [roleToBackend(admin.role)] });
-    await call("user_store", { name: admin.name, email: admin.email, role: roleToBackend(admin.role) });
     await call("user_set_status", { userId: id, status: admin.active ? "active" : "suspended" });
     return admin;
   },

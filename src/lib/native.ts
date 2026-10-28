@@ -15,6 +15,8 @@ export type AdminCommand =
   | "user_store"
   | "user_sync_roles"
   | "user_set_status"
+  | "user_set_password"
+  | "user_update"
   | "crud_index"
   | "crud_show"
   | "crud_store"

@@ -23,6 +23,8 @@ pub mod schema;
 pub mod schema_common;
 pub mod state;
 pub mod util;
+#[cfg(test)]
+mod tests;
 
 use std::path::Path;
 
