@@ -60,6 +60,6 @@ Kaynak depodan alınmayanlar: `react-router-dom` (ekranlar Astro sayfası), AI S
 
 ## Sonraki adımlar
 
-Arka uç güvenlik düzeltmeleri ve panelin `native.ts` üzerinden bağlanması PR #48 ile birleşti ([`docs/istemler/pr32-backend-hardening.md`](istemler/pr32-backend-hardening.md)); oturum süresi, giriş sınırı, ayrılmış rol adı ve salt okunur hedefler `fix/backend-security-followups` dalında ([`docs/istemler/backend-security-followups.md`](istemler/backend-security-followups.md)). Hâlâ açık: eğitmenin C-3 kararı; raporların cihazdan panele gönderilip gönderilmeyeceği (`report_submit` kayıtlı değil; gizlilik kararı); iletişim formunun veritabanına yazıp yazmayacağı (`contact_submit` kayıtlı değil); rapor listesinin arka uçta süzülmesi (NC-21).
+Arka uç güvenlik düzeltmeleri ve panelin `native.ts` üzerinden bağlanması PR #48 ile birleşti ([`docs/istemler/pr32-backend-hardening.md`](istemler/pr32-backend-hardening.md)); oturum süresi, giriş sınırı, ayrılmış rol adı ve salt okunur hedefler PR #49 ile ([`docs/istemler/backend-security-followups.md`](istemler/backend-security-followups.md)). Hâlâ açık: eğitmenin C-3 kararı; raporların cihazdan panele gönderilip gönderilmeyeceği (`report_submit` kayıtlı değil; gizlilik kararı); iletişim formunun veritabanına yazıp yazmayacağı (`contact_submit` kayıtlı değil); rapor listesinin arka uçta süzülmesi (NC-21).
 
 Kaynak depo, bu taşıma birleştirilip doğrulandıktan sonra depo sahibi tarafından arşivlenir.

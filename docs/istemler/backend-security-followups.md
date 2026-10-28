@@ -61,7 +61,7 @@ Worktree `p4wt`, Windows, 28.10.2026:
 | `git diff --check` | temiz |
 | Gerçek IPC (paketlenmiş uygulama) | aşağıda |
 | `devCsp` (`tauri dev`) | aşağıda |
-| CI (taslak PR) | aşağıda |
+| CI (PR #49) | `477f3c9` üzerinde 5/5 (run 40633881674); birleşme sonrası `master` `a5ef40b` için 5/5 (run 40635427364) |
 
 **Uçtan uca (gerçek Tauri IPC).** `bunx tauri build --debug --no-bundle --config` ile kimliği `edu.istinye.netcheck.hardening` olan ayrı uygulama; kendi veri klasörü ve sıfırdan oluşan atılabilir `app.sqlite`; bitince klasör silindi; gerçek veritabanının değişiklik zamanı değişmedi. Üretim CSP'si altında WebView2 CDP ile sürüldü.
 
@@ -89,4 +89,4 @@ Oturum süresi (M4) gerçek uygulamada beklenerek doğrulanmadı (30 dk / 12 sa)
 
 ## PR
 
-[#49](https://github.com/frudotz/netcheck/pull/49) (taslak; taban `master`). Birleştirme depo sahibinin kararına ve eğitmenin C-3 yanıtına bağlıdır. CI sonucu PR'da ve Obsidian kasasında kayıtlıdır.
+[#49](https://github.com/frudotz/netcheck/pull/49) — depo sahibi 28.10.2026'da `master`'a birleştirdi (merge commit `a5ef40b5853a60d1e64610cb6be810b2ea911758`); PR'ın son commit'i `477f3c9` için CI 5/5, `master` push çalıştırması 5/5 (run 40635427364). Eğitmenin C-3 kararı hâlâ bekliyor; birleştirme onay yerine geçmez.
