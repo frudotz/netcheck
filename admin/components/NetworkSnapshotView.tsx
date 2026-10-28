@@ -8,7 +8,7 @@ import { useI18n } from "../i18n";
 
 export interface NetworkSnapshotViewProps {
   network: NetworkSnapshot;
-  onRevealSensitive?: (fieldName: string, value: string) => void;
+  onRevealSensitive?: (fieldName: string, value: string) => Promise<string | void> | string | void;
 }
 
 export const NetworkSnapshotView: React.FC<NetworkSnapshotViewProps> = ({

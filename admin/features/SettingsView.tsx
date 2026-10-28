@@ -153,20 +153,18 @@ export const SettingsView: React.FC = () => {
         </div>
       </section>
 
-      {!bagli && (
-        <section
-          aria-labelledby="ayar-kaynak"
-          className="p-5 border space-y-2 bg-kart border-kenar"
-          style={{ borderRadius: "var(--radius)" }}
-        >
-          <h2 id="ayar-kaynak" className="text-base font-bold flex items-center gap-2 text-yazi">
-            <Unplug className="w-4 h-4 text-bilgi" aria-hidden="true" />
-            <span>{t("settingsDataSource")}</span>
-          </h2>
-          <p className="text-sm text-yazi">{t("settingsDataSourceNone")}</p>
-          <p className="text-xs leading-relaxed text-yazi-soluk">{t("shellNotConnectedNext")}</p>
-        </section>
-      )}
+      <section
+        aria-labelledby="ayar-kaynak"
+        className="p-5 border space-y-2 bg-kart border-kenar"
+        style={{ borderRadius: "var(--radius)" }}
+      >
+        <h2 id="ayar-kaynak" className="text-base font-bold flex items-center gap-2 text-yazi">
+          <Unplug className="w-4 h-4 text-bilgi" aria-hidden="true" />
+          <span>{t("settingsDataSource")}</span>
+        </h2>
+        <p className="text-sm text-yazi">{bagli ? t("settingsDataSourceSqlite") : t("settingsDataSourceNone")}</p>
+        {!bagli && <p className="text-xs leading-relaxed text-yazi-soluk">{t("shellNotConnectedNext")}</p>}
+      </section>
     </div>
   );
 };

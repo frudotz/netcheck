@@ -7,6 +7,7 @@ import { FormField } from "../components/FormField";
 import { StatusBadge } from "../components/StatusBadge";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
+import { errorKey } from "../context/AdminAuthContext";
 import {
   UserPlus,
   ShieldCheck,
@@ -28,6 +29,7 @@ export const AdminUsersView: React.FC = () => {
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<AdminRole>("support");
+  const [invitePassword, setInvitePassword] = useState("");
   const [inviting, setInviting] = useState(false);
 
   const fetchAdmins = async () => {
@@ -49,7 +51,7 @@ export const AdminUsersView: React.FC = () => {
 
   const handleInvite = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!inviteName.trim() || !inviteEmail.trim()) return;
+    if (!inviteName.trim() || !inviteEmail.trim() || invitePassword.length < 8) return;
     try {
       setInviting(true);
       await api.inviteAdmin({
@@ -57,15 +59,18 @@ export const AdminUsersView: React.FC = () => {
         email: inviteEmail.trim(),
         role: inviteRole,
         active: true,
+        password: invitePassword,
       });
       addToast(t("adminsToastInvited"), "success");
       setInviteName("");
       setInviteEmail("");
       setInviteRole("support");
+      setInvitePassword("");
       setInviteModalOpen(false);
       fetchAdmins();
-    } catch {
-      addToast(t("toastActionError"), "error");
+    } catch (err) {
+      // Var olan e-posta `conflict`, süper yönetici rolü yetkisiz çağrıda `forbidden` döner.
+      addToast(t(errorKey(err)), "error");
     } finally {
       setInviting(false);
     }
@@ -305,7 +310,7 @@ export const AdminUsersView: React.FC = () => {
             <button
               type="submit"
               form="invite-form"
-              disabled={inviting || !inviteName.trim() || !inviteEmail.trim()}
+              disabled={inviting || !inviteName.trim() || !inviteEmail.trim() || invitePassword.length < 8}
               className="cursor-pointer px-4 py-2 text-xs font-semibold rounded-lg disabled:opacity-40 hover:opacity-90 transition-opacity"
               style={{
                 backgroundColor: "var(--renk-ana)",
@@ -343,6 +348,25 @@ export const AdminUsersView: React.FC = () => {
               onChange={e => setInviteEmail(e.target.value)}
               placeholder={t("adminsEmailPlaceholder")}
               className="p-2.5 text-xs sm:text-sm rounded-lg border force-ltr"
+              style={{
+                backgroundColor: "var(--zemin)",
+                borderColor: "var(--kenar)",
+                color: "var(--yazi)",
+                borderRadius: "var(--radius)",
+              }}
+              required
+            />
+          </FormField>
+
+          <FormField label={t("adminPassword")} hint={t("adminsPasswordHint")} required>
+            <input
+              type="password"
+              autoComplete="new-password"
+              value={invitePassword}
+              onChange={e => setInvitePassword(e.target.value)}
+              minLength={8}
+              maxLength={128}
+              className="p-2.5 text-xs sm:text-sm rounded-lg border"
               style={{
                 backgroundColor: "var(--zemin)",
                 borderColor: "var(--kenar)",

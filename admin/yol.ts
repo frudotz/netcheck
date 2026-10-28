@@ -29,8 +29,24 @@ export const ALT_GORUNUMLER: Exclude<Gorunum, "ozet">[] = [
   "ayarlar",
 ];
 
-/** Veri gerektirmeyen ekranlar; panel bağlı değilken de çalışır. */
+/** Veri gerektirmeyen ekranlar; panel bağlı değilken ve oturum yokken de çalışır. */
 export const YEREL_GORUNUMLER: Gorunum[] = ["ayarlar"];
+
+/** Ekranı görmek için gereken arka uç izni (`Eylem:Kaynak`); `null` izin istemez. Yalnız menü ve
+ *  yönlendirme görünürlüğü içindir; asıl denetim her komutta Rust tarafında yapılır (docs/backend.md). */
+export const EKRAN_IZNI: Record<Gorunum, string | null> = {
+  ozet: "ViewAny:Report",
+  raporlar: "ViewAny:Report",
+  rapor: "View:Report",
+  cihazlar: "ViewAny:Device",
+  mesajlar: "ViewAny:ContactMessage",
+  "skor-kurallari": "ViewAny:ScoreRule",
+  hedefler: "ViewAny:DiagnosticTarget",
+  icerik: "ViewAny:ContentPage",
+  yoneticiler: "ViewAny:User",
+  denetim: "ViewAny:AuditLog",
+  ayarlar: null,
+};
 
 /** Ekranın adresi; `sorgu` boş değerleri atlar. */
 export function adres(gorunum: Gorunum, sorgu: Record<string, string | undefined> = {}): string {

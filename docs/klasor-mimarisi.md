@@ -42,8 +42,6 @@ netcheck/
 │   │   └── veri/            # Görev 11 örnek verisi (ekranlar kullanmaz)
 │   └── styles/              # Global tema değişkenleri ve CSS stilleri (app.css)
 │
-├── src-admin/               # Astro yönetim rotalarında kullanılan React ekranları ve prototip verileri
-│
 └── docs/                    # Proje dokümantasyonu, görevler ve mimari rehberler
 ```
 
@@ -93,12 +91,7 @@ netcheck/
 
 ### 11. `admin/` (Yönetim Paneli)
 - **Ne konur?** AI Studio ile ayrı depoda üretilip ana projeye taşınan React yönetim paneli: ekranlar (`features/`), panel bileşenleri (`components/`), sözlükler (`i18n/`), veri arayüzü (`api/`), panele özgü tipler (`domain/`) ve stil (`styles/admin.css`). Sayfaları `src/pages/admin/` altındadır, kabuğu `src/layouts/AdminLayout.astro`.
-- **Kural:** Renkler yalnız `src/styles/app.css` token'larından, metinler yalnız `admin/i18n/` sözlüklerinden gelir; çekirdek tipler `src/lib/types/`'tan alınır. Panel şimdilik hiçbir veri kaynağına bağlı değildir. Ayrıntı: [`docs/yonetim-paneli.md`](yonetim-paneli.md).
-
-### 11. `src-admin/` (Yönetim Arayüzü Kaynakları)
-- **Ne konur?** Astro'nun `src/pages/admin/` rotalarında kullanılan React bileşenleri, stiller ve prototip verileri.
-- **Sınır:** Arayüz Astro/React entegrasyonuyla derlenir; örnek veriler gerçek cihaz veya sunucu verisi değildir.
-- **Komutlar:** Yönetim arayüzü ana Astro uygulamasıyla birlikte [`docs/kurulum.md`](kurulum.md) içindeki standart komutlarla çalıştırılır ve derlenir.
+- **Kural:** Renkler yalnız `src/styles/app.css` token'larından, metinler yalnız `admin/i18n/` sözlüklerinden gelir; çekirdek tipler `src/lib/types/`'tan alınır. Panel verisini yalnız Tauri IPC (`src/lib/native.ts`) üzerinden bu cihazdaki SQLite arka ucundan okur; tarayıcı önizlemesinde bağlı değildir. Ayrıntı: [`docs/yonetim-paneli.md`](yonetim-paneli.md).
 
 ---
 

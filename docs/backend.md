@@ -111,7 +111,7 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 
 ## 6. Ön yüzden çağırma
 
-Admin paneli çağrıları `src-admin/src/api/nativeAdapter.ts` üzerinden `src/lib/native.ts` sınırına gider. Yeni bir panel API işlemi eklerken IPC çağrısını doğrudan bileşene koyma; Tauri dışındaki ortamda bu çağrılar veri üretmeden açık hata verir.
+Admin paneli çağrıları `admin/api/index.ts` üzerinden `src/lib/native.ts` sınırına gider (`invokeAdmin`). Oturum komutları `auth`, veri komutları `api` nesnesindedir; hata kodları ekranda `admin/i18n` sözlüğüyle metne çevrilir. Yeni bir panel API işlemi eklerken IPC çağrısını doğrudan bileşene koyma; Tauri dışındaki ortamda bu çağrılar veri üretmeden açık hata verir.
 
 Hatalar `{ code, message, errors? }` olarak döner. `code`: `unauthenticated` (oturum yok), `forbidden` (izin yok), `not_found`, `validation` (`errors[]` alan bazlı), `conflict`, `db`, `internal`.
 
