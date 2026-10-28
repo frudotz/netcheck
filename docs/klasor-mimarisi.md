@@ -91,7 +91,7 @@ netcheck/
 
 ### 11. `admin/` (Yönetim Paneli)
 - **Ne konur?** AI Studio ile ayrı depoda üretilip ana projeye taşınan React yönetim paneli: ekranlar (`features/`), panel bileşenleri (`components/`), sözlükler (`i18n/`), veri arayüzü (`api/`), panele özgü tipler (`domain/`) ve stil (`styles/admin.css`). Sayfaları `src/pages/admin/` altındadır, kabuğu `src/layouts/AdminLayout.astro`.
-- **Kural:** Renkler yalnız `src/styles/app.css` token'larından, metinler yalnız `admin/i18n/` sözlüklerinden gelir; çekirdek tipler `src/lib/types/`'tan alınır. Panel şimdilik hiçbir veri kaynağına bağlı değildir. Ayrıntı: [`docs/yonetim-paneli.md`](yonetim-paneli.md).
+- **Kural:** Renkler yalnız `src/styles/app.css` token'larından, metinler yalnız `admin/i18n/` sözlüklerinden gelir; çekirdek tipler `src/lib/types/`'tan alınır. Panel verisini yalnız Tauri IPC (`src/lib/native.ts`) üzerinden bu cihazdaki SQLite arka ucundan okur; tarayıcı önizlemesinde bağlı değildir. Ayrıntı: [`docs/yonetim-paneli.md`](yonetim-paneli.md).
 
 ---
 

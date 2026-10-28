@@ -26,6 +26,18 @@ pub fn auth_logout(state: State<'_, AppState>) {
 pub fn auth_me(state: State<'_, AppState>) -> AppResult<Value> {
     c::auth_me(&state)
 }
+#[tauri::command]
+pub fn auth_setup_required(state: State<'_, AppState>) -> AppResult<bool> {
+    c::auth_setup_required(&state)
+}
+#[tauri::command]
+pub fn contact_message_assignees(state: State<'_, AppState>) -> AppResult<Vec<Value>> {
+    c::contact_message_assignees(&state)
+}
+#[tauri::command]
+pub fn contact_message_reply(state: State<'_, AppState>, message_id: String, body: String, internal: Option<bool>) -> AppResult<Value> {
+    c::contact_message_reply(&state, &message_id, &body, internal.unwrap_or(false))
+}
 
 // ── Kullanıcılar ──
 #[tauri::command]
@@ -47,6 +59,14 @@ pub fn user_sync_permissions(state: State<'_, AppState>, user_id: i64, permissio
 #[tauri::command]
 pub fn user_set_status(state: State<'_, AppState>, user_id: i64, status: String, reason: Option<String>) -> AppResult<Value> {
     c::user_set_status(&state, user_id, &status, reason.as_deref())
+}
+#[tauri::command]
+pub fn user_set_password(state: State<'_, AppState>, user_id: i64, password: String) -> AppResult<Value> {
+    c::user_set_password(&state, user_id, &password)
+}
+#[tauri::command]
+pub fn user_update(state: State<'_, AppState>, user_id: i64, name: String) -> AppResult<Value> {
+    c::user_update(&state, user_id, &name)
 }
 
 // ── Roller ve izinler ──
@@ -114,6 +134,7 @@ pub fn crud_aggregate(state: State<'_, AppState>, resource: String, group_by: St
 }
 
 // ── Altyapı ve herkese açık ──
+// `contact_submit` (ve `domain::report_submit`) oturumsuz yazma uçlarıdır; bir ekran kullanana kadar `lib.rs` listesinde değildir.
 #[tauri::command]
 pub fn db_migrate_status(state: State<'_, AppState>) -> AppResult<Vec<MigrationStatus>> {
     c::db_migrate_status(&state)

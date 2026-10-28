@@ -13,6 +13,7 @@ import { CopyText } from "../components/CopyText";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
+import { useAdminAuth, errorKey } from "../context/AdminAuthContext";
 import {
   Share2,
   Lock,
@@ -25,6 +26,7 @@ import {
 export const ReportsListView: React.FC = () => {
   const { t, locale } = useI18n();
   const { addToast } = useToast();
+  const { can } = useAdminAuth();
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -326,6 +328,16 @@ export const ReportsListView: React.FC = () => {
         selectedKeys={selectedIds}
         onSelectChange={setSelectedIds}
         exportFilename="netcheck-raporlar.csv"
+        canExport={can("Export:Report")}
+        onBeforeExport={async () => {
+          try {
+            await api.authorizeExport("csv");
+            return true;
+          } catch (err) {
+            addToast(t(errorKey(err)), "error");
+            return false;
+          }
+        }}
         caption={t("reportsTableCaption")}
       />
 

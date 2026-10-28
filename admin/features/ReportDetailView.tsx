@@ -11,6 +11,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { CardSkeleton } from "../components/Skeleton";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
+import { useAdminAuth, errorKey } from "../context/AdminAuthContext";
 import {
   ArrowLeft,
   Share2,
@@ -64,18 +65,18 @@ export const ReportDetailView: React.FC = () => {
     fetchReport();
   }, [id]);
 
-  const handleRevealSensitive = async (field: string, _val: string) => {
+  const { can } = useAdminAuth();
+  const canExport = can("Export:Report");
+
+  // Her alan arka uçta ayrı yetkilendirilir (Reveal:PII) ve ayrı denetim kaydı alır; rapor durumu maskeli kalır.
+  const handleRevealSensitive = async (field: string, _val: string): Promise<string | void> => {
+    if (!report) return;
     try {
-      // Görüntüleyen yönetici arka uçta oturumdan belirlenir; gerekçe olarak alan adı yazılır.
-      await api.logAuditEvent({
-        action: "pii.reveal",
-        entity: "Report",
-        entityId: report?.id ?? "unknown",
-        reason: field,
-      });
+      const value = await api.revealReportField(report.id, field);
       addToast(t("toastPiiRevealed"), "info");
+      return value ?? undefined;
     } catch (err) {
-      console.error(err);
+      addToast(t(errorKey(err)), "error");
     }
   };
 
@@ -106,7 +107,14 @@ export const ReportDetailView: React.FC = () => {
     }
   };
 
-  const handlePrint = () => {
+  // Yazdırma da bir dışa aktarmadır: Export:Report yetkisi arka uçtan alınır ve kayda geçer.
+  const handlePrint = async () => {
+    try {
+      await api.authorizeExport("pdf");
+    } catch (err) {
+      addToast(t(errorKey(err)), "error");
+      return;
+    }
     window.print();
   };
 
@@ -218,9 +226,9 @@ export const ReportDetailView: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <button
+          {canExport && <button
             type="button"
-            onClick={handlePrint}
+            onClick={() => void handlePrint()}
             className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg border hover:opacity-80 transition-opacity"
             style={{
               backgroundColor: "var(--kart)",
@@ -231,7 +239,7 @@ export const ReportDetailView: React.FC = () => {
           >
             <Printer className="w-3.5 h-3.5" />
             <span>{t("exportPdf")}</span>
-          </button>
+          </button>}
 
           <button
             type="button"

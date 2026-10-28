@@ -36,7 +36,7 @@ fn verify_password(password: &str, hash: &str) -> bool {
     }
 }
 
-fn valid_email(e: &str) -> bool {
+pub(crate) fn valid_email(e: &str) -> bool {
     let len = e.chars().count();
     (5..=254).contains(&len) && !e.contains(char::is_whitespace) && e.matches('@').count() == 1 && {
         let (local, domain) = e.split_once('@').unwrap_or(("", ""));
@@ -73,6 +73,29 @@ fn row_to_user(r: &rusqlite::Row<'_>) -> rusqlite::Result<User> {
 }
 
 const USER_COLS: &str = "id, name, email, status, last_login_at, created_at";
+
+pub fn setup_required(conn: &Connection) -> AppResult<bool> {
+    Ok(conn.query_row("SELECT NOT EXISTS(SELECT 1 FROM users)", [], |r| r.get(0))?)
+}
+
+/// Oturum sahibi `active` değilse (askıya alınmış, engellenmiş ya da silinmiş) oturum geçersizdir.
+pub fn require_active(conn: &Connection, id: i64) -> AppResult<()> {
+    let status: Option<String> = conn.query_row("SELECT status FROM users WHERE id = ?1", [id], |r| r.get(0)).optional()?;
+    match status.as_deref() {
+        Some("active") => Ok(()),
+        _ => Err(AppError::Unauthenticated),
+    }
+}
+
+/// Etkin (`status = 'active'`) süper yönetici sayısı; son yönetici korumalarının tek kaynağı.
+pub fn active_super_admin_count(conn: &Connection) -> AppResult<i64> {
+    Ok(conn.query_row(
+        "SELECT COUNT(*) FROM model_has_roles mr JOIN roles r ON r.id = mr.role_id JOIN users u ON u.id = mr.model_id
+         WHERE r.name = ?1 AND r.guard_name = ?2 AND mr.model_type = ?3 AND u.status = 'active'",
+        params![SUPER_ADMIN_ROLE, rbac::GUARD, rbac::MODEL_USER],
+        |r| r.get(0),
+    )?)
+}
 
 pub fn user_by_id(conn: &Connection, id: i64) -> AppResult<User> {
     conn.query_row(&format!("SELECT {USER_COLS} FROM users WHERE id = ?1"), [id], row_to_user)
@@ -131,35 +154,43 @@ pub fn attempt(conn: &Connection, email: &str, password: &str) -> AppResult<User
     user_by_id(conn, id)
 }
 
-/// Komut satırı yönetici aracının karşılığı (`qtoefl:admin`): kullanıcıyı oluşturur ya da günceller, rol atar.
-/// Rol önceden var olmalıdır (yoksa `NotFound`).
+/// Komut satırı yönetici aracının karşılığı (`qtoefl:admin`): **yeni** kullanıcıyı oluşturur ve rol atar.
+/// Rol önceden var olmalıdır (yoksa `NotFound`). E-posta kayıtlıysa `Conflict` döner; var olan hesabın
+/// parolası ya da rolleri bu yoldan değiştirilmez (`set_password`, `user_sync_roles` ayrı yetkiyle çalışır).
 pub fn create_admin(conn: &Connection, email: &str, role: &str, name: &str, password: Option<&str>) -> AppResult<User> {
     let email = email.trim().to_lowercase();
     validate(Some(name), &email, password)?;
     rbac::role_find_by_name(conn, role)?.ok_or_else(|| AppError::NotFound(format!("`{role}` adında bir rol yok.")))?;
     let existing: Option<i64> = conn.query_row("SELECT id FROM users WHERE email = ?1", [&email], |r| r.get(0)).optional()?;
-    let id = match existing {
-        Some(id) => {
-            if let Some(p) = password {
-                conn.execute(
-                    &format!("UPDATE users SET name = ?1, password = ?2, updated_at = {NOW_SQL} WHERE id = ?3"),
-                    params![name.trim(), hash_password(p)?, id],
-                )?;
-            } else {
-                conn.execute(&format!("UPDATE users SET name = ?1, updated_at = {NOW_SQL} WHERE id = ?2"), params![name.trim(), id])?;
-            }
-            id
-        }
-        None => {
-            let p = password.ok_or_else(|| AppError::validation("password", "Yeni kullanıcı için parola gerekli."))?;
-            conn.execute(
-                &format!("INSERT INTO users (name, email, password, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'active', {NOW_SQL}, {NOW_SQL})"),
-                params![name.trim(), email, hash_password(p)?],
-            )?;
-            conn.last_insert_rowid()
-        }
-    };
+    if existing.is_some() {
+        return Err(AppError::Conflict("Bu e-posta ile bir hesap mevcut.".into()));
+    }
+    let p = password.ok_or_else(|| AppError::validation("password", "Yeni kullanıcı için parola gerekli."))?;
+    conn.execute(
+        &format!("INSERT INTO users (name, email, password, status, created_at, updated_at) VALUES (?1, ?2, ?3, 'active', {NOW_SQL}, {NOW_SQL})"),
+        params![name.trim(), email, hash_password(p)?],
+    )?;
+    let id = conn.last_insert_rowid();
     rbac::assign_role(conn, ModelRef::user(id), &[role])?;
+    user_by_id(conn, id)
+}
+
+/// Parola değişikliği: yalnız bu yoldan ve yalnız yetkili çağrıdan (`user_set_password`).
+pub fn set_password(conn: &Connection, id: i64, password: &str) -> AppResult<User> {
+    let user = user_by_id(conn, id)?;
+    validate(None, &user.email, Some(password))?;
+    conn.execute(
+        &format!("UPDATE users SET password = ?1, updated_at = {NOW_SQL} WHERE id = ?2"),
+        params![hash_password(password)?, id],
+    )?;
+    user_by_id(conn, id)
+}
+
+/// Ad soyad güncellemesi; e-posta ve parola bu yoldan değişmez.
+pub fn set_name(conn: &Connection, id: i64, name: &str) -> AppResult<User> {
+    let user = user_by_id(conn, id)?;
+    validate(Some(name), &user.email, None)?;
+    conn.execute(&format!("UPDATE users SET name = ?1, updated_at = {NOW_SQL} WHERE id = ?2"), params![name.trim(), id])?;
     user_by_id(conn, id)
 }
 
@@ -194,19 +225,27 @@ pub fn list_users(conn: &Connection) -> AppResult<Vec<Value>> {
     Ok(out)
 }
 
+pub fn list_assignees(conn: &Connection) -> AppResult<Vec<Value>> {
+    let mut st = conn.prepare(
+        "SELECT u.id, u.name FROM users u
+         WHERE u.status = 'active' AND EXISTS (
+             SELECT 1 FROM model_has_roles mr
+             WHERE mr.model_id = u.id AND mr.model_type = 'User'
+         )
+         ORDER BY u.name",
+    )?;
+    let rows = st.query_map([], |r| Ok(json!({ "id": r.get::<_, i64>(0)?, "name": r.get::<_, String>(1)? })))?;
+    Ok(rows.collect::<Result<Vec<_>, _>>()?)
+}
+
 pub fn set_status(conn: &Connection, id: i64, status: &str) -> AppResult<User> {
     if !["active", "suspended", "banned"].contains(&status) {
         return Err(AppError::validation("status", "Durum active, suspended veya banned olmalı."));
     }
-    user_by_id(conn, id)?;
-    if status != "active" && rbac::has_role(conn, ModelRef::user(id), SUPER_ADMIN_ROLE)? {
-        let admins: i64 = conn.query_row(
-            "SELECT COUNT(*) FROM model_has_roles mr JOIN roles r ON r.id = mr.role_id JOIN users u ON u.id = mr.model_id
-             WHERE r.name = ?1 AND mr.model_type = 'User' AND u.status = 'active'",
-            [SUPER_ADMIN_ROLE],
-            |r| r.get(0),
-        )?;
-        if admins <= 1 {
+    let current = user_by_id(conn, id)?;
+    // Son etkin süper yönetici devre dışı bırakılamaz (sayım yalnız `active` yöneticileri alır).
+    if status != "active" && current.status == "active" && rbac::has_role(conn, ModelRef::user(id), SUPER_ADMIN_ROLE)? {
+        if active_super_admin_count(conn)? <= 1 {
             return Err(AppError::Conflict("Son etkin süper yönetici askıya alınamaz.".into()));
         }
     }
@@ -219,6 +258,15 @@ mod tests {
     use super::*;
 
     // @lat: [[tests#Local backend#Email validation]]
+    #[test]
+    fn setup_is_required_only_without_users() {
+        let conn = Connection::open_in_memory().unwrap();
+        conn.execute_batch("CREATE TABLE users (id INTEGER PRIMARY KEY);").unwrap();
+        assert!(setup_required(&conn).unwrap());
+        conn.execute("INSERT INTO users (id) VALUES (1)", []).unwrap();
+        assert!(!setup_required(&conn).unwrap());
+    }
+
     #[test]
     fn email_checks() {
         assert!(valid_email("ad@ornek.com"));

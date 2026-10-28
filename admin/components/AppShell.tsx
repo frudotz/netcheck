@@ -15,13 +15,14 @@ import {
   Search,
   ChevronRight,
   ArrowLeft,
+  LogOut,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { LangSwitch } from "./LangSwitch";
 import { EKRAN_BASLIGI } from "./BagliDegil";
 import { useI18n } from "../i18n";
-import { bagli } from "../api";
-import { adres, git, type Gorunum } from "../yol";
+import { useAdminAuth } from "../context/AdminAuthContext";
+import { adres, git, EKRAN_IZNI, type Gorunum } from "../yol";
 
 interface NavItem {
   gorunum: Gorunum;
@@ -48,6 +49,9 @@ const NAV: NavItem[] = [
 
 export const AppShell: React.FC<AppShellProps> = ({ gorunum, children }) => {
   const { t } = useI18n();
+  const { session, can, logout } = useAdminAuth();
+  // Menüde yalnız oturumun izni olan ekranlar; Ayarlar her zaman. Asıl denetim arka uçtadır.
+  const gorunurNav = NAV.filter(item => (session ? can(EKRAN_IZNI[item.gorunum]) : EKRAN_IZNI[item.gorunum] === null));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [globalSearch, setGlobalSearch] = useState("");
@@ -134,8 +138,8 @@ export const AppShell: React.FC<AppShellProps> = ({ gorunum, children }) => {
           </a>
         </div>
 
-        {/* Hızlı arama yalnız veri kaynağı bağlıyken gösterilir; bağlı değilken sonuç veremez. */}
-        {bagli && (
+        {/* Hızlı arama yalnız rapor görme izni olan açık oturumda gösterilir. */}
+        {session && can("ViewAny:Report") && (
           <form
             onSubmit={handleGlobalSearchSubmit}
             className="hidden md:flex items-center relative max-w-xs lg:max-w-md w-full mx-6"
@@ -162,6 +166,18 @@ export const AppShell: React.FC<AppShellProps> = ({ gorunum, children }) => {
             <ThemeToggle />
           </div>
           <LangSwitch />
+          {session && (
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="cursor-pointer inline-flex items-center gap-1.5 p-1.5 sm:px-2.5 rounded-lg text-xs text-koyu-yazi hover:bg-koyu-yazi/10"
+              title={t("shellSignedInAs", { name: session.user.name })}
+              aria-label={t("shellSignOut")}
+            >
+              <LogOut className="w-4 h-4" aria-hidden="true" />
+              <span className="hidden lg:inline">{t("shellSignOut")}</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -173,7 +189,7 @@ export const AppShell: React.FC<AppShellProps> = ({ gorunum, children }) => {
           aria-label={t("shellMainMenu")}
         >
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-            {NAV.map(item => {
+            {gorunurNav.map(item => {
               const isActive = item.gorunum === etkin;
               const label = t(EKRAN_BASLIGI[item.gorunum]);
               return (
@@ -246,7 +262,7 @@ export const AppShell: React.FC<AppShellProps> = ({ gorunum, children }) => {
               </div>
 
               <nav className="flex-1 space-y-1 overflow-y-auto" aria-label={t("shellMainMenu")}>
-                {NAV.map(item => {
+                {gorunurNav.map(item => {
                   const isActive = item.gorunum === etkin;
                   return (
                     <a

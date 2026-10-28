@@ -51,7 +51,25 @@ Rapor kimliği yol yerine sorgu dizesindedir (`/rapor?id=`): uygulama statik der
 
 Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş; tüm bilgi sayfaları → Ayarlar sekmesi etkin).
 
-## 2. Hedef Platform Matrisi
+## 2. Yönetim Arayüzü
+
+`/admin/` ve alt rotalar Astro tarafından sunulur; arayüz mevcut React kodunu kullanır. Bu ayrı yönetim alanı örnek veriyle çalışır, gerçek cihaz/sunucu verisine bağlı değildir.
+
+```
+Yönetim arayüzü (/admin/)
+├── /admin/ (Panel Özeti)
+├── /admin/raporlar · /admin/raporlar/:id
+├── /admin/cihazlar
+├── /admin/mesajlar
+├── /admin/skor-kurallari
+├── /admin/hedefler
+├── /admin/icerik
+├── /admin/yoneticiler
+├── /admin/denetim
+└── /admin/ayarlar
+```
+
+## 3. Hedef Platform Matrisi
 
 Tauri v2 ile tek kod tabanından aşağıdaki platformlar **hedeflenir**. Hedef platform, doğrulanmış platform anlamına gelmez; güncel durum ayrı sütunda verilir (güncelleme: 2026-10-08). "CI" = [`cross-platform.yml`](../.github/workflows/cross-platform.yml) derleme/test kontrolü; uygulama çalıştırma veya paketleme değildir.
 
@@ -72,7 +90,7 @@ Tarayıcı (`bun run dev`) yalnızca arayüz önizlemesidir; ağ tanılama Tauri
 4. ⏳ Android imzalı sürüm (keystore, AAB/APK).
 5. ◐ iOS (`feature/ios`, `feature/ios-validation`): Darwin ICMP soketi; `src-tauri/gen/apple`; simülatörde derleme ve açılış ✔. Kalan: simülatörde tüm ekranlar + 4 dil/RTL, fiziksel iPhone (Wi-Fi + hücresel, DNS), imzalama.
 
-## 3. Ekran Boyutları (Responsive Breakpoints)
+## 4. Ekran Boyutları (Responsive Breakpoints)
 
 Tek kod tabanı, tek sayfa kümesi: telefon, tablet, masaüstü ve büyük ekran (TV / tarayıcı) için ayrı uygulama yoktur. Düzen **kullanılabilir genişlik ve yükseklikten** seçilir; en-boy oranı tespiti yapılmaz. En-boy oranları (9:16, 9:20, 3:4, 4:3, 16:9, 16:10, 21:9, 4K) yalnızca doğrulama hedefidir.
 

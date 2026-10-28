@@ -7,6 +7,34 @@ import { invoke, isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import type { CommandError, DiagnosticKind, DiagnosticOutcome, Feature, NetworkSnapshot, PlatformInfo } from "./types";
 
+export type AdminCommand =
+  | "auth_setup_required"
+  | "auth_me"
+  | "auth_login"
+  | "auth_register"
+  | "auth_logout"
+  | "contact_message_assignees"
+  | "contact_message_reply"
+  | "user_index"
+  | "user_store"
+  | "user_sync_roles"
+  | "user_set_status"
+  | "user_set_password"
+  | "user_update"
+  | "crud_index"
+  | "crud_show"
+  | "crud_store"
+  | "crud_update"
+  | "crud_destroy"
+  | "crud_destroy_many"
+  | "report_dashboard"
+  | "report_set_sharing"
+  | "score_rule_publish"
+  | "report_show"
+  | "report_reveal_field"
+  | "export_authorize"
+  | "device_purge";
+
 export class NativeUnavailableError extends Error {
   constructor() {
     super("native_unavailable");
@@ -36,6 +64,11 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
   } catch (e) {
     throw isCommandError(e) ? new CommandFailure(e) : e;
   }
+}
+
+/** Yönetim paneli de dahil tüm SQLite erişimi bu Tauri IPC sınırından geçer. */
+export function invokeAdmin<T>(command: AdminCommand, args?: Record<string, unknown>): Promise<T> {
+  return call<T>(command, args);
 }
 
 export function getNetworkSnapshot(): Promise<NetworkSnapshot> {

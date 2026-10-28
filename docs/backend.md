@@ -23,7 +23,9 @@ Rol ve izin düzeni, eğitmenin Laravel projelerindeki `spatie/laravel-permissio
 
 - Dosya: uygulama veri klasörü / `app.sqlite` (Tauri `app_data_dir`). Depoya girmez.
 - Açılışta migration'lar sırayla çalışır; roller, izinler ve başlangıç verisi **veri migration'larıyla** gelir (seeder gerekmez).
-- **İlk kayıt olan kullanıcı `admin` olur.** Sonraki kayıtlar rolsüz kalır; yönetici rol atar.
+- Veritabanında kullanıcı yokken admin paneli ilk yönetici hesabını oluşturur; bu ilk kullanıcı `admin` olur. Sonraki genel kayıtlar kapalıdır. Yeni yöneticiler, yetkili panelinden rol ve parola atanarak eklenir.
+- Admin paneli `/admin/` rotasında Tauri uygulaması içinden açılır ve aynı yerel `app.sqlite` veritabanına bağlanır. Tarayıcı önizlemesinde SQLite erişimi veya sahte veri yedeği yoktur.
+- Rapor, cihaz ve mesaj örnekleri veritabanına otomatik eklenmez; listeler gerçek kayıt yoksa boş görünür. Skor kuralları ve tanılama hedefleri başlangıç migration'ından gelir.
 
 ## 3. Tablolar
 
@@ -61,15 +63,19 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 
 | Komut | Parametreler | Ne yapar |
 |---|---|---|
-| `auth_register` | name, email, password | Kayıt (ilk kullanıcı admin olur; diğerleri varsayılan rolü alır) |
+| `auth_setup_required` | — | Veritabanında henüz kullanıcı yoksa `true` döner |
+| `auth_register` | name, email, password | Yalnız ilk yönetici hesabını oluşturur; sonraki kayıtları reddeder |
+| `contact_message_assignees` | — | İleti yetkisi olan kullanıcılar için etkin yönetici adları ve kimlikleri |
 | `auth_login` | email, password | Giriş |
 | `auth_logout` | — | Çıkış |
 | `auth_me` | — | Oturumdaki kullanıcı + roller + izinler (yoksa null) |
 | `user_index` | — | Kullanıcı listesi (`ViewAny:User`) |
-| `user_store` | name, email, role, password? | Kullanıcı oluştur/güncelle + rol ata (`Create:User`) |
-| `user_sync_roles` | userId, roles[] | Rolleri eşitle (`Update:User`) |
-| `user_sync_permissions` | userId, permissions[] | Doğrudan izinleri eşitle (`Update:User`) |
-| `user_set_status` | userId, status, reason? | active / suspended / banned (`Update:User`) |
+| `user_store` | name, email, role, password | Yeni kullanıcı oluştur + rol ata (`Create:User`); e-posta kayıtlıysa `conflict`; `admin` rolünü yalnız süper yönetici verir |
+| `user_sync_roles` | userId, roles[] | Rolleri eşitle (`Update:User`); `admin` rolünü vermek/almak ve kendi rollerini değiştirmek yalnız süper yöneticide; son etkin süper yöneticiden `admin` alınamaz |
+| `user_sync_permissions` | userId, permissions[] | Doğrudan izinleri eşitle (`Update:User`); kendi izinleri ve süper yöneticilerin izinleri yalnız süper yöneticide |
+| `user_set_status` | userId, status, reason? | active / suspended / banned (`Update:User`); süper yöneticiyi yalnız süper yönetici; son etkin süper yönetici askıya alınamaz; oturumdaki kullanıcı hedefse oturum düşer |
+| `user_set_password` | userId, password | Parola değiştir (`Update:User`); süper yöneticinin parolasını yalnız kendisi ya da süper yönetici; parola denetim kaydına yazılmaz |
+| `user_update` | userId, name | Ad soyad güncelle (`Update:User`); e-posta ve parola değişmez |
 | `role_index` | — | Roller + izinleri (`ViewAny:Role`) |
 | `role_store` | name, permissions?[] | Rol oluştur (`Create:Role`) |
 | `role_update` | name, newName | Rol adını değiştir (`Update:Role`) |
@@ -80,33 +86,32 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 | `crud_resources` | — | Kaynak tanımları (tablo, sütun, süzgeç) |
 | `crud_index` | resource, query? | Liste: arama + süzgeç + sıralama + sayfalama (`ViewAny:<Kaynak>`) |
 | `crud_show` | resource, id | Tek kayıt (`View`) |
-| `crud_store` | resource, data | Oluştur (`Create`) |
-| `crud_update` | resource, id, data | Kısmi güncelle (`Update`) |
+| `crud_store` | resource, data | Oluştur (`Create`). Kaynak başına yazma kuralı uygulanır: `Report` ve `Device` panelden oluşturulamaz; `ScoreRule` yayınlanmış olarak oluşturulamaz ve ağırlık/eşik doğrulamasından geçer; `ContactMessage.replies` yazılamaz |
+| `crud_update` | resource, id, data | Kısmi güncelle (`Update`). Aynı yazma kuralı: `Report` yalnız `shared`; yayınlanmış `ScoreRule` değişmez (`conflict`); `ContactMessage` gönderen bilgisi ve `replies` değişmez; `Device` sayaçları değişmez |
 | `crud_destroy` | resource, id, reason? | Sil (`Delete`) |
 | `crud_destroy_many` | resource, ids[], reason? | Toplu sil (`DeleteAny`) |
 | `crud_aggregate` | resource, groupBy, query? | Gruplu sayım (panel grafikleri) |
 | `db_migrate_status` | — | Migration durumu (yalnız admin) |
-| `contact_submit` | name, email, subject?, message, lang? | İletişim formu (oturum gerekmez) |
+| `contact_message_reply` | messageId, body, internal? | Yanıt ya da iç not ekler (`Update:ContactMessage`); yazar kimliği ve zaman damgası arka uçta üretilir |
+| `contact_submit` | name, email, subject?, message, lang? | İletişim formu (oturum gerekmez). **Kayıtlı değil:** hiçbir ekran kullanmadığı için `lib.rs` komut listesinde yoktur; kod ve sınırları (ad 2–80, konu ≤200, ileti 10–5000) durur |
 
 ### Bu uygulamaya özel
 
 | Komut | Parametreler | Ne yapar |
 |---|---|---|
-| `report_submit` | input | Cihazdan gelen rapor (oturum gerekmez). `input`: `{ network, tests, createdAt?, shared?, device?: { id, platform, appVersion, locale } }` Kimliği Rust üretir (`report_id::generate`), skoru geçerli kuraldan hesaplar. |
-| `report_show` | id, reveal | Bir raporu gösterir; hassas alanlar varsayılan maskelidir. `reveal` için `Reveal:PII` gerekir ve denetim kaydına yazılır. |
+| `report_submit` | input | Cihazdan gelen rapor (oturum gerekmez). **Kayıtlı değil:** hiçbir ekran kullanmadığı için `lib.rs` komut listesinde yoktur. Kod durur ve sınırları vardır: beş test yalnız `id/status/latencyMs` ile saklanır, `network` ≤ 16 KiB, `createdAt` ISO-8601, `device.id` 1–64 karakter, platform ≤ 1 KiB. Kimliği Rust üretir, skoru geçerli kuraldan hesaplar. |
+| `report_show` | id | Bir raporu gösterir; hassas alanlar **her zaman** maskelidir. |
+| `report_reveal_field` | id, field | Tek bir hassas alanı açar (`View:Report` + `Reveal:PII`); her çağrı `pii.reveal` olarak alan adıyla denetim kaydına yazılır. Alanlar: `hostname`, `localIPv4`, `localIPv6`, `gateway`, `dnsServer[i]`, `<arayüz>.ipv4|ipv6|mac` |
+| `export_authorize` | kind (`csv` / `pdf`) | Dışa aktarma yetkisi (`Export:Report`); `report.export` olarak kayda geçer. Panel CSV ve yazdırma düğmeleri bu izne bağlıdır |
+| `device_purge` | deviceId, reason? | Cihazı ve bütün raporlarını tek işlemde siler (`DeleteAny:Report` + `Delete:Device`); tek denetim kaydı |
+| `report_set_sharing` | id, shared, reason? | Rapor paylaşımını günceller ve gerekçeyi denetim kaydına yazar. |
 | `score_rule_publish` | version, note | Taslak kuralı yayınlar (`Publish:ScoreRule`). Eski raporlar kendi `ruleVersion` değerini korur. |
 | `score_rule_preview` | version, reportIds | Kuralı seçili raporlarda dener: `[{ id, oldScore, newScore, oldLevel, newLevel }]` |
-| `report_dashboard` | from, to | Panel özeti: toplam, ortalama skor, seviye dağılımı, test başarı oranları, platform dağılımı, günlük eğilim. |
+| `report_dashboard` | from, to | Panel özeti ve o anki yayınlanmış skor kuralının seviyelendirme eşikleri. |
 
 ## 6. Ön yüzden çağırma
 
-```ts
-import { invoke } from "@tauri-apps/api/core";
-
-await invoke("auth_login", { email, password });
-const sayfa = await invoke("crud_index", { resource: "Device", query: { page: 1, pageSize: 25, search: "", filters: {}, sort: { key: "id", dir: "desc" } } });
-// sayfa = { items, total, page, pageSize }
-```
+Admin paneli çağrıları `admin/api/index.ts` üzerinden `src/lib/native.ts` sınırına gider (`invokeAdmin`). Oturum komutları `auth`, veri komutları `api` nesnesindedir; hata kodları ekranda `admin/i18n` sözlüğüyle metne çevrilir. Yeni bir panel API işlemi eklerken IPC çağrısını doğrudan bileşene koyma; Tauri dışındaki ortamda bu çağrılar veri üretmeden açık hata verir.
 
 Hatalar `{ code, message, errors? }` olarak döner. `code`: `unauthenticated` (oturum yok), `forbidden` (izin yok), `not_found`, `validation` (`errors[]` alan bazlı), `conflict`, `db`, `internal`.
 
@@ -126,9 +131,10 @@ Süzgeç anahtarı bir sütun adıysa tam eşleşme, dizi ise `IN`; `<sütun>Min
 
 ## 9. Sınırlar (geçici çözüm)
 
-- Tek kullanıcılı yerel oturum: giriş yapan kullanıcı uygulama belleğinde tutulur; uygulama kapanınca oturum biter.
+- Tek kullanıcılı yerel oturum: giriş yapan kullanıcı uygulama belleğinde tutulur; uygulama kapanınca oturum biter. Her yetki denetimi kullanıcının `active` olduğunu da doğrular: askıya alınan ya da engellenen kullanıcının açık oturumu hemen geçersiz olur (`unauthenticated`).
 - Veri cihazdadır; cihazlar arası eşitleme ve sunucu yoktur. Silinen uygulama verisiyle birlikte veritabanı da gider.
 - Parolalar Argon2id ile özetlenir; yine de bu bir **eğitim ve geliştirme altyapısıdır**, gerçek kullanıcı verisi için denetlenmiş bir sunucu gerekir.
 - İzin önbelleği yoktur; her denetim veritabanından okunur.
+- Her yazan komut tek bir SQLite transaction'ında çalışır (`Db::transaction`); denetim kaydı yazılamazsa asıl değişiklik de geri alınır.
+- WebView için CSP açıktır (`tauri.conf.json` → `app.security.csp`): yalnız uygulamanın kendi kaynakları ve Tauri IPC; geliştirme sunucusu için ayrı `devCsp`. Üretim paketinde satır içi `<script>` karmaları Tauri tarafından eklenir.
 - Arama SQLite `LIKE` ile yapılır (Türkçe büyük/küçük harf duyarlılığı sınırlıdır).
-

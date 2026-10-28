@@ -113,16 +113,16 @@ Move the AI Studio admin panel into the main project as an interface that follow
 
 Connect the admin panel to the local SQLite backend ([[architecture#Local SQLite backend]]).
 
-- Priority P2 · Status `blocked` · Depends on: [[tasks#Open work#NC-16 Conflicting course requirements]] (C-3), [[tasks#Open work#NC-19 Admin panel move into the project]], and fixes for the backend security findings from the PR #32 review (masking, self-promotion, admin lockout, password reset by duplicate e-mail, unauthenticated submissions).
-- Evidence: open PR #32 (`feature/src-admin-prototype`, instructor-authored) wires the AI Studio copy of the panel to SQLite; not merged, and its real IPC was never run in the app.
-- Acceptance: the panel's [[admin/api/index.ts#AdminApi]] is implemented through [[src/lib/native.ts]], each security finding has a test, and [[architecture#Local SQLite backend]] and [[project#Scope]] are updated.
+- Priority P2 · Status `in progress` · Depends on: [[tasks#Open work#NC-16 Conflicting course requirements]] (C-3) for merging.
+- Evidence: branch `fix/pr32-backend-hardening` (from PR #32's `feature/src-admin-prototype`, instructor-authored) fixes the review findings with tests ([[tests#Local backend]]), merges `master` and implements [[admin/api/index.ts#AdminApi]] through [[src/lib/native.ts#invokeAdmin]] in the canonical [[admin]] panel; the `src-admin/` copy is removed. Ten end-to-end scenarios were run in the packaged Windows app against a throwaway database ([[docs/istemler/pr32-backend-hardening.md]]). Not merged.
+- Acceptance: C-3 answered by the instructor; then the branch is merged with [[architecture#Local SQLite backend]] and [[project#Scope]] as they now read. Open besides C-3: login rate limiting, a session timeout, the editable but unused `diagnostic_targets` table, and client-side paging in the panel.
 
 ### NC-13 Backend database tests
 
-Add tests that open the in-memory database, because migrations, RBAC, and CRUD controllers are untested on `master`.
+Tests that open the migrated in-memory database now cover sessions, roles, CRUD write rules, transactions, bounded public inputs, export and PII reveal.
 
-- Priority P2 · Status `planned` · Depends on: none (the unused helper `boot_memory` already exists).
-- Acceptance: tests cover migration ordering, first-user-is-admin, permission checks, and one CRUD round trip. [[tests#Local backend]] gains matching specs.
+- Priority P2 · Status `in progress` · Evidence: 21 tests in [[src-tauri/src/backend/tests.rs]] on `fix/pr32-backend-hardening`, specified in [[tests#Local backend]]; done when that branch merges.
+- Acceptance: the specs in [[tests#Local backend]] pass on `master`.
 
 ### NC-10 Documentation consistency
 

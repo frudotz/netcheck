@@ -53,6 +53,10 @@ export interface DataTableProps<T> {
 
   // Export
   exportFilename?: string;
+  /** false ise dışa aktarma düğmesi gösterilmez (oturumda `Export:Report` yok). */
+  canExport?: boolean;
+  /** Dışa aktarmadan önce arka uç yetkisi alınır; false dönerse dosya üretilmez. */
+  onBeforeExport?: () => Promise<boolean>;
   caption?: string;
   className?: string;
 }
@@ -78,6 +82,8 @@ export function DataTable<T extends object>({
   selectedKeys,
   onSelectChange,
   exportFilename = "export.csv",
+  canExport = true,
+  onBeforeExport,
   caption,
   className = "",
 }: DataTableProps<T>) {
@@ -98,8 +104,9 @@ export function DataTable<T extends object>({
   const visibleColumns = columns.filter(c => !hiddenCols.has(c.key));
 
   // CSV Export handler
-  const handleExportCsv = () => {
+  const handleExportCsv = async () => {
     if (rows.length === 0) return;
+    if (onBeforeExport && !(await onBeforeExport())) return;
     const headers = visibleColumns.map(c => `"${c.header.replace(/"/g, '""')}"`).join(",");
     const csvRows = rows.map(row => {
       return visibleColumns
@@ -318,10 +325,10 @@ export function DataTable<T extends object>({
             )}
           </div>
 
-          {/* CSV Export */}
-          <button
+          {/* CSV Export: yalnız oturumda Export:Report varsa; yetki ve denetim kaydı arka uçta (onBeforeExport). */}
+          {canExport && <button
             type="button"
-            onClick={handleExportCsv}
+            onClick={() => void handleExportCsv()}
             className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border hover:opacity-80 transition-colors"
             style={{
               backgroundColor: "var(--kart)",
@@ -332,7 +339,7 @@ export function DataTable<T extends object>({
           >
             <Download className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">{t("exportCsv")}</span>
-          </button>
+          </button>}
         </div>
       </div>
 

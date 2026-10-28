@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { api } from "../api";
-import type { ContactMessage, AdminUser } from "../domain/types";
+import type { ContactMessage } from "../domain/types";
 import { StatusBadge, type StatusTone } from "../components/StatusBadge";
 import { FilterBar, type FilterConfig } from "../components/FilterBar";
 import { ConfirmDialog } from "../components/ConfirmDialog";
@@ -23,7 +23,8 @@ export const MessagesView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
-  const [admins, setAdmins] = useState<AdminUser[]>([]);
+  // Atanabilecek kişiler: ad ve kimlik; kullanıcı listesi izni istemeyen uçtan gelir.
+  const [admins, setAdmins] = useState<{ id: string; name: string }[]>([]);
 
   // Selected message for thread
   const [selectedMsgId, setSelectedMsgId] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export const MessagesView: React.FC = () => {
       setError(null);
       const [msgData, adminData] = await Promise.all([
         api.getMessages({ search, filters, pageSize: 50 }),
-        api.getAdmins(),
+        api.getMessageAssignees(),
       ]);
       setMessages(msgData.items);
       setAdmins(adminData);
