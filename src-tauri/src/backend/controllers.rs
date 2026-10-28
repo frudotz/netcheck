@@ -7,6 +7,7 @@
 use crate::backend::audit::{self, id_text};
 use crate::backend::auth;
 use crate::backend::crud::{self, ListQuery, Paged};
+use crate::backend::domain::{self, WriteOp};
 use crate::backend::error::{AppError, AppResult};
 use crate::backend::migrate;
 use crate::backend::migrations;
@@ -47,7 +48,7 @@ fn forbid_self_change(c: &rusqlite::Connection, uid: i64, target: i64) -> AppRes
 // ───────────────────────────── Auth ─────────────────────────────
 
 pub fn auth_register(app: &AppState, name: &str, email: &str, password: &str) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         if !auth::setup_required(c)? {
             return Err(AppError::Conflict("İlk yönetici hesabı daha önce oluşturulmuş.".into()));
         }
@@ -93,6 +94,35 @@ pub fn contact_message_assignees(app: &AppState) -> AppResult<Vec<Value>> {
     })
 }
 
+/// Mesaja yanıt ya da iç not ekler (`Update:ContactMessage`). Yazar kimliği oturumdan alınır; istemciden gelmez.
+pub fn contact_message_reply(app: &AppState, message_id: &str, body: &str, internal: bool) -> AppResult<Value> {
+    let body = body.trim();
+    let len = body.chars().count();
+    if !(1..=5000).contains(&len) {
+        return Err(AppError::validation("body", "Yanıt 1–5000 karakter olmalı."));
+    }
+    app.db.transaction(|c| {
+        let uid = authorize(c, app.user(), &ability("Update", "ContactMessage"))?;
+        let before = crud::find(c, &schema::CONTACT_MESSAGE, &json!(message_id))?;
+        let mut replies = before.get("replies").and_then(Value::as_array).cloned().unwrap_or_default();
+        replies.push(json!({
+            "id": new_id(), "authorId": uid.to_string(), "body": body,
+            "at": crate::backend::util::now_iso(c)?, "internal": internal,
+        }));
+        let mut patch = json!({ "replies": replies });
+        if !internal {
+            patch["status"] = json!("answered");
+        }
+        let after = crud::update(c, &schema::CONTACT_MESSAGE, &json!(message_id), &patch)?;
+        audit::record(
+            c, Some(uid), if internal { "ContactMessage.note" } else { "ContactMessage.reply" }, "ContactMessage", message_id,
+            None, Some(&json!({ "replies": before["replies"].as_array().map(Vec::len).unwrap_or(0), "status": before["status"] })),
+            Some(&json!({ "replies": after["replies"].as_array().map(Vec::len).unwrap_or(0), "status": after["status"] })),
+        )?;
+        Ok(after)
+    })
+}
+
 // ─────────────────────── Kaynak denetleyicisi (CRUD) ───────────────────────
 
 pub fn crud_index(app: &AppState, resource: &str, query: ListQuery) -> AppResult<Paged> {
@@ -119,8 +149,9 @@ pub fn crud_show(app: &AppState, resource: &str, id: &Value) -> AppResult<Value>
 
 pub fn crud_store(app: &AppState, resource: &str, data: &Value) -> AppResult<Value> {
     let e = schema::entity(resource)?;
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), &ability("Create", e.resource))?;
+        domain::write_policy(e, WriteOp::Store, data, None)?;
         let mut created = crud::insert(c, e, data)?;
         mask_report_network(e.resource, &mut created);
         audit::record(c, Some(uid), &format!("{}.create", e.resource), e.resource, &id_text(&created[e.pk]), None, None, Some(&created))?;
@@ -130,9 +161,10 @@ pub fn crud_store(app: &AppState, resource: &str, data: &Value) -> AppResult<Val
 
 pub fn crud_update(app: &AppState, resource: &str, id: &Value, data: &Value) -> AppResult<Value> {
     let e = schema::entity(resource)?;
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), &ability("Update", e.resource))?;
         let mut before = crud::find(c, e, id)?;
+        domain::write_policy(e, WriteOp::Update, data, Some(&before))?;
         let mut after = crud::update(c, e, id, data)?;
         mask_report_network(e.resource, &mut before);
         mask_report_network(e.resource, &mut after);
@@ -144,7 +176,7 @@ pub fn crud_update(app: &AppState, resource: &str, id: &Value, data: &Value) -> 
 /// Silme: `reason` yıkıcı işlemlerde denetim kaydına yazılır.
 pub fn crud_destroy(app: &AppState, resource: &str, id: &Value, reason: Option<&str>) -> AppResult<()> {
     let e = schema::entity(resource)?;
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), &ability("Delete", e.resource))?;
         let mut before = crud::find(c, e, id)?;
         mask_report_network(e.resource, &mut before);
@@ -156,7 +188,7 @@ pub fn crud_destroy(app: &AppState, resource: &str, id: &Value, reason: Option<&
 
 pub fn crud_destroy_many(app: &AppState, resource: &str, ids: &[Value], reason: Option<&str>) -> AppResult<usize> {
     let e = schema::entity(resource)?;
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), &ability("DeleteAny", e.resource))?;
         let n = crud::delete_many(c, e, ids)?;
         audit::record(c, Some(uid), &format!("{}.deleteAny", e.resource), e.resource, &format!("{n} kayıt"), reason, None, Some(&json!({ "ids": ids })))?;
@@ -201,7 +233,7 @@ pub fn user_index(app: &AppState) -> AppResult<Vec<Value>> {
 /// Yeni kullanıcı (`qtoefl:admin` karşılığı): oluşturur ve rolü atar. Var olan e-posta `conflict` döner.
 /// `admin` rolü yalnız süper yönetici tarafından verilebilir.
 pub fn user_store(app: &AppState, name: &str, email: &str, role: &str, password: Option<&str>) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Create:User")?;
         if role == SUPER_ADMIN_ROLE {
             require_super_admin(c, uid)?;
@@ -213,7 +245,7 @@ pub fn user_store(app: &AppState, name: &str, email: &str, role: &str, password:
 }
 
 pub fn user_sync_roles(app: &AppState, user_id: i64, roles: &[String]) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:User")?;
         let names: Vec<&str> = roles.iter().map(String::as_str).collect();
         let m = ModelRef::user(user_id);
@@ -238,7 +270,7 @@ pub fn user_sync_roles(app: &AppState, user_id: i64, roles: &[String]) -> AppRes
 
 /// Kullanıcıya rol dışı, doğrudan izin verme (`syncPermissions`).
 pub fn user_sync_permissions(app: &AppState, user_id: i64, perms: &[String]) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:User")?;
         auth::user_by_id(c, user_id)?;
         forbid_self_change(c, uid, user_id)?;
@@ -255,7 +287,7 @@ pub fn user_sync_permissions(app: &AppState, user_id: i64, perms: &[String]) -> 
 }
 
 pub fn user_set_status(app: &AppState, user_id: i64, status: &str, reason: Option<&str>) -> AppResult<Value> {
-    let u = app.db.with(|c| {
+    let u = app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:User")?;
         auth::user_by_id(c, user_id)?;
         forbid_self_change(c, uid, user_id)?;
@@ -277,7 +309,7 @@ pub fn user_set_status(app: &AppState, user_id: i64, status: &str, reason: Optio
 /// Parola değişikliği (`Update:User`); süper yöneticinin parolasını yalnız süper yönetici değiştirir.
 /// Denetim kaydına parola yazılmaz.
 pub fn user_set_password(app: &AppState, user_id: i64, password: &str) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:User")?;
         auth::user_by_id(c, user_id)?;
         if rbac::has_role(c, ModelRef::user(user_id), SUPER_ADMIN_ROLE)? && uid != user_id {
@@ -291,7 +323,7 @@ pub fn user_set_password(app: &AppState, user_id: i64, password: &str) -> AppRes
 
 /// Ad soyad güncellemesi (`Update:User`); e-posta ve parola bu yoldan değişmez.
 pub fn user_update(app: &AppState, user_id: i64, name: &str) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:User")?;
         let before = auth::user_by_id(c, user_id)?;
         if rbac::has_role(c, ModelRef::user(user_id), SUPER_ADMIN_ROLE)? && uid != user_id {
@@ -318,7 +350,7 @@ pub fn role_index(app: &AppState) -> AppResult<Vec<Value>> {
 }
 
 pub fn role_store(app: &AppState, name: &str, permissions: &[String]) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Create:Role")?;
         let name = name.trim();
         if name.is_empty() || name.chars().count() > 80 {
@@ -336,7 +368,7 @@ pub fn role_store(app: &AppState, name: &str, permissions: &[String]) -> AppResu
 }
 
 pub fn role_update(app: &AppState, name: &str, new_name: &str) -> AppResult<()> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:Role")?;
         let new_name = new_name.trim();
         if new_name.is_empty() || new_name.chars().count() > 80 {
@@ -349,7 +381,7 @@ pub fn role_update(app: &AppState, name: &str, new_name: &str) -> AppResult<()> 
 }
 
 pub fn role_destroy(app: &AppState, name: &str, reason: Option<&str>) -> AppResult<()> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Delete:Role")?;
         rbac::role_delete(c, name)?;
         audit::record(c, Some(uid), "Role.delete", "Role", name, reason, None, None)?;
@@ -358,7 +390,7 @@ pub fn role_destroy(app: &AppState, name: &str, reason: Option<&str>) -> AppResu
 }
 
 pub fn role_sync_permissions(app: &AppState, name: &str, permissions: &[String]) -> AppResult<Vec<String>> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:Role")?;
         if name == SUPER_ADMIN_ROLE {
             return Err(AppError::Conflict("Süper yönetici zaten her izne sahiptir; izinleri düzenlenemez.".into()));
@@ -380,7 +412,7 @@ pub fn permission_index(app: &AppState) -> AppResult<Vec<Value>> {
 
 /// `shield:generate`: bütün kaynaklar (ve verilen ek kaynaklar) için izinleri oluşturur.
 pub fn permission_generate(app: &AppState, extra_resources: &[String]) -> AppResult<usize> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Create:Permission")?;
         let mut resources: Vec<&str> = schema::all().iter().map(|e| e.resource).collect();
         resources.extend(["User", "Role", "Permission"]);
@@ -409,24 +441,25 @@ pub fn db_migrate_status(app: &AppState) -> AppResult<Vec<migrate::MigrationStat
 
 // ───────────────────────── Herkese açık ─────────────────────────
 
-/// İletişim formu (oturum gerekmez). `ContactMessage` kaydı oluşturur.
+/// İletişim formu (oturum gerekmez; bugün hiçbir ekran çağırmadığı için Tauri komutu olarak kayıtlı değil). `ContactMessage` kaydı oluşturur.
 pub fn contact_submit(app: &AppState, name: &str, email: &str, subject: Option<&str>, message: &str, lang: Option<&str>) -> AppResult<Value> {
     let mut errors = Vec::new();
     let mut fe = |f: &str, m: &str| errors.push(crate::backend::error::FieldError { field: f.into(), message: m.into() });
-    if name.trim().chars().count() < 2 {
-        fe("name", "Ad en az 2 karakter olmalı.");
+    if !(2..=80).contains(&name.trim().chars().count()) {
+        fe("name", "Ad 2–80 karakter olmalı.");
     }
     let em = email.trim();
-    if !(em.contains('@') && em.contains('.') && !em.contains(char::is_whitespace) && em.chars().count() <= 254) {
+    if !auth::valid_email(em) {
         fe("email", "Geçerli bir e-posta adresi gir.");
     }
     if let Some(s) = subject {
-        if !s.trim().is_empty() && s.trim().chars().count() < 2 {
-            fe("subject", "Konu en az 2 karakter olmalı.");
+        let n = s.trim().chars().count();
+        if n != 0 && !(2..=200).contains(&n) {
+            fe("subject", "Konu 2–200 karakter olmalı.");
         }
     }
-    if message.trim().chars().count() < 10 {
-        fe("message", "Mesaj en az 10 karakter olmalı.");
+    if !(10..=5000).contains(&message.trim().chars().count()) {
+        fe("message", "Mesaj 10–5000 karakter olmalı.");
     }
     let lang = lang.unwrap_or("tr");
     if !["tr", "en", "ar", "fa", "de"].contains(&lang) {
@@ -435,7 +468,7 @@ pub fn contact_submit(app: &AppState, name: &str, email: &str, subject: Option<&
     if !errors.is_empty() {
         return Err(AppError::Validation(errors));
     }
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let id = new_id();
         c.execute(
             &format!("INSERT INTO contact_messages (id, name, email, subject, message, lang, status, createdAt, replies) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 'new', {NOW_SQL}, '[]')"),

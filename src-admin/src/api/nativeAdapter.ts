@@ -253,13 +253,25 @@ export const api = {
     return currentScoreThresholds();
   },
 
-  async getReportById(id: string, reveal = false): Promise<ReportRecord | null> {
+  /** Rapor her zaman maskeli gelir; hassas alanlar tek tek `revealReportField` ile açılır. */
+  async getReportById(id: string): Promise<ReportRecord | null> {
     try {
-      return await call<ReportRecord>("report_show", { id, reveal });
+      return await call<ReportRecord>("report_show", { id });
     } catch (error) {
       if (error instanceof AdminApiError && error.code === "not_found") return null;
       throw error;
     }
+  },
+
+  /** Tek bir hassas alanı açar (`Reveal:PII`); her çağrı arka uçta denetim kaydına yazılır. */
+  async revealReportField(id: string, field: string): Promise<string | null> {
+    const result = await call<{ field: string; value: string | null }>("report_reveal_field", { id, field });
+    return typeof result.value === "string" ? result.value : null;
+  },
+
+  /** CSV/PDF dışa aktarma yetkisi (`Export:Report`); başarılı çağrı denetim kaydına yazılır. */
+  async authorizeExport(kind: "csv" | "pdf"): Promise<void> {
+    await call<boolean>("export_authorize", { kind });
   },
 
   async updateReportSharing(id: string, shared: boolean, reason?: string): Promise<ReportRecord> {
@@ -294,16 +306,9 @@ export const api = {
     }
   },
 
+  /** Cihaz ve bütün raporları tek arka uç işleminde (transaction) silinir. */
   async deleteDeviceData(deviceId: string, reason: string): Promise<void> {
-    const reports = await listAll<ReportRecord>("Report", { filters: { deviceId } });
-    if (reports.length > 0) {
-      await call<number>("crud_destroy_many", {
-        resource: "Report",
-        ids: reports.map(report => report.id),
-        reason,
-      });
-    }
-    await call<void>("crud_destroy", { resource: "Device", id: deviceId, reason });
+    await call<{ deviceId: string; deletedReports: number }>("device_purge", { deviceId, reason });
   },
 
   async getMessages(query?: Partial<ListQuery>): Promise<Paged<ContactMessage>> {
@@ -315,27 +320,9 @@ export const api = {
     return pageItems(items, query);
   },
 
-  async replyMessage(messageId: string, body: string, internal: boolean, authorId?: string): Promise<ContactMessage> {
-    const [message, session] = await Promise.all([
-      call<ContactMessage>("crud_show", { resource: "ContactMessage", id: messageId }),
-      call<AdminSession | null>("auth_me"),
-    ]);
-    if (!session) throw new AdminApiError("unauthenticated", "Oturumun sona erdi. Yeniden giriş yap.");
-    const reply = {
-      id: crypto.randomUUID(),
-      authorId: authorId ?? String(session.user.id),
-      body,
-      at: new Date().toISOString(),
-      internal,
-    };
-    return call<ContactMessage>("crud_update", {
-      resource: "ContactMessage",
-      id: messageId,
-      data: {
-        replies: [...(message.replies ?? []), reply],
-        ...(!internal ? { status: "answered" } : {}),
-      },
-    });
+  /** Yanıt arka uçta oluşturulur: yazar kimliği oturumdan, zaman damgası veritabanından gelir. */
+  async replyMessage(messageId: string, body: string, internal: boolean): Promise<ContactMessage> {
+    return call<ContactMessage>("contact_message_reply", { messageId, body, internal });
   },
 
   async updateMessageStatus(messageId: string, status: ContactMessage["status"]): Promise<ContactMessage> {

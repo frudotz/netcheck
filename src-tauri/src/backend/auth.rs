@@ -36,7 +36,7 @@ fn verify_password(password: &str, hash: &str) -> bool {
     }
 }
 
-fn valid_email(e: &str) -> bool {
+pub(crate) fn valid_email(e: &str) -> bool {
     let len = e.chars().count();
     (5..=254).contains(&len) && !e.contains(char::is_whitespace) && e.matches('@').count() == 1 && {
         let (local, domain) = e.split_once('@').unwrap_or(("", ""));

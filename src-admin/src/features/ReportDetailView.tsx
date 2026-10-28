@@ -10,6 +10,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { CardSkeleton } from "../components/Skeleton";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
+import { useAdminAuth } from "../context/AdminAuthContext";
 import {
   ArrowLeft,
   Share2,
@@ -29,6 +30,8 @@ export const ReportDetailView: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { addToast } = useToast();
+  const { session } = useAdminAuth();
+  const canExport = Boolean(session?.superAdmin || session?.permissions.includes("Export:Report"));
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,22 +63,13 @@ export const ReportDetailView: React.FC = () => {
     fetchReport();
   }, [id]);
 
+  // Her alan arka uçta ayrı yetkilendirilir ve ayrı denetim kaydı alır; rapor durumu maskeli kalır.
   const handleRevealSensitive = async (field: string, _value: string): Promise<string | void> => {
     if (!report) return;
     try {
-      const revealed = await api.getReportById(report.id, true);
-      if (!revealed) throw new Error("Rapor bulunamadı.");
-      setReport(revealed);
+      const value = await api.revealReportField(report.id, field);
       addToast(t("toastPiiRevealed"), "info");
-      const dnsMatch = /^dnsServer\[(\d+)\]$/.exec(field);
-      if (dnsMatch) return revealed.network.dnsServers[Number(dnsMatch[1])];
-      const interfaceMatch = /^(.+)\.(ipv4|mac)$/.exec(field);
-      if (interfaceMatch) {
-        const iface = revealed.network.interfaces.find(item => item.name === interfaceMatch[1]);
-        return interfaceMatch[2] === "ipv4" ? iface?.ipv4 : iface?.mac;
-      }
-      const fieldValue = Reflect.get(revealed.network, field);
-      return typeof fieldValue === "string" ? fieldValue : undefined;
+      return value ?? undefined;
     } catch (err) {
       addToast(err instanceof Error ? err.message : t("toastActionError"), "error");
     }
@@ -108,7 +102,14 @@ export const ReportDetailView: React.FC = () => {
     }
   };
 
-  const handlePrint = () => {
+  // Yazdırma da bir dışa aktarmadır: `Export:Report` yetkisi arka uçtan alınır ve kayda geçer.
+  const handlePrint = async () => {
+    try {
+      await api.authorizeExport("pdf");
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : t("toastActionError"), "error");
+      return;
+    }
     window.print();
   };
 
@@ -226,9 +227,9 @@ export const ReportDetailView: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <button
+          {canExport && <button
             type="button"
-            onClick={handlePrint}
+            onClick={() => void handlePrint()}
             className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg border hover:opacity-80 transition-opacity"
             style={{
               backgroundColor: "var(--kart)",
@@ -239,7 +240,7 @@ export const ReportDetailView: React.FC = () => {
           >
             <Printer className="w-3.5 h-3.5" />
             <span>{t("exportPdf")}</span>
-          </button>
+          </button>}
 
           <button
             type="button"

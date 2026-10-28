@@ -160,6 +160,114 @@ pub fn is_report_id(s: &str) -> bool {
     p.len() == 3 && p[0] == "NCHK" && p[1].len() == 4 && p[1].chars().all(|c| c.is_ascii_digit()) && p[2].len() == 8 && p[2].chars().all(|c| matches!(c, '0'..='9' | 'A'..='F'))
 }
 
+/// Genel CRUD'un yazma işlemi.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum WriteOp {
+    Store,
+    Update,
+}
+
+fn forbid_fields(data: &Value, fields: &[&str], message: &str) -> AppResult<()> {
+    let errs: Vec<crate::backend::error::FieldError> = fields
+        .iter()
+        .filter(|f| data.get(**f).is_some())
+        .map(|f| crate::backend::error::FieldError { field: (*f).into(), message: message.into() })
+        .collect();
+    if errs.is_empty() { Ok(()) } else { Err(AppError::Validation(errs)) }
+}
+
+/// Kaynak başına yazma kuralı: genel CRUD (`crud_store` / `crud_update`) alan adı doğruluğunun ötesinde
+/// iş kurallarını atlayamaz. Hesaplanan ya da başka bir komutun sahibi olduğu alanlar reddedilir.
+pub fn write_policy(e: &crud::Entity, op: WriteOp, data: &Value, current: Option<&Value>) -> AppResult<()> {
+    const OWNED: &str = "Bu alan panelden değiştirilemez; ilgili komutla yönetilir.";
+    match e.resource {
+        "Report" => {
+            if op == WriteOp::Store {
+                return Err(AppError::Forbidden("Rapor kayıtları yalnız cihaz göndermesiyle (report_submit) oluşturulur.".into()));
+            }
+            // Yalnız `shared` güncellenebilir; skor, testler, ağ bilgisi ve zaman damgaları hesaplanmış veridir.
+            forbid_fields(data, &["createdAt", "score", "passed", "failed", "network", "tests", "deviceId", "receivedAt", "ruleVersion"], OWNED)
+        }
+        "ScoreRule" => {
+            if let Some(cur) = current {
+                if cur.get("status").and_then(Value::as_str) == Some("published") {
+                    return Err(AppError::Conflict("Yayınlanmış skor kuralı değiştirilemez; yeni bir taslak oluştur.".into()));
+                }
+            }
+            if data.get("status").and_then(Value::as_str) == Some("published") {
+                return Err(AppError::validation("status", "Yayın yalnız score_rule_publish ile yapılır."));
+            }
+            forbid_fields(data, &["publishedAt"], OWNED)?;
+            if ["weights", "latencyBands", "levels"].iter().any(|k| data.get(*k).is_some()) {
+                let pick = |k: &str| data.get(k).or_else(|| current.and_then(|c| c.get(k))).cloned().unwrap_or(Value::Null);
+                let merged = json!({ "version": 0, "weights": pick("weights"), "latencyBands": pick("latencyBands"), "levels": pick("levels") });
+                let rule: Rule = serde_json::from_value(merged).map_err(|_| AppError::validation("weights", "Kural alanları eksik ya da biçimi yanlış."))?;
+                validate_rule(&rule)?;
+            }
+            Ok(())
+        }
+        "ContactMessage" => {
+            forbid_fields(data, &["replies"], "Yanıtlar yalnız contact_message_reply ile eklenir.")?;
+            if op == WriteOp::Update {
+                forbid_fields(data, &["name", "email", "message", "createdAt"], "Gönderenin özgün iletisi değiştirilemez.")?;
+            }
+            Ok(())
+        }
+        "Device" => {
+            if op == WriteOp::Store {
+                return Err(AppError::Forbidden("Cihaz kayıtları yalnız rapor göndermesiyle oluşur.".into()));
+            }
+            forbid_fields(data, &["reportCount", "lastSeenAt"], OWNED)
+        }
+        _ => Ok(()),
+    }
+}
+
+/// `YYYY-MM-DDTHH:MM:SS[.fff](Z|±HH:MM)` biçimi (yalnız biçim; takvim doğruluğu SQLite tarafında değil).
+pub fn is_iso_datetime(s: &str) -> bool {
+    let b = s.as_bytes();
+    if b.len() < 20 || b.len() > 35 {
+        return false;
+    }
+    let digits = |r: std::ops::Range<usize>| b[r].iter().all(u8::is_ascii_digit);
+    if !(digits(0..4) && b[4] == b'-' && digits(5..7) && b[7] == b'-' && digits(8..10) && b[10] == b'T' && digits(11..13) && b[13] == b':' && digits(14..16) && b[16] == b':' && digits(17..19)) {
+        return false;
+    }
+    let mut i = 19;
+    if i < b.len() && b[i] == b'.' {
+        i += 1;
+        let start = i;
+        while i < b.len() && b[i].is_ascii_digit() { i += 1; }
+        if i == start { return false; }
+    }
+    match &b[i..] {
+        [b'Z'] => true,
+        [sign, h1, h2, b':', m1, m2] if (*sign == b'+' || *sign == b'-') && [h1, h2, m1, m2].iter().all(|c| c.is_ascii_digit()) => true,
+        _ => false,
+    }
+}
+
+/// Hassas alan adı → maskelenmemiş değer (tek alan; çağıran `Reveal:PII` ile yetkilendirilmiştir).
+/// Alan adları ekrandaki `MaskedValue` adlarıyla aynıdır: `hostname`, `localIPv4`, `localIPv6`, `gateway`,
+/// `dnsServer[i]`, `<arayüz adı>.ipv4|ipv6|mac`.
+fn sensitive_field(network: &Value, field: &str) -> AppResult<Value> {
+    let bad = || AppError::validation("field", "Bilinmeyen hassas alan.");
+    if ["hostname", "localIPv4", "localIPv6", "gateway"].contains(&field) {
+        return Ok(network.get(field).cloned().unwrap_or(Value::Null));
+    }
+    if let Some(rest) = field.strip_prefix("dnsServer[").and_then(|r| r.strip_suffix(']')) {
+        let idx: usize = rest.parse().map_err(|_| bad())?;
+        return Ok(network.get("dnsServers").and_then(Value::as_array).and_then(|a| a.get(idx)).cloned().unwrap_or(Value::Null));
+    }
+    if let Some((name, attr)) = field.rsplit_once('.') {
+        if ["ipv4", "ipv6", "mac"].contains(&attr) {
+            let iface = network.get("interfaces").and_then(Value::as_array).and_then(|a| a.iter().find(|i| i.get("name").and_then(Value::as_str) == Some(name)));
+            return Ok(iface.and_then(|i| i.get(attr)).cloned().unwrap_or(Value::Null));
+        }
+    }
+    Err(bad())
+}
+
 /// IP, MAC ve ana bilgisayar adı gibi hassas ağ alanlarını maskeler.
 pub fn mask_network(v: &Value) -> Value {
     const SENSITIVE: [&str; 7] = ["hostname", "localIPv4", "localIPv6", "gateway", "ipv4", "ipv6", "mac"];
@@ -193,56 +301,139 @@ fn touch_device(conn: &Connection, id: &str, platform: &Value, app_version: &str
     Ok(())
 }
 
-/// Cihazdan gelen rapor (oturum gerekmez). `input`: `{ network, tests, createdAt?, shared?, device?: { id, platform, appVersion, locale } }`
+/// Cihazdan gelen rapor (oturum gerekmez; bugün hiçbir ekran çağırmadığı için Tauri komutu olarak kayıtlı değil). `input`: `{ network, tests, createdAt?, shared?, device?: { id, platform, appVersion, locale } }`
 /// Kimliği Rust üretir (`report_id::generate`), skoru geçerli kuraldan hesaplar.
+/// Sınırlar: ağ bilgisi en çok 16 KiB, cihaz platform bilgisi 1 KiB; testler yalnız bilinen alanlarıyla saklanır.
+pub const MAX_NETWORK_BYTES: usize = 16 * 1024;
+pub const MAX_PLATFORM_BYTES: usize = 1024;
+
 pub fn do_report_submit(app: &AppState, input: &Value) -> AppResult<Value> {
+    if !input.is_object() {
+        return Err(AppError::validation("_", "Gövde bir nesne olmalı."));
+    }
     let tests_v = input.get("tests").cloned().unwrap_or(Value::Null);
-    let tests: Vec<TestResult> = serde_json::from_value(tests_v.clone()).map_err(|_| AppError::validation("tests", "Test listesi geçerli değil."))?;
+    let tests: Vec<TestResult> = serde_json::from_value(tests_v).map_err(|_| AppError::validation("tests", "Test listesi geçerli değil."))?;
     if tests.len() != 5 || !KINDS.iter().all(|k| tests.iter().any(|t| t.id == *k)) {
         return Err(AppError::validation("tests", "Raporda beş testin hepsi (gateway, cloudflare, google, dns, internet) olmalı."));
     }
     if !tests.iter().all(|t| ["pending", "running", "success", "failed", "unavailable"].contains(&t.status.as_str())) {
         return Err(AppError::validation("tests", "Test durumu geçersiz."));
     }
+    if tests.iter().any(|t| t.latency_ms.map(|m| !m.is_finite() || m < 0.0 || m > 600_000.0).unwrap_or(false)) {
+        return Err(AppError::validation("tests", "Gecikme değeri geçersiz."));
+    }
+    // Yalnız bilinen alanlar saklanır (istemciden gelen fazladan anahtarlar atılır).
+    let tests_norm: Vec<Value> = tests.iter().map(|t| json!({ "id": t.id, "status": t.status, "latencyMs": t.latency_ms })).collect();
     let network = input.get("network").filter(|n| n.is_object()).cloned().ok_or_else(|| AppError::validation("network", "Ağ bilgisi gerekli."))?;
-    app.db.with(|c| {
+    if network.to_string().len() > MAX_NETWORK_BYTES {
+        return Err(AppError::validation("network", "Ağ bilgisi çok büyük."));
+    }
+    let created = match input.get("createdAt") {
+        None | Some(Value::Null) => None,
+        Some(Value::String(s)) if is_iso_datetime(s) => Some(s.clone()),
+        Some(_) => return Err(AppError::validation("createdAt", "Zaman damgası ISO-8601 biçiminde olmalı.")),
+    };
+    let shared = match input.get("shared") {
+        None | Some(Value::Null) => true,
+        Some(Value::Bool(b)) => *b,
+        Some(_) => return Err(AppError::validation("shared", "true ya da false olmalı.")),
+    };
+    let device = match input.get("device") {
+        None | Some(Value::Null) => None,
+        Some(d) if d.is_object() => {
+            let did = d.get("id").and_then(Value::as_str).ok_or_else(|| AppError::validation("device.id", "Cihaz kimliği gerekli."))?;
+            if did.is_empty() || did.chars().count() > 64 || !did.chars().all(|ch| ch.is_ascii_alphanumeric() || matches!(ch, '-' | '_' | '.' | ':')) {
+                return Err(AppError::validation("device.id", "Cihaz kimliği 1–64 karakter; harf, rakam, - _ . : olmalı."));
+            }
+            let app_version = d.get("appVersion").and_then(Value::as_str).unwrap_or("0.0.0");
+            if app_version.is_empty() || app_version.chars().count() > 32 {
+                return Err(AppError::validation("device.appVersion", "Sürüm 1–32 karakter olmalı."));
+            }
+            let locale = d.get("locale").and_then(Value::as_str).unwrap_or("tr");
+            if !["tr", "en", "ar", "fa", "de"].contains(&locale) {
+                return Err(AppError::validation("device.locale", "Dil geçerli değil."));
+            }
+            let platform = d.get("platform").cloned().unwrap_or_else(|| json!({}));
+            if !platform.is_object() || platform.to_string().len() > MAX_PLATFORM_BYTES {
+                return Err(AppError::validation("device.platform", "Platform bilgisi nesne olmalı ve 1 KiB'i aşmamalı."));
+            }
+            Some((did.to_string(), platform, app_version.to_string(), locale.to_string()))
+        }
+        Some(_) => return Err(AppError::validation("device", "Cihaz bilgisi nesne olmalı.")),
+    };
+    app.db.transaction(|c| {
         let rule = current_rule(c)?;
         let score = compute_score(&tests, &rule);
         let passed = tests.iter().filter(|t| t.status == "success").count() as i64;
         let id = crate::report_id::generate();
         let mut device_id: Option<String> = None;
-        if let Some(d) = input.get("device").filter(|d| d.is_object()) {
-            let did = d.get("id").and_then(Value::as_str).ok_or_else(|| AppError::validation("device.id", "Cihaz kimliği gerekli."))?;
-            touch_device(c, did, d.get("platform").unwrap_or(&json!({})), d.get("appVersion").and_then(Value::as_str).unwrap_or("0.0.0"), d.get("locale").and_then(Value::as_str).unwrap_or("tr"))?;
-            device_id = Some(did.to_string());
+        if let Some((did, platform, app_version, locale)) = &device {
+            touch_device(c, did, platform, app_version, locale)?;
+            device_id = Some(did.clone());
         }
-        let created = input.get("createdAt").and_then(Value::as_str).map(str::to_string).map(Ok).unwrap_or_else(|| now_iso(c))?;
+        let created = match created { Some(s) => s, None => now_iso(c)? };
         let rec = json!({
             "id": id, "createdAt": created, "score": score, "passed": passed, "failed": 5 - passed,
-            "network": network, "tests": tests_v, "deviceId": device_id,
-            "shared": input.get("shared").and_then(Value::as_bool).unwrap_or(true), "ruleVersion": rule.version,
+            "network": network, "tests": tests_norm, "deviceId": device_id,
+            "shared": shared, "ruleVersion": rule.version,
         });
         crud::insert(c, &schema::REPORT, &rec)
     })
 }
 
-/// Bir raporu gösterir; hassas alanlar varsayılan maskelidir. `reveal` için `Reveal:PII` gerekir ve denetim kaydına yazılır.
-pub fn do_report_show(app: &AppState, id: &str, reveal: bool) -> AppResult<Value> {
+/// Bir raporu gösterir; hassas alanlar her zaman maskelidir. Tek tek açmak için `report_reveal_field`.
+pub fn do_report_show(app: &AppState, id: &str) -> AppResult<Value> {
     app.db.with(|c| {
-        let uid = authorize(c, app.user(), "View:Report")?;
+        authorize(c, app.user(), "View:Report")?;
         let mut r = crud::find(c, &schema::REPORT, &json!(id))?;
-        if reveal {
-            authorize(c, app.user(), "Reveal:PII")?;
-            audit::record(c, Some(uid), "pii.reveal", "Report", id, None, None, None)?;
-        } else if let Some(n) = r.get("network").cloned() {
+        if let Some(n) = r.get("network").cloned() {
             r["network"] = mask_network(&n);
         }
         Ok(r)
     })
 }
 
+/// Tek bir hassas alanı açar: `View:Report` + `Reveal:PII`; her açma `pii.reveal` olarak alan adıyla kayda geçer.
+/// Saklanan veri ve `report_show` çıktısı maskeli kalır.
+pub fn do_report_reveal_field(app: &AppState, id: &str, field: &str) -> AppResult<Value> {
+    app.db.transaction(|c| {
+        let uid = authorize(c, app.user(), "View:Report")?;
+        authorize(c, app.user(), "Reveal:PII")?;
+        let r = crud::find(c, &schema::REPORT, &json!(id))?;
+        let value = sensitive_field(r.get("network").unwrap_or(&Value::Null), field)?;
+        audit::record(c, Some(uid), "pii.reveal", "Report", id, None, None, Some(&json!({ "field": field })))?;
+        Ok(json!({ "field": field, "value": value }))
+    })
+}
+
+/// Dışa aktarma (CSV/PDF) yetkisi: `Export:Report`; her dışa aktarma denetim kaydına yazılır.
+pub fn do_export_authorize(app: &AppState, kind: &str) -> AppResult<bool> {
+    if !["csv", "pdf"].contains(&kind) {
+        return Err(AppError::validation("kind", "Dışa aktarma türü csv ya da pdf olmalı."));
+    }
+    app.db.transaction(|c| {
+        let uid = authorize(c, app.user(), "Export:Report")?;
+        audit::record(c, Some(uid), "report.export", "Report", "*", None, None, Some(&json!({ "kind": kind })))?;
+        Ok(true)
+    })
+}
+
+/// Cihazı ve bütün raporlarını tek işlemde siler (`DeleteAny:Report` + `Delete:Device`); tek denetim kaydı.
+pub fn do_device_purge(app: &AppState, device_id: &str, reason: Option<&str>) -> AppResult<Value> {
+    app.db.transaction(|c| {
+        let uid = authorize(c, app.user(), "DeleteAny:Report")?;
+        authorize(c, app.user(), "Delete:Device")?;
+        let mut device = crud::find(c, &schema::DEVICE, &json!(device_id))?;
+        let reports = c.execute("DELETE FROM reports WHERE \"deviceId\" = ?1", params![device_id])?;
+        c.execute("DELETE FROM devices WHERE id = ?1", params![device_id])?;
+        device["reportCount"] = json!(reports);
+        audit::record(c, Some(uid), "Device.purge", "Device", device_id, reason, Some(&device), None)?;
+        Ok(json!({ "deviceId": device_id, "deletedReports": reports }))
+    })
+}
+
 pub fn do_report_set_sharing(app: &AppState, id: &str, shared: bool, reason: Option<&str>) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Update:Report")?;
         let before = crud::find(c, &schema::REPORT, &json!(id))?;
         let mut after = crud::update(c, &schema::REPORT, &json!(id), &json!({ "shared": shared }))?;
@@ -265,7 +456,7 @@ pub fn do_report_set_sharing(app: &AppState, id: &str, shared: bool, reason: Opt
 
 /// Taslak kuralı yayınlar (`Publish:ScoreRule`). Eski raporlar kendi `ruleVersion` değerini korur.
 pub fn do_score_rule_publish(app: &AppState, version: i64, note: Option<&str>) -> AppResult<Value> {
-    app.db.with(|c| {
+    app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Publish:ScoreRule")?;
         let rule = rule_by_version(c, version)?;
         validate_rule(&rule)?;
@@ -357,8 +548,20 @@ pub fn report_submit(state: State<'_, AppState>, input: Value) -> AppResult<Valu
     do_report_submit(&state, &input)
 }
 #[tauri::command]
-pub fn report_show(state: State<'_, AppState>, id: String, reveal: Option<bool>) -> AppResult<Value> {
-    do_report_show(&state, &id, reveal.unwrap_or(false))
+pub fn report_show(state: State<'_, AppState>, id: String) -> AppResult<Value> {
+    do_report_show(&state, &id)
+}
+#[tauri::command]
+pub fn report_reveal_field(state: State<'_, AppState>, id: String, field: String) -> AppResult<Value> {
+    do_report_reveal_field(&state, &id, &field)
+}
+#[tauri::command]
+pub fn export_authorize(state: State<'_, AppState>, kind: String) -> AppResult<bool> {
+    do_export_authorize(&state, &kind)
+}
+#[tauri::command]
+pub fn device_purge(state: State<'_, AppState>, device_id: String, reason: Option<String>) -> AppResult<Value> {
+    do_device_purge(&state, &device_id, reason.as_deref())
 }
 #[tauri::command]
 pub fn report_set_sharing(state: State<'_, AppState>, id: String, shared: bool, reason: Option<String>) -> AppResult<Value> {

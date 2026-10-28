@@ -40,4 +40,13 @@ impl Db {
         let mut guard = self.conn.lock().map_err(|_| AppError::Internal("veritabanı kilidi bozuldu".into()))?;
         f(&mut guard)
     }
+
+    /// Çok adımlı yazma: kapanış `Ok` dönerse commit, `Err` dönerse (denetim kaydı dahil) hepsi geri alınır.
+    pub fn transaction<R>(&self, f: impl FnOnce(&Connection) -> AppResult<R>) -> AppResult<R> {
+        let mut guard = self.conn.lock().map_err(|_| AppError::Internal("veritabanı kilidi bozuldu".into()))?;
+        let tx = guard.transaction()?;
+        let out = f(&tx)?;
+        tx.commit()?;
+        Ok(out)
+    }
 }

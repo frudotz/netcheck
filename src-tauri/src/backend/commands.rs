@@ -34,6 +34,10 @@ pub fn auth_setup_required(state: State<'_, AppState>) -> AppResult<bool> {
 pub fn contact_message_assignees(state: State<'_, AppState>) -> AppResult<Vec<Value>> {
     c::contact_message_assignees(&state)
 }
+#[tauri::command]
+pub fn contact_message_reply(state: State<'_, AppState>, message_id: String, body: String, internal: Option<bool>) -> AppResult<Value> {
+    c::contact_message_reply(&state, &message_id, &body, internal.unwrap_or(false))
+}
 
 // ── Kullanıcılar ──
 #[tauri::command]
@@ -130,6 +134,7 @@ pub fn crud_aggregate(state: State<'_, AppState>, resource: String, group_by: St
 }
 
 // ── Altyapı ve herkese açık ──
+// `contact_submit` (ve `domain::report_submit`) oturumsuz yazma uçlarıdır; bir ekran kullanana kadar `lib.rs` listesinde değildir.
 #[tauri::command]
 pub fn db_migrate_status(state: State<'_, AppState>) -> AppResult<Vec<MigrationStatus>> {
     c::db_migrate_status(&state)

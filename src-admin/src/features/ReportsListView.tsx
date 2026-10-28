@@ -9,6 +9,7 @@ import { CopyText } from "../components/CopyText";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { useI18n } from "../i18n";
 import { useToast } from "../context/ToastContext";
+import { useAdminAuth } from "../context/AdminAuthContext";
 import {
   FileText,
   Share2,
@@ -26,6 +27,8 @@ import {
 export const ReportsListView: React.FC = () => {
   const { t } = useI18n();
   const { addToast } = useToast();
+  const { session } = useAdminAuth();
+  const canExport = Boolean(session?.superAdmin || session?.permissions.includes("Export:Report"));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -337,6 +340,16 @@ export const ReportsListView: React.FC = () => {
         selectedKeys={selectedIds}
         onSelectChange={setSelectedIds}
         exportFilename="netcheck-raporlar.csv"
+        canExport={canExport}
+        onBeforeExport={async () => {
+          try {
+            await api.authorizeExport("csv");
+            return true;
+          } catch (error) {
+            addToast(error instanceof Error ? error.message : t("toastActionError"), "error");
+            return false;
+          }
+        }}
         caption="Ağ Tanılama Raporları Listesi"
       />
 

@@ -86,20 +86,24 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 | `crud_resources` | — | Kaynak tanımları (tablo, sütun, süzgeç) |
 | `crud_index` | resource, query? | Liste: arama + süzgeç + sıralama + sayfalama (`ViewAny:<Kaynak>`) |
 | `crud_show` | resource, id | Tek kayıt (`View`) |
-| `crud_store` | resource, data | Oluştur (`Create`) |
-| `crud_update` | resource, id, data | Kısmi güncelle (`Update`) |
+| `crud_store` | resource, data | Oluştur (`Create`). Kaynak başına yazma kuralı uygulanır: `Report` ve `Device` panelden oluşturulamaz; `ScoreRule` yayınlanmış olarak oluşturulamaz ve ağırlık/eşik doğrulamasından geçer; `ContactMessage.replies` yazılamaz |
+| `crud_update` | resource, id, data | Kısmi güncelle (`Update`). Aynı yazma kuralı: `Report` yalnız `shared`; yayınlanmış `ScoreRule` değişmez (`conflict`); `ContactMessage` gönderen bilgisi ve `replies` değişmez; `Device` sayaçları değişmez |
 | `crud_destroy` | resource, id, reason? | Sil (`Delete`) |
 | `crud_destroy_many` | resource, ids[], reason? | Toplu sil (`DeleteAny`) |
 | `crud_aggregate` | resource, groupBy, query? | Gruplu sayım (panel grafikleri) |
 | `db_migrate_status` | — | Migration durumu (yalnız admin) |
-| `contact_submit` | name, email, subject?, message, lang? | İletişim formu (oturum gerekmez) |
+| `contact_message_reply` | messageId, body, internal? | Yanıt ya da iç not ekler (`Update:ContactMessage`); yazar kimliği ve zaman damgası arka uçta üretilir |
+| `contact_submit` | name, email, subject?, message, lang? | İletişim formu (oturum gerekmez). **Kayıtlı değil:** hiçbir ekran kullanmadığı için `lib.rs` komut listesinde yoktur; kod ve sınırları (ad 2–80, konu ≤200, ileti 10–5000) durur |
 
 ### Bu uygulamaya özel
 
 | Komut | Parametreler | Ne yapar |
 |---|---|---|
-| `report_submit` | input | Cihazdan gelen rapor (oturum gerekmez). `input`: `{ network, tests, createdAt?, shared?, device?: { id, platform, appVersion, locale } }` Kimliği Rust üretir (`report_id::generate`), skoru geçerli kuraldan hesaplar. |
-| `report_show` | id, reveal | Bir raporu gösterir; hassas alanlar varsayılan maskelidir. `reveal` için `Reveal:PII` gerekir ve denetim kaydına yazılır. |
+| `report_submit` | input | Cihazdan gelen rapor (oturum gerekmez). **Kayıtlı değil:** hiçbir ekran kullanmadığı için `lib.rs` komut listesinde yoktur. Kod durur ve sınırları vardır: beş test yalnız `id/status/latencyMs` ile saklanır, `network` ≤ 16 KiB, `createdAt` ISO-8601, `device.id` 1–64 karakter, platform ≤ 1 KiB. Kimliği Rust üretir, skoru geçerli kuraldan hesaplar. |
+| `report_show` | id | Bir raporu gösterir; hassas alanlar **her zaman** maskelidir. |
+| `report_reveal_field` | id, field | Tek bir hassas alanı açar (`View:Report` + `Reveal:PII`); her çağrı `pii.reveal` olarak alan adıyla denetim kaydına yazılır. Alanlar: `hostname`, `localIPv4`, `localIPv6`, `gateway`, `dnsServer[i]`, `<arayüz>.ipv4|ipv6|mac` |
+| `export_authorize` | kind (`csv` / `pdf`) | Dışa aktarma yetkisi (`Export:Report`); `report.export` olarak kayda geçer. Panel CSV ve yazdırma düğmeleri bu izne bağlıdır |
+| `device_purge` | deviceId, reason? | Cihazı ve bütün raporlarını tek işlemde siler (`DeleteAny:Report` + `Delete:Device`); tek denetim kaydı |
 | `report_set_sharing` | id, shared, reason? | Rapor paylaşımını günceller ve gerekçeyi denetim kaydına yazar. |
 | `score_rule_publish` | version, note | Taslak kuralı yayınlar (`Publish:ScoreRule`). Eski raporlar kendi `ruleVersion` değerini korur. |
 | `score_rule_preview` | version, reportIds | Kuralı seçili raporlarda dener: `[{ id, oldScore, newScore, oldLevel, newLevel }]` |
@@ -131,4 +135,6 @@ Süzgeç anahtarı bir sütun adıysa tam eşleşme, dizi ise `IN`; `<sütun>Min
 - Veri cihazdadır; cihazlar arası eşitleme ve sunucu yoktur. Silinen uygulama verisiyle birlikte veritabanı da gider.
 - Parolalar Argon2id ile özetlenir; yine de bu bir **eğitim ve geliştirme altyapısıdır**, gerçek kullanıcı verisi için denetlenmiş bir sunucu gerekir.
 - İzin önbelleği yoktur; her denetim veritabanından okunur.
+- Her yazan komut tek bir SQLite transaction'ında çalışır (`Db::transaction`); denetim kaydı yazılamazsa asıl değişiklik de geri alınır.
+- WebView için CSP açıktır (`tauri.conf.json` → `app.security.csp`): yalnız uygulamanın kendi kaynakları ve Tauri IPC; geliştirme sunucusu için ayrı `devCsp`. Üretim paketinde satır içi `<script>` karmaları Tauri tarafından eklenir.
 - Arama SQLite `LIKE` ile yapılır (Türkçe büyük/küçük harf duyarlılığı sınırlıdır).

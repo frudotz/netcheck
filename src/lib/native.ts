@@ -11,6 +11,7 @@ export type AdminCommand =
   | "auth_register"
   | "auth_logout"
   | "contact_message_assignees"
+  | "contact_message_reply"
   | "user_index"
   | "user_store"
   | "user_sync_roles"
@@ -26,7 +27,10 @@ export type AdminCommand =
   | "report_dashboard"
   | "report_set_sharing"
   | "score_rule_publish"
-  | "report_show";
+  | "report_show"
+  | "report_reveal_field"
+  | "export_authorize"
+  | "device_purge";
 
 export class NativeUnavailableError extends Error {
   constructor() {
