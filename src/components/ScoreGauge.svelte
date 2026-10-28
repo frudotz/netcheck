@@ -1,6 +1,8 @@
 <script lang="ts">
   // Bağlantı Skoru halkası (inline SVG)
-  import { scoreLevel, scoreLevelLabel } from "$lib/score";
+  import { scoreLevel } from "$lib/score";
+  import { dil } from "$lib/dil.svelte";
+  import { skorSeviyesiEtiketi } from "$lib/sozluk";
 
   // size: 16 px kök yazıdaki piksel karşılığı; rem'e çevrilir, büyük ekranda ölçeklenir.
   let { score, size = 112 }: { score: number; size?: number } = $props();
@@ -9,16 +11,17 @@
   const CIRC = 2 * Math.PI * R;
   const level = $derived(scoreLevel(score));
   const dash = $derived((Math.max(0, Math.min(100, score)) / 100) * CIRC);
+  const seviye = $derived(skorSeviyesiEtiketi(dil.metin, level));
 </script>
 
-<div class="gauge {level}" style="width:{size / 16}rem;height:{size / 16}rem" role="img" aria-label="Bağlantı Skoru {score} / 100, {scoreLevelLabel[level]}">
+<div class="gauge {level}" style="width:{size / 16}rem;height:{size / 16}rem" role="img" aria-label="{dil.metin.baglantiSkoru} {score} / 100, {seviye}">
   <svg viewBox="0 0 120 120" aria-hidden="true">
     <circle cx="60" cy="60" r={R} class="iz" />
     <circle cx="60" cy="60" r={R} class="dolu" stroke-dasharray="{dash} {CIRC}" />
   </svg>
   <div class="deger">
     <strong>{score}</strong>
-    <span>{scoreLevelLabel[level]}</span>
+    <span>{seviye}</span>
   </div>
 </div>
 

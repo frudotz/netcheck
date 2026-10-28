@@ -23,10 +23,10 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
 | Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
-| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 25 | 10 | 12 | 2 | 49 |
-| **All** | **62** | **17** | **12** | **4** | **95** |
+| Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 28 | 10 | 9 | 2 | 49 |
+| **All** | **65** | **17** | **9** | **4** | **95** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method) and 11 (data contract) are on their branches; Tasks 12–16 have not started.
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10 (working method), 11 (data contract) and 12 (card), plus the app-language groundwork for Tasks 12–14, are on their branches; Tasks 13–16 have not started.
 
 ## Week 3 — Batch 01
 
@@ -173,9 +173,9 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R12-a | Generic `src/lib/components/ui/Kart.svelte`, input type in `types/ui.ts`, no hard-coded colors | FAIL | Absent — P1 |
-| R12-b | Robust without image, with long titles and in RTL; keyboard focus, Enter, alt text | FAIL | Component absent — P1 |
-| R12-c | Main screen shows ≥6 items with the card; old card code removed | FAIL | Screens use ad-hoc `.kart` sections — P1 |
+| R12-a | Generic `src/lib/components/ui/Kart.svelte`, input type in `types/ui.ts`, no hard-coded colors | PASS (Task 12 branch) | [`Kart.svelte`](../src/lib/components/ui/Kart.svelte) imports only `KartOzellikleri` from [`types/ui.ts`](../src/lib/types/ui.ts); 0 hex/rgb values. New `--durum-bilgi` tokens were added to `docs/branding.md` first, then `app.css` |
+| R12-b | Robust without image, with long titles and in RTL; keyboard focus, Enter, alt text | PASS (Task 12 branch) | Checked in the running Windows app over CDP. In Arabic RTL at 320, 420 and 1280 px, an 8-line title wraps without overflow. The report card is reached with Tab, shows the focus ring and opens on Enter. The image input requires `alt`, but no screen uses an image, so it was not exercised |
+| R12-c | Main screen shows ≥6 items with the card; old card code removed | PASS (Task 12 branch) | Genel Bakış shows 13 cards in the app (7 network facts, 5 interfaces, latest report); the `.arayuz`/`.rozet` card code was removed |
 
 ### Task 13 — List screen and three states
 
@@ -218,7 +218,7 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled), 10 and 11 follow it; Tasks 12–15 not started — P1, NC-14 |
+| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PARTIAL | Tasks 09.1 (PR #34, log backfilled), 10, 11 and 12 follow it; Tasks 13–15 not started — P1, NC-14 |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | To be announced in class; not in the repository |
 
 ## Conflicts requiring an instructor decision

@@ -5,3 +5,4 @@ export type * from "./network";
 export type * from "./platform";
 export type * from "./preferences";
 export type * from "./report";
+export type * from "./ui";

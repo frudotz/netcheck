@@ -29,6 +29,7 @@ Kontrast oranları WCAG 2.x formülüyle ölçülmüştür (metin/zemin; AA eşi
 | `--durum-basarili` / `-zemin` | `#15803d` / `#dcfce7` | `#4ade80` / `#052e16` | "Başarılı", "Bağlı", skor ≥ 80 | 4.57 · 8.55 |
 | `--durum-hata` / `-zemin` | `#b91c1c` / `#fee2e2` | `#fca5a5` / `#450a0a` | "Başarısız", "Bağlantı Yok", skor < 50, tehlikeli buton | 5.30 · 8.51 |
 | `--durum-uyari` / `-zemin` | `#92400e` / `#fef3c7` | `#fcd34d` / `#451a03` | "Kullanılamıyor", "İnternet Yok", skor 50–79 | 6.37 · 10.39 |
+| `--durum-bilgi` / `-zemin` | `#0e7490` / `#cffafe` | `#67e8f9` / `#083344` | Bilgi etiketi (ör. "Varsayılan" arayüz); `Kart` etiket türü `bilgi` | 4.79 · 9.24 |
 
 ## 2. Tipografi ve Köşe Yuvarlaklığı
 
