@@ -89,4 +89,4 @@ Oturum süresi (M4) gerçek uygulamada beklenerek doğrulanmadı (30 dk / 12 sa)
 
 ## PR
 
-PR_SATIRI
+[#49](https://github.com/frudotz/netcheck/pull/49) (taslak; taban `master`). Birleştirme depo sahibinin kararına ve eğitmenin C-3 yanıtına bağlıdır. CI sonucu PR'da ve Obsidian kasasında kayıtlıdır.
