@@ -49,6 +49,7 @@ One shell and one set of pages adapt to phone, tablet, desktop, and TV by availa
 - Tokens in [[src/styles/app.css]]: rem-based type and spacing, a 44 px touch-target token, content and reading widths, and focus color.
 - Breakpoints, with [[docs/mimari-agac.md]] §3 as the single source: 48em tablet, 64em desktop where [[src/components/AppNav.svelte]] becomes a sticky side rail, short landscape also uses the rail, and very large screens scale the root font in steps (112.5%, 150%, 200%).
 - Below 64em the navigation is a fixed bottom bar. Header and navigation respect safe-area insets (notch, home indicator).
+- The desktop window opens at 420 × 820 and cannot be resized below 320 × 480 ([[src-tauri/tauri.conf.json]]). 320 px is the narrowest width at which the screens were verified (course Task 16).
 - No container queries, because the iOS deployment target is 15.0 and WKWebView lacks `@container` before iOS 16 ([[decisions#No container queries]]).
 
 ## Browser preview

@@ -20,6 +20,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 | [`docs/kurallar.md`](docs/kurallar.md) | Kurallar indeksi ve PR güvenliği | Kuralların kaynağı bu dosyadır (AGENTS.md); `kurallar.md` buraya yönlendirir. Tek istisna "PR güvenliği" bölümüdür; yalnız `kurallar.md` içinde tanımlanır. |
 | [`docs/kaynaklar.md`](docs/kaynaklar.md) | Tasarım ve teknik referanslar | Tasarım kararlarında bu referanslar esas alınır. |
 | [`docs/teslim.md`](docs/teslim.md) | Teslim adımları ve tarihler | Etiket/ZIP/Blackboard adımları buradadır. |
+| [`docs/ilerleme-batch-02.md`](docs/ilerleme-batch-02.md) | Batch 02 ilerlemesi, yayın kapısı, birleştirme ve etiket adımları | `v0.2.0-batch-02` yalnız bütün Batch 02 PR'ları birleşip kapı `master`'da geçtikten sonra, depo sahibinin onayıyla atılır. |
 | [`docs/agent-compliance-test.md`](docs/agent-compliance-test.md) | Ajan uyum testi kaydı (görev 08) | Kural uyumu kanıtı; kurallar burada tekrarlanmaz. |
 | [`docs/yonetim-paneli.md`](docs/yonetim-paneli.md) | Yönetim paneli (`admin/`): durum, yapı, renk ve metin kuralları, bağımlılıklar | Panel yalnız arayüzdür; veri kaynağı, giriş ve veritabanı bağlantısı C-3 kararından önce eklenmez. |
 | [`docs/backend.md`](docs/backend.md) | Geçici yerel SQLite arka ucu (migration, rol/izin, komutlar) | Arka uç tabloları, rolleri ve komutları yalnız burada ayrıntılandırılır. Kapsam kararı bekliyor: [`docs/course-compliance.md`](docs/course-compliance.md) C-3. |
