@@ -226,7 +226,10 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 These requirements contradict binding rules already in the project. Resolve them before implementing the affected tasks (NC-16).
 
 - **C-1 — Sample data vs. no fake data.** Task 11 asks for ≥6 sample records per type. AGENTS.md §4 forbids fabricated IPs, latencies or reports. **Decided on 2026-10-21** under the owner's general authorization to finish Batch 02: the records in `src/lib/veri/ornek.ts` use documentation address ranges (RFC 5737/3849/7042), only illustrate the types, and no screen, store or command imports them. The limit is written into AGENTS.md §4. Instructor confirmation is still pending.
-- **C-2 — Four-language state and detail texts vs. Turkish-first screens.** Tasks 13 and 14 require TR/EN/AR/FA texts on app screens. AGENTS.md and [`lat.md/frontend.md`](../lat.md/frontend.md) keep app screens Turkish only.
+- **C-2 — Four-language state and detail texts vs. Turkish-first screens.** Tasks 13 and 14 require TR/EN/AR/FA texts on app screens, and Tasks 12–14 test by switching the app language. AGENTS.md kept app screens Turkish only. **Decided on 2026-10-21** under the owner's general authorization, because AGENTS.md treats task files as binding:
+  - Turkish stays the default; Settings offers TR/EN/AR/FA and switches `<html lang dir>` on app screens.
+  - Texts come from `src/lib/sozluk.ts`. New or changed texts are added in all four languages; older texts stay Turkish until moved.
+  - Recorded in AGENTS.md §4. Instructor confirmation is still pending.
 - **C-3 — Out-of-scope list vs. merged backend.** AGENTS.md §6 excludes login, server and database, yet PR #31 (instructor-authored) merged a SQLite and auth backend that no screen uses.
 
 ## Remediation plan

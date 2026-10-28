@@ -76,7 +76,7 @@ Tek kod tabanı, tek sayfa kümesi: telefon, tablet, masaüstü ve büyük ekran
 - **Kabuk:** `Layout.astro` gövde ızgarası (başlık / menü / içerik); `AppNav` aynı işaretlemeyle alt menü ya da ray olur. Kesme noktası `Layout.astro` ve `AppNav.svelte` içinde aynıdır.
 - **RTL:** yöne bağlı kenarlar mantıksal özelliklerle yazılır (`border-inline-start`, `text-align: end`, `inset-inline`); `direction` bileşen bazında zorlanmaz.
 - **Kapsayıcı sorgusu (`@container`) kullanılmaz:** iOS dağıtım hedefi 15.0; WKWebView iOS 16 öncesinde desteklemez.
-- **Dil:** uygulama ekranları Türkçedir; bilgi sayfaları TR / EN / AR / FA (AR ve FA sağdan sola).
+- **Dil:** uygulama ekranlarının varsayılanı Türkçedir; Ayarlar'dan TR / EN / AR / FA seçilir ve `<html lang dir>` değişir. Bilgi sayfaları her dilde ayrı rotadadır (`/`, `/en/`, `/ar/`, `/fa/`). AR ve FA sağdan soladır.
 - **Odak / TV:** üzerine gelmeye (hover) bağlı etkileşim yoktur; klavye ve uzaktan kumanda için `:focus-visible` halkası vardır.
 
 Varsayılan Tauri penceresi: 420 × 820 (telefon düzeni). Pencere genişletildiğinde masaüstü düzenine geçilir.

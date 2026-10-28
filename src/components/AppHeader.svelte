@@ -1,10 +1,11 @@
 <script lang="ts">
   // Ortak başlık: NetCheck logosu ve gece / gündüz modu düğmesi
   import { tema } from "$lib/tema.svelte";
+  import { dil } from "$lib/dil.svelte";
 </script>
 
 <header class="ust">
-  <a href="/" class="logo" aria-label="NetCheck — Genel Bakış">
+  <a href="/" class="logo" aria-label={dil.metin.logoEtiketi}>
     <svg class="isaret" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M2.5 8.5a14 14 0 0 1 19 0" />
       <path d="M5.5 12a9.5 9.5 0 0 1 13 0" />
@@ -16,7 +17,7 @@
   <button
     class="tema-dugme"
     onclick={() => tema.degistir()}
-    aria-label={tema.mod === "gece" ? "Gündüz moduna geç" : "Gece moduna geç"}
+    aria-label={tema.mod === "gece" ? dil.metin.gunduzeGec : dil.metin.geceyeGec}
   >
     <svg viewBox="0 0 24 24" aria-hidden="true">
       {#if tema.mod === "gece"}

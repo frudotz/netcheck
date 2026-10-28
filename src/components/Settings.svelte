@@ -1,49 +1,60 @@
 <script lang="ts">
-  // Ayarlar — tema seçimi, uygulama bilgisi ve yerel veri
+  // Ayarlar — tema ve dil seçimi, uygulama bilgisi ve yerel veri
   import { onMount } from "svelte";
   import { tema } from "$lib/tema.svelte";
-  import type { TemaTercihi } from "$lib/types";
+  import { dil } from "$lib/dil.svelte";
+  import type { PlatformInfo, TemaTercihi } from "$lib/types";
   import { reports } from "$lib/reports.svelte";
   import { getPlatformInfo, hasNative } from "$lib/native";
-  import { icmpBackendLabel, platformLabel } from "$lib/labels";
+  import { dirOf, infoHref, INFO_SLUGS, LOCALES, localeName, pageTitle } from "$lib/i18n";
+  import { icmpEtiketi, platformEtiketi } from "$lib/sozluk";
   import pkg from "../../package.json";
   import ExternalLink from "./ExternalLink.svelte";
 
-  const secenekler: { deger: TemaTercihi; ad: string }[] = [
-    { deger: "sistem", ad: "Sistem" },
-    { deger: "gunduz", ad: "Gündüz" },
-    { deger: "gece", ad: "Gece" },
-  ];
+  const m = $derived(dil.metin);
+  const ok = $derived(dirOf(dil.kod) === "rtl" ? "←" : "→");
+
+  const secenekler = $derived<{ deger: TemaTercihi; ad: string }[]>([
+    { deger: "sistem", ad: m.temaSistem },
+    { deger: "gunduz", ad: m.temaGunduz },
+    { deger: "gece", ad: m.temaGece },
+  ]);
 
   // localStorage ve Tauri tespiti yalnızca istemcide anlamlıdır.
   let mounted = $state(false);
-  let ortam = $state("—");
-  let ping = $state("—");
+  // Çalışma ortamı: tarayıcıda "browser", Rust'tan okunamazsa "unknown"; metin dile göre çizilir.
+  let ortam = $state<PlatformInfo | "browser" | "unknown" | null>(null);
 
   onMount(() => {
     mounted = true;
     if (!hasNative()) {
-      ortam = "Tarayıcı önizlemesi";
+      ortam = "browser";
       return;
     }
     // Çalışma ortamı Rust'tan okunur (masaüstü/mobil, işletim sistemi, ping yöntemi).
     getPlatformInfo()
       .then((info) => {
-        ortam = platformLabel(info);
-        ping = icmpBackendLabel[info.icmp];
+        ortam = info;
       })
       .catch(() => {
-        ortam = "Bilinmiyor";
+        ortam = "unknown";
       });
   });
+
+  function ortamMetni(o: typeof ortam): string {
+    if (o === null) return "—";
+    if (o === "browser") return m.tarayiciOnizlemesi;
+    if (o === "unknown") return m.bilinmiyor;
+    return platformEtiketi(m, o.family, o.os);
+  }
 </script>
 
 <div class="sayfa">
-  <h1>Ayarlar</h1>
+  <h1>{m.ayarlarBaslik}</h1>
 
   <div class="izgara iki ayarlar">
   <section class="kart bolum">
-    <h2 id="tema-baslik">Tema</h2>
+    <h2 id="tema-baslik">{m.temaBaslik}</h2>
     <div class="secim" role="radiogroup" aria-labelledby="tema-baslik">
       {#each secenekler as s (s.deger)}
         <button
@@ -56,41 +67,59 @@
         </button>
       {/each}
     </div>
-    <p class="not">"Sistem" seçildiğinde işletim sisteminin açık/koyu teması izlenir.</p>
+    <p class="not">{m.temaNot}</p>
   </section>
 
   <section class="kart bolum">
-    <h2>Yerel Veri</h2>
+    <h2 id="dil-baslik">{m.dilBaslik}</h2>
+    <div class="secim dil" role="radiogroup" aria-labelledby="dil-baslik">
+      {#each LOCALES as l (l)}
+        <button
+          role="radio"
+          lang={l}
+          dir={dirOf(l)}
+          aria-checked={mounted && dil.kod === l}
+          class:secili={mounted && dil.kod === l}
+          onclick={() => dil.sec(l)}
+        >
+          {localeName[l]}
+        </button>
+      {/each}
+    </div>
+    <p class="not">{m.dilNot}</p>
+  </section>
+
+  <section class="kart bolum">
+    <h2>{m.yerelVeriBaslik}</h2>
     <dl class="anahtar-deger">
-      <div><dt>Kayıtlı rapor</dt><dd>{mounted ? reports.list.length : "—"}</dd></div>
-      <div><dt>Depolama</dt><dd>Bu cihaz (localStorage)</dd></div>
+      <div><dt>{m.kayitliRapor}</dt><dd>{mounted ? reports.list.length : "—"}</dd></div>
+      <div><dt>{m.depolama}</dt><dd>{m.depolamaDeger}</dd></div>
     </dl>
-    <a class="satir-link" href="/gecmis">Geçmişi görüntüle / temizle →</a>
+    <a class="satir-link" href="/gecmis">{m.gecmisBaglantisi}</a>
   </section>
 
   <section class="kart bolum">
-    <h2>Bilgi Sayfaları</h2>
+    <h2>{m.bilgiSayfalariBaslik}</h2>
     <ul class="bilgi-listesi">
-      <li><a class="satir-link" href="/hakkinda">Hakkında →</a></li>
-      <li><a class="satir-link" href="/iletisim">İletişim →</a></li>
-      <li><a class="satir-link" href="/kosullar">Kullanım Koşulları →</a></li>
-      <li><a class="satir-link" href="/gizlilik">Gizlilik Politikası →</a></li>
+      {#each INFO_SLUGS as s (s)}
+        <li><a class="satir-link" href={infoHref(dil.kod, s)}>{pageTitle[dil.kod][s]} {ok}</a></li>
+      {/each}
     </ul>
-    <p class="not">Bilgi sayfaları Türkçe, English, العربية ve فارسی dillerinde sunulur.</p>
+    <p class="not">{m.bilgiSayfalariNot}</p>
   </section>
 
   <section class="kart bolum">
-    <h2>Uygulama Bilgisi</h2>
+    <h2>{m.uygulamaBilgisiBaslik}</h2>
     <dl class="anahtar-deger">
-      <div><dt>Uygulama</dt><dd>NetCheck</dd></div>
-      <div><dt>Açıklama</dt><dd>Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması</dd></div>
-      <div><dt>Sürüm</dt><dd class="mono">{pkg.version}</dd></div>
-      <div><dt>Çalışma ortamı</dt><dd>{ortam}</dd></div>
-      <div><dt>Ping yöntemi</dt><dd>{ping}</dd></div>
-      <div><dt>Ders</dt><dd>İstinye Üniversitesi · MYO063 Mobil Programlama</dd></div>
+      <div><dt>{m.uygulama}</dt><dd>NetCheck</dd></div>
+      <div><dt>{m.aciklama}</dt><dd>{m.aciklamaDeger}</dd></div>
+      <div><dt>{m.surum}</dt><dd class="mono">{pkg.version}</dd></div>
+      <div><dt>{m.calismaOrtami}</dt><dd>{ortamMetni(ortam)}</dd></div>
+      <div><dt>{m.pingYontemi}</dt><dd>{ortam !== null && typeof ortam === "object" ? icmpEtiketi(m, ortam.icmp) : "—"}</dd></div>
+      <div><dt>{m.ders}</dt><dd>{m.dersDeger}</dd></div>
     </dl>
     <div class="baglantilar">
-      <ExternalLink href="https://github.com/frudotz/netcheck">Kaynak kod (GitHub) ↗</ExternalLink>
+      <ExternalLink href="https://github.com/frudotz/netcheck">{m.kaynakKod}</ExternalLink>
     </div>
   </section>
   </div>
@@ -133,6 +162,11 @@
     font-size: var(--yazi-govde);
     font-weight: 600;
     color: var(--yazi-soluk);
+  }
+
+  /* Dört dil düğmesi: dar ekranda 2 × 2, genişte tek satır. */
+  .secim.dil {
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
   }
 
   .secim button.secili {
