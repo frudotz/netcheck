@@ -6,7 +6,7 @@
   // docs/gelistirme-notlari.md.
   import { onMount } from "svelte";
   import type { ScoreLevel } from "$lib/types";
-  import { reports, reportHref } from "$lib/reports.svelte";
+  import { GECMIS_ADRESI, reports, reportHref } from "$lib/reports.svelte";
   import { scoreLevel } from "$lib/score";
   import { dil } from "$lib/dil.svelte";
   import { bicim, skorSeviyesiEtiketi, tarihSaat } from "$lib/sozluk";
@@ -67,6 +67,12 @@
     if (s) url.searchParams.set("seviye", s);
     else url.searchParams.delete("seviye");
     if (url.href !== location.href) history.replaceState(history.state, "", url);
+    // Rapor ekranının "Geçmiş" bağlantısı bu adrese döner; arama ve süzgeç korunur (Görev 14).
+    try {
+      sessionStorage.setItem(GECMIS_ADRESI, url.pathname + url.search);
+    } catch {
+      // Depolama kapalıysa geri bağlantı süzgeçsiz /gecmis'e gider.
+    }
   });
 
   /** "Tekrar dene": geliştirmede zorlanan hal adresten kaldırılır, sonra gerçekten yeniden yüklenir. */

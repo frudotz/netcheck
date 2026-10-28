@@ -1,28 +1,10 @@
 // Kullanıcıya görünen Türkçe metinler — kod tanımlayıcıları İngilizce kalır.
 // Dört dile çevrilen metinler src/lib/sozluk.ts içindedir; buradakiler henüz taşınmadı.
-import type { ConnectionType, DiagnosticCode, DiagnosticKind, DiagnosticOutcome, DiagnosticStatus } from "./types";
+import type { DiagnosticCode, DiagnosticKind, DiagnosticOutcome } from "./types";
 import { NativeUnavailableError } from "./native";
-
-export const UNAVAILABLE = "Kullanılamıyor";
-export const NOT_FOUND = "Bulunamadı";
-
-export const connectionTypeLabel: Record<ConnectionType, string> = {
-  ethernet: "Ethernet (kablolu)",
-  wifi: "Wi-Fi (kablosuz)",
-  cellular: "Mobil veri (hücresel)",
-  unknown: "Bilinmiyor",
-};
 
 export const DESKTOP_ONLY =
   "Ağ bilgileri yalnızca NetCheck uygulamasında alınabilir. Tarayıcı önizlemesinde gerçek ağ verisine erişilemez.";
-
-export const statusLabel: Record<DiagnosticStatus, string> = {
-  pending: "Bekliyor",
-  running: "Çalışıyor",
-  success: "Başarılı",
-  failed: "Başarısız",
-  unavailable: "Kullanılamıyor",
-};
 
 export const diagnosticName: Record<DiagnosticKind, string> = {
   gateway: "Gateway",

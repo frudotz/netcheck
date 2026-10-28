@@ -51,6 +51,10 @@ export interface DiagnosticTest {
   target?: string;
   /** Milisaniye cinsinden gecikme. */
   latencyMs?: number;
-  /** Kullanıcıya gösterilen Türkçe sonuç mesajı. */
+  /** Rust'un sonuç kodu; mesaj seçili dilde bundan üretilir. Görev 14'ten önceki raporlarda yoktur. */
+  code?: DiagnosticCode;
+  /** Rust'un ek bilgisi (DNS'te çözülen adres, HTTPS'te genel IP). */
+  detail?: string;
+  /** Rapor anında üretilen Türkçe sonuç mesajı; `code` yoksa gösterilir. */
   message?: string;
 }

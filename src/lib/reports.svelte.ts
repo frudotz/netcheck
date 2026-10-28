@@ -75,10 +75,20 @@ class Reports {
 
 export const reports = new Reports();
 
+/** Rapor detayının adresi; kimlik sorgu dizesindedir çünkü statik derleme kimlikli yol üretemez. */
 export function reportHref(id: string): string {
   return `/rapor?id=${encodeURIComponent(id)}`;
 }
 
-export function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" });
+/** Geçmiş listesinin arama ve süzgeçle birlikte son adresi (sessionStorage anahtarı). */
+export const GECMIS_ADRESI = "netcheck.gecmis.adres";
+
+/** Rapor ekranından dönülecek adres: listenin son adresi, yoksa /gecmis. */
+export function gecmisAdresi(): string {
+  try {
+    const kayit = typeof sessionStorage !== "undefined" ? sessionStorage.getItem(GECMIS_ADRESI) : null;
+    return kayit?.startsWith("/gecmis") ? kayit : "/gecmis";
+  } catch {
+    return "/gecmis";
+  }
 }
