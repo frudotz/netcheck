@@ -23,6 +23,7 @@ PR'lar zincirleme açıldı: her biri bir öncekinin dalı üstünde ve tabanı 
 | 15 Rust komutu ve platform | `docs/platform-destegi.md` (ve tipli hata, `docs/komutlar.md`) | PR açık | #41 | [`platform-destegi.md`](platform-destegi.md); macOS/Linux/iOS çalıştırması ertelendi (R15-h) |
 | Yönetim paneli (Hafta 05) | AI Studio panelini `admin/`'e taşı; sabit renk yok; metinler sözlükten | PR açık | #42 | [`yonetim-paneli.md`](yonetim-paneli.md); kaynak deponun arşivi birleştirmeden sonra |
 | 16 Batch 02 denetimi | `minWidth`/`minHeight`; bu belge; `v0.2.0-batch-02` | PR açık; etiket yok | #43 | Pencere en az 320 × 480 ([aşağıda](#pencere-boyutu)) |
+| Yerel denetim düzeltmeleri (27.10) | Kod incelemesinde bulunan kusurlar (rapor kaybı, test listesi, komut hatası mesajı, bozuk depo, panel `t()`) | PR açık | #45 | Günlük #45'in dalında: `docs/istemler/yerel-denetim-duzeltmeleri.md` |
 
 ## Pencere boyutu
 
@@ -51,7 +52,7 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
 
 | # | Ölçüt | Sonuç | Neden |
 |---|---|---|---|
-| K1 | Eğitmen tablosundaki ❌ ve 🟡 maddelerin dosyaları `master`'da | **BLOCKED** | Hepsi açık PR'larda (#35–#43). PR'ları depo sahibi birleştirir ([`AGENTS.md`](../AGENTS.md) § Çalışma döngüsü madde 7). |
+| K1 | Eğitmen tablosundaki ❌ ve 🟡 maddelerin dosyaları `master`'da | **BLOCKED** | Hepsi açık PR'larda (#35–#43, düzeltmeler #45). PR'ları depo sahibi birleştirir ([`AGENTS.md`](../AGENTS.md) § Çalışma döngüsü madde 7). |
 | K2 | Her görev ayrı dal, PR ve istem günlüğü | PASS | Kontrol matrisi; [`istemler/`](istemler/README.md) |
 | K3 | `bun run build` 0 hata | PASS | 32 sayfa |
 | K4 | `bun run check` 0 hata, 0 uyarı | PASS | |
@@ -79,7 +80,7 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
    git merge origin/master
    git push
    ```
-3. **Beş kontrol yeşil olunca o PR'ı da merge commit ile birleştirin.** 2–3. adımları sırayla #37, #38, #39, #40, #41, #42, #43 için tekrarlayın.
+3. **Beş kontrol yeşil olunca o PR'ı da merge commit ile birleştirin.** 2–3. adımları sırayla #37, #38, #39, #40, #41, #42, #43 ve #45 (27.10 yerel denetim düzeltmeleri) için tekrarlayın.
 4. **Yayın kapısını `master` üzerinde yeniden çalıştırın:** `bun run build`, `bun run check`, `cargo test`, `lat check`. K1 artık geçmeli.
 5. **Etiketi onayınızla atın:**
    ```bash
