@@ -1,16 +1,102 @@
 <script lang="ts">
-  // Geçmiş — bu cihazda (localStorage) saklanan tanılama raporları
+  // Geçmiş — bu cihazda (localStorage) saklanan tanılama raporları.
+  // Görev 13: veri tek yükleme işlevinden (reports.yukle) gelir ve ekran dört halden yalnız birini gösterir:
+  // yükleniyor, hata, boş, dolu. Arama ve skor süzgeci adreste tutulur (?ara=&seviye=), böylece
+  // rapordan geri dönünce korunur (Görev 14). Geliştirmede ?durum=… ile hal zorlanabilir:
+  // docs/gelistirme-notlari.md.
   import { onMount } from "svelte";
-  import { reports, reportHref, formatDateTime } from "$lib/reports.svelte";
+  import type { ScoreLevel } from "$lib/types";
+  import { reports, reportHref } from "$lib/reports.svelte";
   import { scoreLevel } from "$lib/score";
+  import { dil } from "$lib/dil.svelte";
+  import { bicim, skorSeviyesiEtiketi, tarihSaat } from "$lib/sozluk";
+  import Kart from "$lib/components/ui/Kart.svelte";
+  import Yukleniyor from "$lib/components/ui/Yukleniyor.svelte";
+  import BosDurum from "$lib/components/ui/BosDurum.svelte";
+  import HataDurumu from "$lib/components/ui/HataDurumu.svelte";
 
-  // Liste yalnızca istemcide çizilir; sunucu çıktısı localStorage'ı göremez.
-  let mounted = $state(false);
+  type Hal = "yukleniyor" | "hata" | "bos" | "dolu";
+  const SEVIYELER: ScoreLevel[] = ["iyi", "orta", "zayif"];
+  const ETIKET_TURU = { iyi: "basari", orta: "uyari", zayif: "hata" } as const;
+
+  const m = $derived(dil.metin);
+
+  let hal = $state<Hal>("yukleniyor");
+  let ara = $state("");
+  let seviye = $state<ScoreLevel | "">("");
   let confirming = $state(false);
 
+  /** Yalnız geliştirme sunucusunda (`bun run dev`, `bun run tauri dev`) geçerli; derlemede yok sayılır. */
+  function zorlananHal(): string | null {
+    return import.meta.env.DEV ? new URLSearchParams(location.search).get("durum") : null;
+  }
+
+  async function yukle() {
+    hal = "yukleniyor";
+    const zorla = zorlananHal();
+    if (zorla === "yukleniyor") return;
+    try {
+      if (zorla === "hata") throw new Error("geliştirme: zorlanan hata");
+      const liste = await reports.yukle();
+      hal = zorla === "bos" || liste.length === 0 ? "bos" : "dolu";
+    } catch {
+      hal = "hata";
+    }
+  }
+
+  // Adresteki süzgeç okunmadan adres yazılmasın (ilk çizimde boş değerler adresi silmesin).
+  let adresOkundu = false;
+
   onMount(() => {
-    mounted = true;
+    const q = new URLSearchParams(location.search);
+    ara = q.get("ara") ?? "";
+    const s = q.get("seviye");
+    seviye = SEVIYELER.find((l) => l === s) ?? "";
+    adresOkundu = true;
+    yukle();
   });
+
+  /** Arama ve süzgeç adrese yazılır (geçmiş kaydı eklenmez). */
+  $effect(() => {
+    const a = ara;
+    const s = seviye;
+    if (!adresOkundu) return;
+    const url = new URL(location.href);
+    if (a) url.searchParams.set("ara", a);
+    else url.searchParams.delete("ara");
+    if (s) url.searchParams.set("seviye", s);
+    else url.searchParams.delete("seviye");
+    if (url.href !== location.href) history.replaceState(history.state, "", url);
+  });
+
+  /** "Tekrar dene": geliştirmede zorlanan hal adresten kaldırılır, sonra gerçekten yeniden yüklenir. */
+  function tekrarDene() {
+    if (zorlananHal() !== null) {
+      const url = new URL(location.href);
+      url.searchParams.delete("durum");
+      history.replaceState(history.state, "", url);
+    }
+    yukle();
+  }
+
+  function suzgeciTemizle() {
+    ara = "";
+    seviye = "";
+  }
+
+  const suzulmus = $derived.by(() => {
+    const aranan = ara.trim().toLocaleLowerCase(dil.kod);
+    return reports.list.filter(
+      (r) =>
+        (!seviye || scoreLevel(r.score) === seviye) &&
+        (!aranan ||
+          r.id.toLocaleLowerCase(dil.kod).includes(aranan) ||
+          tarihSaat(r.createdAt, dil.kod).toLocaleLowerCase(dil.kod).includes(aranan)),
+    );
+  });
+
+  // Geçmiş temizlenince dolu liste boş hale geçer.
+  const gorunen = $derived<Hal>(hal === "dolu" && reports.list.length === 0 ? "bos" : hal);
 
   function clearHistory() {
     reports.clear();
@@ -20,149 +106,106 @@
 
 <div class="sayfa">
   <div>
-    <h1>Geçmiş</h1>
-    <p class="aciklama">Raporlar yalnızca bu cihazda saklanır.</p>
+    <h1>{m.menuGecmis}</h1>
+    <p class="aciklama">{m.gecmisAciklama}</p>
   </div>
 
-  {#if !mounted}
-    <p class="kart durum" role="status">Geçmiş yükleniyor...</p>
-  {:else if reports.list.length === 0}
-    <div class="bos">
-      <p>Henüz kayıtlı rapor yok.</p>
-      <a class="btn" href="/tanilama">Tanılamayı Başlat</a>
-    </div>
+  {#if gorunen === "yukleniyor"}
+    <Yukleniyor satir={4} />
+  {:else if gorunen === "hata"}
+    <HataDurumu mesaj={m.gecmisHata} {tekrarDene} />
+  {:else if gorunen === "bos"}
+    <BosDurum baslik={m.gecmisBos} aciklama={m.gecmisBosAciklama} dugmeMetni={m.tanilamayiBaslat} dugmeHref="/tanilama" />
   {:else}
-    <ul class="kart liste">
-      {#each reports.list as r (r.id)}
-        <li>
-          <a href={reportHref(r.id)}>
-            <span class="skor {scoreLevel(r.score)}" aria-label="Skor {r.score}">{r.score}</span>
-            <span class="metin">
-              <code>{r.id}</code>
-              <span class="tarih">{formatDateTime(r.createdAt)}</span>
-            </span>
-            <span class="sayac">
-              <span class="ok">{r.passed} başarılı</span>
-              <span class="hayir">{r.failed} başarısız</span>
-            </span>
-          </a>
-        </li>
-      {/each}
-    </ul>
+    <div class="suzgec">
+      <label class="alan">
+        <span>{m.ara}</span>
+        <input type="search" bind:value={ara} placeholder={m.araIpucu} />
+      </label>
+      <label class="alan">
+        <span>{m.seviyeSuzgeci}</span>
+        <select bind:value={seviye}>
+          <option value="">{m.tumu}</option>
+          {#each SEVIYELER as s (s)}
+            <option value={s}>{skorSeviyesiEtiketi(m, s)}</option>
+          {/each}
+        </select>
+      </label>
+    </div>
+
+    {#if suzulmus.length === 0}
+      <BosDurum baslik={m.sonucYok} aciklama={m.sonucYokAciklama} dugmeMetni={m.suzgeciTemizle} onclick={suzgeciTemizle} />
+    {:else}
+      <ul class="liste">
+        {#each suzulmus as r (r.id)}
+          <li>
+            <Kart
+              href={reportHref(r.id)}
+              baslik={r.id}
+              altMetin={`${tarihSaat(r.createdAt, dil.kod)} · ${r.passed} ${m.basarili} · ${r.failed} ${m.basarisiz}`}
+              etiket={`${r.score} · ${skorSeviyesiEtiketi(m, scoreLevel(r.score))}`}
+              etiketTuru={ETIKET_TURU[scoreLevel(r.score)]}
+            />
+          </li>
+        {/each}
+      </ul>
+    {/if}
 
     {#if confirming}
-      <div class="kart onay" role="alertdialog" aria-label="Geçmişi temizleme onayı">
-        <p>{reports.list.length} rapor kalıcı olarak silinecek.</p>
+      <div class="kart onay" role="alertdialog" aria-label={m.temizlemeOnayiEtiketi}>
+        <p>{bicim(m.temizlemeOnayi, { n: reports.list.length })}</p>
         <div class="dugmeler">
-          <button class="btn tehlike" onclick={clearHistory}>Evet, temizle</button>
-          <button class="btn ikincil" onclick={() => (confirming = false)}>Vazgeç</button>
+          <button class="btn tehlike" onclick={clearHistory}>{m.evetTemizle}</button>
+          <button class="btn ikincil" onclick={() => (confirming = false)}>{m.vazgec}</button>
         </div>
       </div>
     {:else}
-      <button class="btn ikincil temizle" onclick={() => (confirming = true)}>Geçmişi Temizle</button>
+      <button class="btn ikincil temizle" onclick={() => (confirming = true)}>{m.gecmisiTemizle}</button>
     {/if}
   {/if}
 </div>
 
 <style>
-  .durum {
-    margin: 0;
-    padding: var(--bosluk-4);
-    color: var(--yazi-soluk);
-  }
-
-  .bos {
-    display: flex;
-    flex-direction: column;
+  .suzgec {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
     gap: var(--bosluk-3);
   }
 
-  .bos p {
-    margin: 0;
+  .alan {
+    display: flex;
+    flex-direction: column;
+    gap: var(--bosluk-1);
+    font-size: var(--yazi-kucuk);
+    font-weight: 600;
+    color: var(--yazi-soluk);
+  }
+
+  .alan input,
+  .alan select {
+    min-height: var(--dokunma);
+    padding: var(--bosluk-2) var(--bosluk-3);
+    border: 1px solid var(--kenar);
+    border-radius: calc(var(--radius) / 2);
+    background: var(--kart);
+    color: var(--yazi);
+    font: inherit;
+    font-size: var(--yazi-govde);
+    font-weight: 400;
   }
 
   .liste {
     list-style: none;
     margin: 0;
     padding: 0;
-  }
-
-  li + li {
-    border-top: 1px solid var(--kenar);
-  }
-
-  li a {
     display: flex;
-    align-items: center;
-    gap: var(--bosluk-3);
-    min-height: var(--dokunma);
-    padding: var(--bosluk-3) var(--bosluk-4);
-    border-radius: var(--radius);
+    flex-direction: column;
+    gap: var(--bosluk-2);
   }
 
-  li a:focus-visible {
-    outline-offset: -3px;
-  }
-
-  .skor {
-    width: var(--dokunma);
-    height: var(--dokunma);
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    font-weight: 800;
-  }
-
-  .iyi {
-    background: var(--durum-basarili-zemin);
-    color: var(--durum-basarili);
-  }
-
-  .orta {
-    background: var(--durum-uyari-zemin);
-    color: var(--durum-uyari);
-  }
-
-  .zayif {
-    background: var(--durum-hata-zemin);
-    color: var(--durum-hata);
-  }
-
-  .metin {
-    flex: 1;
+  .liste li {
+    display: flex;
     min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  code {
-    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-    font-size: var(--yazi-govde);
-    font-weight: 700;
-    overflow-wrap: anywhere;
-  }
-
-  .tarih {
-    font-size: var(--yazi-kucuk);
-    color: var(--yazi-soluk);
-  }
-
-  .sayac {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    font-size: var(--yazi-kucuk);
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .ok {
-    color: var(--durum-basarili);
-  }
-
-  .hayir {
-    color: var(--durum-hata);
   }
 
   .onay {
@@ -184,18 +227,8 @@
     color: var(--durum-hata-zemin);
   }
 
-  /* Tablet ve üzeri: sayaçlar yan yana; eylem düğmeleri tam genişlik yerine içerik kadar. */
+  /* Tablet ve üzeri: eylem düğmeleri tam genişlik yerine içerik kadar. */
   @media (min-width: 48em) {
-    li a {
-      gap: var(--bosluk-4);
-    }
-
-    .sayac {
-      flex-direction: row;
-      gap: var(--bosluk-4);
-      font-size: var(--yazi-ince);
-    }
-
     .temizle,
     .dugmeler .btn {
       width: auto;

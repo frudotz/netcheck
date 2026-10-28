@@ -18,11 +18,17 @@ function isReport(value: unknown): value is DiagnosticReport {
   );
 }
 
+/** Depodaki raporları okur. Depo okunamazsa ya da kayıt bozuksa hata fırlatır. */
+function read(): DiagnosticReport[] {
+  if (typeof localStorage === "undefined") return [];
+  const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+  if (!Array.isArray(parsed)) throw new Error("rapor deposu bozuk");
+  return parsed.filter(isReport);
+}
+
 function load(): DiagnosticReport[] {
   try {
-    if (typeof localStorage === "undefined") return [];
-    const parsed: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
-    return Array.isArray(parsed) ? parsed.filter(isReport) : [];
+    return read();
   } catch {
     return [];
   }
@@ -32,6 +38,15 @@ class Reports {
   list = $state<DiagnosticReport[]>(load());
 
   latest = $derived(this.list[0]);
+
+  /**
+   * Listeleri besleyen tek yükleme işlevi (Görev 13): raporları depodan yeniden okur.
+   * Okunamazsa hata fırlatır; mevcut liste değişmez ve ekran hata halini gösterir.
+   */
+  async yukle(): Promise<DiagnosticReport[]> {
+    this.list = read();
+    return this.list;
+  }
 
   add(report: DiagnosticReport) {
     this.list.unshift(report);
