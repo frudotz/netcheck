@@ -36,6 +36,7 @@ pub fn info() -> PlatformInfo {
 mod tests {
     use super::*;
 
+    // @lat: [[tests#Platform info#Desktop family]]
     #[test]
     fn desktop_build_reports_desktop_family() {
         let info = info();

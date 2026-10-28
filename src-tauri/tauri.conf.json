@@ -14,7 +14,9 @@
       {
         "title": "NetCheck",
         "width": 420,
-        "height": 820
+        "height": 820,
+        "minWidth": 320,
+        "minHeight": 480
       }
     ],
     "security": {

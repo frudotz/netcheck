@@ -92,6 +92,7 @@ mod imp {
 mod tests {
     use super::*;
 
+    // @lat: [[tests#Platform info#Desktop keeps OS hostname]]
     #[test]
     fn desktop_keeps_os_hostname() {
         if cfg!(desktop) {

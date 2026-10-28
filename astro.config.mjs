@@ -25,6 +25,7 @@ export default defineConfig({
     host: tauriDevHost || '127.0.0.1',
   },
   vite: {
+    // Yalnız yönetim paneli stil dosyası (admin/styles/admin.css) Tailwind kullanır; uygulama CSS'i değişmez.
     plugins: [tailwindcss()],
     resolve: {
       alias: {

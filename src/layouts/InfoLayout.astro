@@ -4,8 +4,8 @@
 import Layout from './Layout.astro';
 import {
   dirOf, infoHref, INFO_SLUGS, LOCALES, localeName, pageTitle, ui,
-  type InfoSlug, type Locale,
 } from '../lib/i18n';
+import type { InfoSlug, Locale } from '../lib/types';
 
 interface Props {
   lang?: Locale;

@@ -1,0 +1,59 @@
+/* Katmansız temel kurallar: Tailwind sınıflarından (ör. focus-visible:outline-none) önce gelir. */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--zemin);
+  color: var(--yazi);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Klavye odağı uygulamadakiyle aynı (src/styles/app.css). */
+:focus-visible {
+  outline: 3px solid var(--odak);
+  outline-offset: 2px;
+}
+
+/* RTL dillerde de soldan sağa okunan değerler (IP, MAC, e-posta, kimlik, gecikme). */
+.force-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--kenar);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--yazi-soluk);
+}
+
+/* Klavye kullanıcıları için "içeriğe atla" bağlantısı. */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  inset-inline-start: 12px;
+  background: var(--renk-ana);
+  color: var(--renk-ana-yazi);
+  padding: 8px 16px;
+  z-index: 100;
+  border-radius: var(--radius);
+  transition: top 0.2s ease;
+  font-weight: 600;
+  text-decoration: none;
+}
+.skip-to-content:focus {
+  top: 12px;
+}

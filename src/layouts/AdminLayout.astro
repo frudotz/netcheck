@@ -1,17 +1,41 @@
 ---
-import AdminApp from '../../src-admin/src/App';
-import '../../src-admin/src/index.css';
+// Yönetim paneli kabuğu (admin/). Uygulama kabuğundan (Layout.astro) ayrıdır: kendi menüsü ve
+// stil dosyası vardır; renk token'ları ve tema/dil seçimi uygulamayla ortaktır.
+import AdminApp from '../../admin/App';
+import '../../admin/styles/admin.css';
+import { tr } from '../../admin/i18n/tr';
+import type { Gorunum } from '../../admin/yol';
+
+interface Props {
+  gorunum: Gorunum;
+}
+
+const { gorunum } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="tr">
+<html lang="tr" dir="ltr">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="NetCheck yerel yönetim paneli" />
-    <title>NetCheck Yönetim Paneli</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{tr.adminPanel} · NetCheck</title>
+    <script is:inline>
+      // Tema ve dil ilk boyamadan önce uygulanır; anahtarlar ve değerler Layout.astro'dakiyle aynıdır.
+      (() => {
+        const html = document.documentElement;
+        html.dataset.tema =
+          localStorage.getItem("tema") ??
+          (matchMedia("(prefers-color-scheme: dark)").matches ? "gece" : "gunduz");
+        const dil = localStorage.getItem("dil");
+        if (dil === "en" || dil === "ar" || dil === "fa") {
+          html.lang = dil;
+          html.dir = dil === "en" ? "ltr" : "rtl";
+        }
+      })();
+    </script>
   </head>
   <body>
-    <AdminApp client:only="react" basename="/admin" />
+    <AdminApp client:only="react" gorunum={gorunum} />
   </body>
 </html>

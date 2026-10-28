@@ -15,10 +15,12 @@ interface Props {
 
 const { title = Astro.props.frontmatter?.title ?? "NetCheck", lang = "tr", dir = "ltr" } = Astro.props;
 const currentPath = Astro.url.pathname;
+// Dili rotadan gelen sayfa (bilgi sayfaları) uygulama dili seçiminden etkilenmez.
+const sabitDil = Astro.props.lang !== undefined;
 ---
 
 <!doctype html>
-<html lang={lang} dir={dir}>
+<html lang={lang} dir={dir} data-sabit-dil={sabitDil ? "" : undefined}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -27,12 +29,19 @@ const currentPath = Astro.url.pathname;
     <meta name="description" content="NetCheck — Yerel Ağ Tanılama ve Bağlantı Analiz Uygulaması" />
     <title>{title}</title>
     <script is:inline>
-      // Adım 15: Açılışta renk yanıp sönmesini engellemek için temayı anında uygula
+      // Adım 15: Açılışta renk yanıp sönmesini engellemek için temayı (ve uygulama dilini) anında uygula
       (() => {
         const uygula = () => {
-          document.documentElement.dataset.tema =
+          const html = document.documentElement;
+          html.dataset.tema =
             localStorage.getItem("tema") ??
             (matchMedia("(prefers-color-scheme: dark)").matches ? "gece" : "gunduz");
+          // Uygulama dili (src/lib/dil.svelte.ts); bilgi sayfaları kendi dilinde kalır.
+          const dil = localStorage.getItem("dil");
+          if (html.dataset.sabitDil === undefined && (dil === "en" || dil === "ar" || dil === "fa")) {
+            html.lang = dil;
+            html.dir = dil === "en" ? "ltr" : "rtl";
+          }
         };
         uygula();
         // ClientRouter gezinmesinde <html> öznitelikleri yeni sayfadan kopyalanır ve data-tema düşer;

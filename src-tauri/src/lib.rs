@@ -1,24 +1,29 @@
+mod command_error;
 mod diagnostics;
 mod network;
 mod platform;
 mod report_id;
 
+use command_error::CommandError;
+
 // NetCheck: ağ anlık görüntüsü — invoke("get_network_snapshot")
 // Sistem çağrıları engelleyici olduğu için ana thread dışında çalıştırılır.
+// Hata tiplidir (CommandError); ayrıntı: docs/komutlar.md
 #[tauri::command]
-async fn get_network_snapshot() -> Result<network::NetworkSnapshot, String> {
+async fn get_network_snapshot() -> Result<network::NetworkSnapshot, CommandError> {
     tauri::async_runtime::spawn_blocking(network::snapshot)
         .await
-        .map_err(|_| "snapshot_failed".to_string())
+        .map_err(|_| CommandError::TaskFailed)
 }
 
 // NetCheck: tek bir tanılama testi — invoke("run_diagnostic", { kind: "gateway" | "cloudflare" | "google" | "dns" | "internet" })
-// Hedefler Rust'ta sabittir; serde bilinmeyen `kind` değerlerini reddeder.
+// Hedefler Rust'ta sabittir; bilinmeyen `kind` panik değil `unknown_diagnostic` hatası döner.
 #[tauri::command]
-async fn run_diagnostic(kind: diagnostics::DiagnosticKind) -> Result<diagnostics::DiagnosticOutcome, String> {
+async fn run_diagnostic(kind: String) -> Result<diagnostics::DiagnosticOutcome, CommandError> {
+    let kind: diagnostics::DiagnosticKind = kind.parse()?;
     tauri::async_runtime::spawn_blocking(move || diagnostics::run(kind))
         .await
-        .map_err(|_| "diagnostic_failed".to_string())
+        .map_err(|_| CommandError::TaskFailed)
 }
 
 // NetCheck: tanılama raporu kimliği — invoke("generate_report_id") → "NCHK-2026-XXXXXXXX"

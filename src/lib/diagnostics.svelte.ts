@@ -1,14 +1,23 @@
 // Tanılama çalıştırıcısı — paylaşılan durum (store). Sayfalar arası geçişte sonuçlar korunur.
-import type { DiagnosticKind, DiagnosticReport, DiagnosticTest } from "../types/netcheck";
-import { generateReportId, getNetworkSnapshot, NativeUnavailableError, runDiagnostic } from "./native";
-import { diagnosticName, diagnosticTargetHint, errorMessage, outcomeMessage } from "./labels";
+import type { DiagnosticKind, DiagnosticReport, DiagnosticTest, EkranHatasi } from "./types";
+import {
+  destekleniyorMu,
+  generateReportId,
+  getNetworkSnapshot,
+  hasNative,
+  NativeUnavailableError,
+  runDiagnostic,
+} from "./native";
+import { diagnosticName, diagnosticTargetHint, failureMessage, outcomeMessage } from "./labels";
 import { computeScore } from "./score";
 import { reports } from "./reports.svelte";
 
 export const DIAGNOSTIC_KINDS: DiagnosticKind[] = ["gateway", "cloudflare", "google", "dns", "internet"];
+/** ICMP ile çalışan testler; ping yöntemi olmayan bir derlemede hiç çalıştırılmaz ve gösterilmez. */
+const PING_KINDS: DiagnosticKind[] = ["gateway", "cloudflare", "google"];
 
-function initialTests(): DiagnosticTest[] {
-  return DIAGNOSTIC_KINDS.map((id) => ({
+function initialTests(kinds: DiagnosticKind[] = DIAGNOSTIC_KINDS): DiagnosticTest[] {
+  return kinds.map((id) => ({
     id,
     name: diagnosticName[id],
     target: diagnosticTargetHint[id],
@@ -16,12 +25,30 @@ function initialTests(): DiagnosticTest[] {
   }));
 }
 
+/**
+ * Bu ortamda çalıştırılacak testler (Görev 15 platform kuralı; docs/platform-destegi.md).
+ * Platform bilgisi alınamazsa testler yine çalıştırılır: ping desteği bilinmiyor diye
+ * hiçbir testi çalıştırmamak, ekranı gereksiz yere hata haline düşürürdü.
+ */
+async function supportedKinds(): Promise<DiagnosticKind[]> {
+  if (!hasNative()) return DIAGNOSTIC_KINDS;
+  try {
+    if (await destekleniyorMu("ping")) return DIAGNOSTIC_KINDS;
+    return DIAGNOSTIC_KINDS.filter((k) => !PING_KINDS.includes(k));
+  } catch {
+    return DIAGNOSTIC_KINDS;
+  }
+}
+
 class Diagnostics {
   tests = $state<DiagnosticTest[]>(initialTests());
   running = $state(false);
-  error = $state("");
+  /** Son çalıştırmanın hatası; metni ekran seçili dilde gösterir. */
+  hata = $state<EkranHatasi | null>(null);
   /** Son çalıştırmada oluşturulan rapor (yeni çalıştırma başlayınca sıfırlanır). */
   report = $state<DiagnosticReport | null>(null);
+  /** Son bilinen test kümesi; hata sonrası liste buna döner (ping'siz derlemede ping satırları geri gelmez). */
+  private kinds: DiagnosticKind[] = DIAGNOSTIC_KINDS;
 
   passed = $derived(this.tests.filter((t) => t.status === "success").length);
   completed = $derived(this.tests.filter((t) => t.status !== "pending" && t.status !== "running").length);
@@ -29,14 +56,17 @@ class Diagnostics {
   async start() {
     if (this.running) return;
     this.running = true;
-    this.error = "";
+    this.hata = null;
     this.report = null;
-    this.tests = initialTests().map((t) => ({ ...t, status: "running" }));
+    // Önceki sonuçlar beklemeden silinir; platform sorgusu sürerken eski "Başarılı" satırları görünmesin.
+    this.tests = initialTests(this.kinds).map((t) => ({ ...t, status: "running" }));
     try {
+      this.kinds = await supportedKinds();
+      this.tests = initialTests(this.kinds).map((t) => ({ ...t, status: "running" }));
       // Testler bağımsızdır; paralel çalıştırmak çevrimdışı durumda bekleme süresini kısaltır.
       const [network] = await Promise.all([
         getNetworkSnapshot(),
-        Promise.all(DIAGNOSTIC_KINDS.map((kind, index) => this.runOne(kind, index))),
+        Promise.all(this.kinds.map((kind, index) => this.runOne(kind, index))),
       ]);
       const id = await generateReportId();
       const tests = $state.snapshot(this.tests);
@@ -53,8 +83,8 @@ class Diagnostics {
       reports.add(report);
       this.report = report;
     } catch (e) {
-      this.error = errorMessage(e, "Tanılama çalıştırılamadı. Lütfen tekrar deneyin.");
-      this.tests = initialTests();
+      this.hata = e instanceof NativeUnavailableError ? "yalniz-uygulamada" : "alinamadi";
+      this.tests = initialTests(this.kinds);
     } finally {
       this.running = false;
     }
@@ -69,11 +99,20 @@ class Diagnostics {
         target: outcome.target ?? this.tests[index].target,
         status: outcome.status,
         latencyMs: outcome.latencyMs,
+        code: outcome.code,
+        detail: outcome.detail,
         message: outcomeMessage(kind, outcome),
       };
     } catch (e) {
       if (e instanceof NativeUnavailableError) throw e;
-      this.tests[index] = { ...this.tests[index], status: "failed", message: "Test tamamlanamadı." };
+      // Tipli komut hatası (CommandFailure) ya da IPC hatası: test başarısız, rapor yine oluşur.
+      // Kod yazılır ki mesaj seçili dilde üretilsin (önceden yalnız Türkçe metin kalıyordu).
+      this.tests[index] = {
+        ...this.tests[index],
+        status: "failed",
+        code: "command_failed",
+        message: failureMessage("command_failed"),
+      };
     }
   }
 }

@@ -11,6 +11,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 static KEYS: OnceLock<RandomState> = OnceLock::new();
 
+// @lat: [[decisions#Report IDs come from Rust]]
 pub fn generate() -> String {
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default();
     let mut hasher = KEYS.get_or_init(RandomState::new).build_hasher();
@@ -38,6 +39,7 @@ mod tests {
     use super::*;
     use std::collections::HashSet;
 
+    // @lat: [[tests#Report IDs#Year boundaries]]
     #[test]
     fn year_boundaries() {
         assert_eq!(utc_year(0), 1970);
@@ -47,6 +49,7 @@ mod tests {
         assert_eq!(utc_year(1_791_383_897), 2026);
     }
 
+    // @lat: [[tests#Report IDs#Stable format]]
     #[test]
     fn format_is_stable() {
         let id = generate();
@@ -59,6 +62,7 @@ mod tests {
         assert!(parts[2].chars().all(|c| c.is_ascii_digit() || ('A'..='F').contains(&c)));
     }
 
+    // @lat: [[tests#Report IDs#Burst uniqueness]]
     #[test]
     fn ids_are_unique_in_a_burst() {
         let ids: HashSet<String> = (0..10_000).map(|_| generate()).collect();

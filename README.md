@@ -73,7 +73,7 @@
 | **Blackboard Kursu** | Kurs Kodu: `2026–2027–1–11283–1` |
 | **Kaynak Depo** | [`keyvanarasteh/hello-mobil`](https://github.com/keyvanarasteh/hello-mobil) |
 | **Telegram Grubu** | `App Development - 2026` *(Ders içi kapalı grup · Bağlantı sınıfta paylaşılır)* |
-| **Geliştirici / Öğrenci** | **Hamza Arda Karabacak** — `2520191010` — Şube 1 &nbsp;·&nbsp; [@frudotz](https://github.com/frudotz) &nbsp;·&nbsp; [`docs/proje-fikri.md`](docs/proje-fikri.md) |
+| **Geliştirici / Öğrenci** | **Hamza Arda Karabacak** — Şube 1 &nbsp;·&nbsp; [@frudotz](https://github.com/frudotz) &nbsp;·&nbsp; [`docs/proje-fikri.md`](docs/proje-fikri.md) |
 
 <br>
 
@@ -103,7 +103,6 @@
 
 <ul>
   <li><b>Adı Soyadı:</b> Hamza Arda Karabacak</li>
-  <li><b>Öğrenci No:</b> <code>2520191010</code></li>
   <li><b>Şube:</b> <code>Şube 1</code></li>
   <li><b>GitHub:</b> <a href="https://github.com/frudotz">@frudotz</a></li>
   <li><b>Proje Fikri:</b> <a href="docs/proje-fikri.md">docs/proje-fikri.md</a></li>
@@ -121,7 +120,7 @@
 
 Uygulama; bağlı olunan ağın temel bilgilerini gösterir, gateway / genel DNS / alan adı çözümleme / HTTPS testlerini çalıştırır ve sonuçları **Rust tarafında üretilen** `NCHK-YYYY-XXXXXXXX` kimlikli bir rapora dönüştürür. Sunucu, hesap, veritabanı veya bulut eşitlemesi yoktur; raporlar yalnızca cihazda (`localStorage`) tutulur. Bir değer alınamadığında uygulama sahte veri üretmez, "Kullanılamıyor" gösterir.
 
-**Platform durumu:** NetCheck doğrulanmış bir **Windows** masaüstü uygulamasıdır. **Android** sürümü Android emülatöründe (Android 16) ve fiziksel bir cihazda (Redmi Note 13 Pro, Android 16) Wi-Fi ve mobil veri üzerinde doğrulandı; mağaza için imzalı sürüm henüz yok. **macOS** ve **Linux** kodu CI'da derleniyor ve testleri geçiyor, ancak uygulama olarak çalıştırılmadı. **iOS** planlanan hedef platformdur. Ayrıntılar: [`docs/mimari-agac.md`](docs/mimari-agac.md#2-hedef-platform-matrisi).
+**Platform durumu:** NetCheck doğrulanmış bir **Windows** masaüstü uygulamasıdır. **Android** sürümü Android emülatöründe (Android 16) ve fiziksel bir cihazda (Redmi Note 13 Pro, Android 16) Wi-Fi ve mobil veri üzerinde doğrulandı; mağaza için imzalı sürüm henüz yok. **macOS** ve **Linux** kodu CI'da derleniyor ve testleri geçiyor, ancak uygulama olarak çalıştırılmadı. **iOS** sürümü iOS simülatöründe derlenip açıldı (kısmen doğrulandı); fiziksel iPhone'da henüz doğrulanmadı ve imzalı sürüm yok. Ayrıntılar: [`docs/mimari-agac.md`](docs/mimari-agac.md#2-hedef-platform-matrisi).
 
 Konsept, ekranlar, hedef kitle ve veri modeli: [`docs/proje-fikri.md`](docs/proje-fikri.md).
 

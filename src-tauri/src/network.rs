@@ -145,6 +145,7 @@ pub fn default_gateway() -> Option<IpAddr> {
     pick_gateway(&gw.ipv4, &gw.ipv6, &iface.ip_addrs())
 }
 
+// @lat: [[networking#Network snapshot#Gateway selection]]
 /// Arayüzün kendi adresi gateway sayılmaz: noktadan noktaya bağlantılarda (ör. Android hücresel,
 /// `0.0.0.0/0 -> <kendi IP> ccmni1`) ayrı bir sonraki atlama yoktur; o adrese ping cihazın kendisine
 /// gider ve sahte "gateway yanıt verdi" sonucu üretir. Bu durumda gateway "bulunamadı" sayılır.
@@ -194,6 +195,7 @@ pub fn snapshot() -> NetworkSnapshot {
 mod tests {
     use super::*;
 
+    // @lat: [[tests#Network snapshot#Live snapshot smoke]]
     #[test]
     fn snapshot_does_not_panic() {
         let snap = snapshot();
@@ -201,6 +203,7 @@ mod tests {
         assert!(snap.interfaces.iter().all(|i| i.is_up));
     }
 
+    // @lat: [[tests#Network snapshot#Own address is never the gateway]]
     #[test]
     fn own_address_is_not_a_gateway() {
         let own: Vec<IpAddr> = vec!["10.198.128.138".parse().unwrap()];
@@ -212,6 +215,7 @@ mod tests {
         assert_eq!(pick_gateway(&[Ipv4Addr::UNSPECIFIED], &[], &own), None);
     }
 
+    // @lat: [[tests#Network snapshot#Cellular interfaces map to cellular]]
     #[test]
     fn cellular_interfaces_map_to_cellular() {
         assert_eq!(connection_type(InterfaceType::Wwanpp), ConnectionType::Cellular);
@@ -219,6 +223,7 @@ mod tests {
         assert_eq!(connection_type(InterfaceType::Tunnel), ConnectionType::Unknown);
     }
 
+    // @lat: [[tests#Network snapshot#Global IPv6 filter]]
     #[test]
     fn global_v6_filter() {
         assert!(!is_global_v6(&"fe80::1".parse().unwrap()));

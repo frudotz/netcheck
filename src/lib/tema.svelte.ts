@@ -1,8 +1,7 @@
 // Adım 15: Tema (gece / gündüz) — seçim localStorage'da saklanır
 // NetCheck: "sistem" tercihi eklendi; bu durumda anahtar silinir ve işletim sistemi teması izlenir
 // (Layout.astro'daki açılış betiği de anahtar yoksa sistem temasını uygular).
-export type Tema = "gunduz" | "gece";
-export type TemaTercihi = Tema | "sistem";
+import type { Tema, TemaTercihi } from "./types";
 
 const ANAHTAR = "tema";
 

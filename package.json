@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "admin:check": "tsc --project src-admin/tsconfig.json --noEmit",
+    "check": "astro check && svelte-check --tsconfig ./tsconfig.json",
     "astro": "astro",
     "tauri": "tauri"
   },
@@ -16,7 +16,6 @@
     "@astrojs/mdx": "^8.0.3",
     "@astrojs/react": "^7.0.1",
     "@astrojs/svelte": "^9.0.1",
-    "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "@types/react": "^19.3.0",
@@ -24,15 +23,16 @@
     "astro": "^7.3.6",
     "lucide-react": "^0.546.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0",
-    "react-router-dom": "^7.18.4",
-    "tailwindcss": "^4.3.3"
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@tailwindcss/vite": "^4.3.3",
     "@tauri-apps/cli": "^2",
     "@types/node": "^26.6.4",
     "svelte": "^5.56.3",
     "svelte-check": "^4.6.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "~6.0.3",
     "vite": "^8.0.16"
   }

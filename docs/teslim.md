@@ -1,6 +1,6 @@
 # Teslim
 
-> Görev tanımları: [`docs/tasks/week-3/09-progress-batch-01.task.md`](tasks/week-3/09-progress-batch-01.task.md), [`docs/tasks/week-3/01-pr-merge.task.md`](tasks/week-3/01-pr-merge.task.md)
+> Görev tanımları: [`docs/tasks/week-3/09-progress-batch-01.task.md`](tasks/week-3/09-progress-batch-01.task.md), [`docs/tasks/week-3/01-pr-merge.task.md`](tasks/week-3/01-pr-merge.task.md). Bu belge Batch 01 içindir; Batch 02 ilerlemesi ve etiket adımları: [`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md).
 
 ## Son tarihler (Hafta 3)
 | Teslim | Tarih |

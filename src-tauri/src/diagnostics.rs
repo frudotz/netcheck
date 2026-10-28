@@ -5,8 +5,9 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::{Duration, Instant};
 
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
+use crate::command_error::CommandError;
 use crate::network;
 use crate::platform::{self, icmp::EchoError};
 
@@ -16,14 +17,29 @@ const GOOGLE_DNS: Ipv4Addr = Ipv4Addr::new(8, 8, 8, 8);
 const DNS_HOST: &str = "cloudflare.com";
 const INTERNET_URL: &str = "https://www.cloudflare.com/cdn-cgi/trace";
 
-#[derive(Deserialize, Clone, Copy, Debug)]
-#[serde(rename_all = "lowercase")]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum DiagnosticKind {
     Gateway,
     Cloudflare,
     Google,
     Dns,
     Internet,
+}
+
+/// Ön yüzün gönderdiği test türü (`"gateway"` …). Bilinmeyen değer tipli hata olur; panik yok.
+impl std::str::FromStr for DiagnosticKind {
+    type Err = CommandError;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "gateway" => Ok(Self::Gateway),
+            "cloudflare" => Ok(Self::Cloudflare),
+            "google" => Ok(Self::Google),
+            "dns" => Ok(Self::Dns),
+            "internet" => Ok(Self::Internet),
+            _ => Err(CommandError::UnknownDiagnostic { value: value.to_string() }),
+        }
+    }
 }
 
 #[derive(Serialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -166,6 +182,7 @@ fn parse_trace_ip(body: &str) -> Option<String> {
 mod tests {
     use super::*;
 
+    // @lat: [[tests#Diagnostics#Trace IP parsing]]
     #[test]
     fn trace_ip_parsing() {
         assert_eq!(parse_trace_ip("fl=1\nip=203.0.113.7\nts=1"), Some("203.0.113.7".into()));
@@ -174,6 +191,33 @@ mod tests {
         assert_eq!(parse_trace_ip("fl=1\n"), None);
     }
 
+    // @lat: [[tests#Diagnostics#Known kinds parse]]
+    #[test]
+    fn known_kinds_parse() {
+        let cases = [
+            ("gateway", DiagnosticKind::Gateway),
+            ("cloudflare", DiagnosticKind::Cloudflare),
+            ("google", DiagnosticKind::Google),
+            ("dns", DiagnosticKind::Dns),
+            ("internet", DiagnosticKind::Internet),
+        ];
+        for (text, kind) in cases {
+            assert_eq!(text.parse::<DiagnosticKind>(), Ok(kind));
+        }
+    }
+
+    // @lat: [[tests#Diagnostics#Unknown kind is a typed error]]
+    #[test]
+    fn unknown_kind_is_typed_error() {
+        for bad in ["foo", "", "Gateway", "1.1.1.1", "dns; rm -rf /"] {
+            assert_eq!(
+                bad.parse::<DiagnosticKind>(),
+                Err(CommandError::UnknownDiagnostic { value: bad.to_string() })
+            );
+        }
+    }
+
+    // @lat: [[tests#Diagnostics#Live diagnostics smoke]]
     #[test]
     fn all_diagnostics_return_without_panicking() {
         for kind in [

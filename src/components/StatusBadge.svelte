@@ -1,14 +1,15 @@
 <script lang="ts">
   // Tanılama test durumu rozeti
-  import type { DiagnosticStatus } from "../types/netcheck";
-  import { statusLabel } from "$lib/labels";
+  import type { DiagnosticStatus } from "$lib/types";
+  import { dil } from "$lib/dil.svelte";
+  import { durumEtiketi } from "$lib/sozluk";
 
   let { status }: { status: DiagnosticStatus } = $props();
 </script>
 
 <span class="rozet {status}">
   {#if status === "running"}<span class="donen" aria-hidden="true"></span>{/if}
-  {statusLabel[status]}
+  {durumEtiketi(dil.metin, status)}
 </span>
 
 <style>

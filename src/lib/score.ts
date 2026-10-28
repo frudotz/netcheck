@@ -1,6 +1,6 @@
 // Bağlantı Skoru — temel tanılama sinyallerinden basit, deterministik bir 0–100 değerlendirme.
 // Profesyonel bir ağ kalitesi ölçümü değildir.
-import type { DiagnosticKind, DiagnosticTest } from "../types/netcheck";
+import type { DiagnosticKind, DiagnosticTest, ScoreLevel } from "./types";
 
 const WEIGHTS: Record<DiagnosticKind, number> = {
   internet: 35,
@@ -28,18 +28,10 @@ export function computeScore(tests: DiagnosticTest[]): number {
   return Math.min(100, base + latencyBonus(tests));
 }
 
-export type ScoreLevel = "iyi" | "orta" | "zayif";
-
 export function scoreLevel(score: number): ScoreLevel {
   if (score >= 80) return "iyi";
   if (score >= 50) return "orta";
   return "zayif";
 }
 
-export const scoreLevelLabel: Record<ScoreLevel, string> = {
-  iyi: "İyi",
-  orta: "Orta",
-  zayif: "Zayıf",
-};
-
-export const SCORE_NOTE = "Temel bağlantı ve tanılama sonuçlarına göre hesaplanan basit bir değerlendirmedir.";
+// Seviye adları ve skor notu dört dilde src/lib/sozluk.ts içindedir (skorSeviyesiEtiketi, skorNotu).

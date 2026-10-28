@@ -16,6 +16,7 @@ Kontrast oranları WCAG 2.x formülüyle ölçülmüştür (metin/zemin; AA eşi
 | `--renk-ana-yazi` | `#ffffff` | `#062a33` | Ana renk üzerindeki metin (buton, rozet) | 5.36 · 8.38 |
 | `--renk-vurgu` | `#22d3ee` | `#22d3ee` | Üst bardaki logo ve işaret | 9.34 (üst bar üzerinde) |
 | `--renk-koyu` | `#0b1f2a` | `#0b1f2a` | Üst bar zemini (beyaz metin) | 16.89 (beyaz metin) |
+| `--renk-koyu-yazi` | `#ffffff` | `#ffffff` | Üst bar üzerindeki metin ve simgeler (yönetim paneli) | 16.89 (`--renk-koyu` üzerinde) |
 | `--zemin` | `#f4f7fa` | `#0b1220` | Sayfa arka planı | — |
 | `--kart` | `#ffffff` | `#131c2e` | Kartlar, liste ve alt menü yüzeyi | — |
 | `--yazi` | `#0f172a` | `#e6edf6` | Başlıklar ve gövde metni | zemin 16.60 · 15.88 |
@@ -29,6 +30,7 @@ Kontrast oranları WCAG 2.x formülüyle ölçülmüştür (metin/zemin; AA eşi
 | `--durum-basarili` / `-zemin` | `#15803d` / `#dcfce7` | `#4ade80` / `#052e16` | "Başarılı", "Bağlı", skor ≥ 80 | 4.57 · 8.55 |
 | `--durum-hata` / `-zemin` | `#b91c1c` / `#fee2e2` | `#fca5a5` / `#450a0a` | "Başarısız", "Bağlantı Yok", skor < 50, tehlikeli buton | 5.30 · 8.51 |
 | `--durum-uyari` / `-zemin` | `#92400e` / `#fef3c7` | `#fcd34d` / `#451a03` | "Kullanılamıyor", "İnternet Yok", skor 50–79 | 6.37 · 10.39 |
+| `--durum-bilgi` / `-zemin` | `#0e7490` / `#cffafe` | `#67e8f9` / `#083344` | Bilgi etiketi (ör. "Varsayılan" arayüz); `Kart` etiket türü `bilgi` | 4.79 · 9.24 |
 
 ## 2. Tipografi ve Köşe Yuvarlaklığı
 
