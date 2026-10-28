@@ -42,3 +42,5 @@ Her günlük bu sırayla şu başlıkları taşır:
 | Yönetim panelini projeye taşıma (eğitmenin 21.10 raporu) | [`admin-panel-tasima.md`](admin-panel-tasima.md) |
 | 16 Batch 02 denetimi | [`16-batch-02-denetimi.md`](16-batch-02-denetimi.md) |
 | Yerel denetim düzeltmeleri (27.10 kod incelemesi) | [`yerel-denetim-duzeltmeleri.md`](yerel-denetim-duzeltmeleri.md) |
+| Kişisel verinin depodan kaldırılması (C-4, 28.10) | [`kisisel-veri-kaldirma.md`](kisisel-veri-kaldirma.md) |
+| Batch 02 yayın kapısı ve belge eşitleme (28.10) | [`batch-02-yayin-kapisi.md`](batch-02-yayin-kapisi.md) |

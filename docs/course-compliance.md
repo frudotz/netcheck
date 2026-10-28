@@ -2,7 +2,7 @@
 
 Traceable audit of every instructor requirement in [`docs/tasks/`](tasks/) and the instructor evaluation [`docs/k1/01.review.md`](k1/01.review.md), checked against the repository, GitHub settings and CI. It is not a statement of grades.
 
-- **Audited state:** `origin/master` at `dbe4c91` (2026-10-21), plus the documentation fixes in PR #33 (marked "fixed in PR #33"). GitHub repository settings were read through the API on the same day and re-read before the final update; they were unchanged. The Task 09.1 rows were re-checked later on 2026-10-21, after the owner changed the settings (ruleset saved at 20:16); its documentation rows are met on `feature/09-1-master-korumasi`.
+- **Audited state:** `origin/master` at `dbe4c91` (2026-10-21), plus the documentation fixes in PR #33 (marked "fixed in PR #33"). GitHub repository settings were read through the API on the same day and re-read before the final update; they were unchanged. The Task 09.1 rows were re-checked later on 2026-10-21, after the owner changed the settings (ruleset saved at 20:16); its documentation rows are met on `feature/09-1-master-korumasi`. **Re-audited on 2026-10-28** at `origin/master` = `72abf11`: the Batch 02 PRs #35–#43 and the fix PR #45 were merged in order with merge commits that day, so rows that earlier read "PASS (Task N branch)" now hold on `master`; the release gate was re-run on that commit ([`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md)). Rows R03-e, R16-c, RA-e and C-4 were updated; no other row was re-checked.
 - **Sources:** the 18 files in [`docs/tasks/week-3/`](tasks/week-3/) and [`docs/tasks/week-4/`](tasks/week-4/), plus [`docs/k1/01.review.md`](k1/01.review.md). The instructor's status report of 2026-10-21 is kept out of the repository as it instructs; only its requirements are paraphrased here (rows R16-*, RA-*, conflict C-4).
 - **Not found:** `hoca-raporu.md` is not in this repository, its Git history, any fetched branch, the upstream `keyvanarasteh/hello-mobil` repository, GitHub PRs, or local folders. This matrix does not reconstruct it. The instructor-authored evaluation that does exist is `docs/k1/01.review.md` (Batch 01: 107/108 at `9992001`).
 - **Method:** each row was checked directly in code, files, Git, the GitHub API or CI output. A row marked "instructor-verified" relies on `01.review.md` because it cannot be checked from the repository; it was re-checked where possible.
@@ -22,13 +22,13 @@ Priority: **P0** blocks a graded prerequisite, **P1** is a graded requirement, *
 
 | Scope | PASS | PARTIAL | FAIL | UNVERIFIED | Total |
 |---|---|---|---|---|---|
-| Week 3 — Batch 01 (Tasks 01–09) | 37 | 7 | 0 | 2 | 46 |
+| Week 3 — Batch 01 (Tasks 01–09) | 36 | 8 | 0 | 2 | 46 |
 | Week 4 — Batch 02 pre-release (Tasks 09.1–15, general rules) | 44 | 4 | 0 | 2 | 50 |
 | Week 4 — Task 16 (from the 2026-10-21 status report) | 2 | 0 | 1 | 0 | 3 |
 | Instructor status report 2026-10-21 — admin panel | 4 | 0 | 0 | 2 | 6 |
-| **All** | **87** | **11** | **1** | **6** | **105** |
+| **All** | **86** | **12** | **1** | **6** | **105** |
 
-Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–15 and the app-language groundwork for Tasks 12–14 are on their branches. What remains in Week 4 is student-side evidence (R10-d, R13-e) and macOS/Linux/iOS runs (R15-h, deferred by the instructor). The admin panel move from the instructor's status report is on its own branch as an interface without data; archiving the source repository (RA-e) follows its merge. Task 16's window limits and progress document are on their branch. The only FAIL is the `v0.2.0-batch-02` tag (R16-c), which can only be created after the Batch 02 PRs are merged and the owner approves ([`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md)).
+Batch 01 is essentially complete. The only instructor deduction, a direct commit to `master`, cannot be undone without rewriting history. Two regressions appeared after grading. PR #33 fixes the incomplete documentation index and the stale iOS statements. The remaining stale statements are the macOS run status and the "no database" sentence. Batch 02's prerequisite (Task 09.1) is now configured: `master` requires a pull request and the five CI checks. Its documentation and screenshot were merged in PR #34; only the direct-push self-test was not performed. Tasks 10–16, the app-language groundwork for Tasks 12–14, the admin panel move (interface without data) and the local-audit fixes were merged into `master` on 2026-10-28 (PRs #35–#43 and #45; `master` = `72abf11`), and the release gate passed on that commit. What remains in Week 4 is student-side evidence (R10-d, R13-e, RG-c) and macOS/Linux/iOS runs (R15-h, deferred by the instructor). Archiving the admin panel's source repository (RA-e) is the owner's separate open step. The student number was removed from the current files on 2026-10-28 (PR #46, conflict C-4); it remains in Git history and in the immutable `v0.1.0-batch-01` tag. The only FAIL is the `v0.2.0-batch-02` tag (R16-c), which waits for the owner's approval ([`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md)).
 
 ## Week 3 — Batch 01
 
@@ -64,8 +64,8 @@ Batch 01 is essentially complete. The only instructor deduction, a direct commit
 | R03-a | Title, one-sentence description, İstinye/MYO063 info | PASS | `README.md` title and "Akademik Bilgiler" |
 | R03-b | At least 3 working badges | PASS | 18 shields.io badges; instructor found no broken links |
 | R03-c | Table of contents with working anchors | PASS | `README.md` "İçindekiler"; local file links re-checked (0 broken); anchors instructor-verified |
-| R03-d | Working setup commands (clone, `bun install`, `bun run dev` / `tauri dev` / `build`) | PASS | `README.md` "Hızlı Başlangıç"; `bun run build` re-run in this audit (21 pages); `tauri dev` not re-run |
-| R03-e | License link, student name and number, instructor info | PASS | `README.md` "Akademik Bilgiler", "Lisans" |
+| R03-d | Working setup commands (clone, `bun install`, `bun run dev` / `tauri dev` / `build`) | PASS | `README.md` "Hızlı Başlangıç"; `bun run build` re-run in this audit (21 pages on 2026-10-21; 32 pages on `master` `72abf11`, 11 of them under `/admin`); `tauri dev` not re-run |
+| R03-e | License link, student name and number, instructor info | PARTIAL | `README.md` "Akademik Bilgiler", "Lisans": license link, name and instructor info present. The student number was removed on 2026-10-28 (PR #46) under the status report's personal-data rule (conflict C-4), so this Task 03 item is intentionally no longer met in the current files; the number remains in Git history and in the `v0.1.0-batch-01` tag that was graded |
 | R03-f | Student details correct | UNVERIFIED | `README.md` shows the section as "Şube 1" twice; this value has never been confirmed. **Missing:** student confirms or corrects it — P2 |
 | R03-g | No copied folder tree; links to `docs/klasor-mimarisi.md` | PASS | Instructor-verified; README links the document |
 | R03-h | Technology and feature sections match the app | PARTIAL | iOS status fixed in PR #33: simulator build and launch, physical iPhone not verified (PR #28). Still open: README says macOS was never run as an app, but PR #28 records a debug `.app` launch. It also says "veritabanı yoktur", while the SQLite backend from #31 is compiled in (decision C-3). **Missing:** NC-10 |
@@ -154,73 +154,73 @@ If the ruleset is not effective, Task 16 gives no points for configuration. Sett
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R10-a | `docs/gorev-sartnamesi.md` with five headings | PASS (Task 10 branch) | [`docs/gorev-sartnamesi.md`](gorev-sartnamesi.md): the five headings with NetCheck example lines |
-| R10-b | `docs/istemler/README.md` and log `docs/istemler/10-calisma-yontemi.md` | PASS (Task 10 branch) | [`docs/istemler/README.md`](istemler/README.md) (naming, sections, rules) and [`10-calisma-yontemi.md`](istemler/10-calisma-yontemi.md); the Task 09.1 log was backfilled |
-| R10-c | AGENTS.md "Çalışma döngüsü": plan first, branch + PR, clean build | PASS (Task 10 branch) | [AGENTS.md § Çalışma döngüsü](../AGENTS.md#çalışma-döngüsü); both new documents are in the AGENTS.md index |
+| R10-a | `docs/gorev-sartnamesi.md` with five headings | PASS | [`docs/gorev-sartnamesi.md`](gorev-sartnamesi.md): the five headings with NetCheck example lines |
+| R10-b | `docs/istemler/README.md` and log `docs/istemler/10-calisma-yontemi.md` | PASS | [`docs/istemler/README.md`](istemler/README.md) (naming, sections, rules) and [`10-calisma-yontemi.md`](istemler/10-calisma-yontemi.md); the Task 09.1 log was backfilled |
+| R10-c | AGENTS.md "Çalışma döngüsü": plan first, branch + PR, clean build | PASS | [AGENTS.md § Çalışma döngüsü](../AGENTS.md#çalışma-döngüsü); both new documents are in the AGENTS.md index |
 | R10-d | New-chat rule test answer recorded in the log | PARTIAL | The Task 10 log records two answers that describe the AGENTS.md cycle: a context-free subagent (proxy) and the student's question in an existing ChatGPT conversation that already carried project context. Neither is a new chat. **Missing:** a new-chat test and the screenshots required by the checklist — P1, student action |
-| R10-e | Branch `feature/10-calisma-yontemi` with a PR | PASS (Task 10 branch) | Branch created from `9970845`; PR #35, linked in the log |
+| R10-e | Branch `feature/10-calisma-yontemi` with a PR | PASS | Branch created from `9970845`; PR #35, linked in the log |
 
 ### Task 11 — Data contract
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R11-a | `src/lib/types/` with ≥3 types in separate files and `index.ts` | PASS (Task 11 branch) | [`src/lib/types/`](../src/lib/types/index.ts): `network.ts`, `diagnostic.ts`, `report.ts`, `platform.ts`, `preferences.ts` and `index.ts`; `src/types/netcheck.ts` removed |
-| R11-b | One-line comment per field; required and optional separated; status fields as fixed options | PASS (Task 11 branch) | Every field has a one-line comment; required fields come first under "Zorunlu", optional ones under "İsteğe bağlı". Rust outcome codes (`DiagnosticCode`) and OS names (`OsName`) are now unions too |
-| R11-c | Sample data in one file, ≥6 records per type | PASS (Task 11 branch) | [`src/lib/veri/ornek.ts`](../src/lib/veri/ornek.ts): 6 each of `NetworkSnapshot`, `DiagnosticTest`, `DiagnosticReport`. Scores recomputed with `computeScore`. Decision C-1 below |
-| R11-d | Scattered types moved; no `any` | PASS (Task 11 branch) | `LinkState`, `ScoreLevel`, `Tema`/`TemaTercihi` and `Locale`/`InfoSlug` moved; no `any`. Component-local `Props` interfaces stay with their components |
-| R11-e | `check` script (`astro check`) in `package.json`, 0 errors | PASS (Task 11 branch) | `bun run check` = `astro check` + `svelte-check`: 0 errors, 0 warnings (one pre-existing hint in `CanliRozet.tsx`, NC-18) |
-| R11-f | `docs/veri-modeli.md` and AGENTS.md rule | PASS (Task 11 branch) | [`docs/veri-modeli.md`](veri-modeli.md), in the AGENTS.md index; AGENTS.md §4 "Veri sözleşmesi" rule. `docs/proje-fikri.md` §4 now links to it |
+| R11-a | `src/lib/types/` with ≥3 types in separate files and `index.ts` | PASS | [`src/lib/types/`](../src/lib/types/index.ts): `network.ts`, `diagnostic.ts`, `report.ts`, `platform.ts`, `preferences.ts` and `index.ts`; `src/types/netcheck.ts` removed |
+| R11-b | One-line comment per field; required and optional separated; status fields as fixed options | PASS | Every field has a one-line comment; required fields come first under "Zorunlu", optional ones under "İsteğe bağlı". Rust outcome codes (`DiagnosticCode`) and OS names (`OsName`) are now unions too |
+| R11-c | Sample data in one file, ≥6 records per type | PASS | [`src/lib/veri/ornek.ts`](../src/lib/veri/ornek.ts): 6 each of `NetworkSnapshot`, `DiagnosticTest`, `DiagnosticReport`. Scores recomputed with `computeScore`. Decision C-1 below |
+| R11-d | Scattered types moved; no `any` | PASS | `LinkState`, `ScoreLevel`, `Tema`/`TemaTercihi` and `Locale`/`InfoSlug` moved; no `any`. Component-local `Props` interfaces stay with their components |
+| R11-e | `check` script (`astro check`) in `package.json`, 0 errors | PASS | `bun run check` = `astro check` + `svelte-check`: 0 errors, 0 warnings (one pre-existing hint in `CanliRozet.tsx`, NC-18) |
+| R11-f | `docs/veri-modeli.md` and AGENTS.md rule | PASS | [`docs/veri-modeli.md`](veri-modeli.md), in the AGENTS.md index; AGENTS.md §4 "Veri sözleşmesi" rule. `docs/proje-fikri.md` §4 now links to it |
 
 ### Task 12 — Card component
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R12-a | Generic `src/lib/components/ui/Kart.svelte`, input type in `types/ui.ts`, no hard-coded colors | PASS (Task 12 branch) | [`Kart.svelte`](../src/lib/components/ui/Kart.svelte) imports only `KartOzellikleri` from [`types/ui.ts`](../src/lib/types/ui.ts); 0 hex/rgb values. New `--durum-bilgi` tokens were added to `docs/branding.md` first, then `app.css` |
-| R12-b | Robust without image, with long titles and in RTL; keyboard focus, Enter, alt text | PASS (Task 12 branch) | Checked in the running Windows app over CDP. In Arabic RTL at 320, 420 and 1280 px, an 8-line title wraps without overflow. The report card is reached with Tab, shows the focus ring and opens on Enter. The image input requires `alt`, but no screen uses an image, so it was not exercised |
-| R12-c | Main screen shows ≥6 items with the card; old card code removed | PASS (Task 12 branch) | Genel Bakış shows 13 cards in the app (7 network facts, 5 interfaces, latest report); the `.arayuz`/`.rozet` card code was removed |
+| R12-a | Generic `src/lib/components/ui/Kart.svelte`, input type in `types/ui.ts`, no hard-coded colors | PASS | [`Kart.svelte`](../src/lib/components/ui/Kart.svelte) imports only `KartOzellikleri` from [`types/ui.ts`](../src/lib/types/ui.ts); 0 hex/rgb values. New `--durum-bilgi` tokens were added to `docs/branding.md` first, then `app.css` |
+| R12-b | Robust without image, with long titles and in RTL; keyboard focus, Enter, alt text | PASS | Checked in the running Windows app over CDP. In Arabic RTL at 320, 420 and 1280 px, an 8-line title wraps without overflow. The report card is reached with Tab, shows the focus ring and opens on Enter. The image input requires `alt`, but no screen uses an image, so it was not exercised |
+| R12-c | Main screen shows ≥6 items with the card; old card code removed | PASS | Genel Bakış shows 13 cards in the app (7 network facts, 5 interfaces, latest report); the `.arayuz`/`.rozet` card code was removed |
 
 ### Task 13 — List screen and three states
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R13-a | `Yukleniyor`, `BosDurum`, `HataDurumu` in `src/lib/components/ui/` | PASS (Task 13 branch) | Generic inputs typed in `src/lib/types/ui.ts`; colors only from `app.css` variables |
-| R13-b | Main list uses one loader and shows exactly one of loading, error, empty, full | PASS (Task 13 branch) | Geçmiş loads through `reports.yukle()`, which now throws on unreadable storage. In the running app each `?durum=` value showed exactly one state |
-| R13-c | Empty search or filter result shows `BosDurum` with a clear button | PASS (Task 13 branch) | Search by report ID or date and a score-level filter. A search for "qqzzxx" showed "Aramaya uyan rapor yok" with "Süzgeci temizle", and clearing restored the 6 reports |
-| R13-d | State texts in TR/EN/AR/FA | PASS (Task 13 branch) | All four states checked in Arabic and Persian in the app (RTL). Rests on decision C-2 |
+| R13-a | `Yukleniyor`, `BosDurum`, `HataDurumu` in `src/lib/components/ui/` | PASS | Generic inputs typed in `src/lib/types/ui.ts`; colors only from `app.css` variables |
+| R13-b | Main list uses one loader and shows exactly one of loading, error, empty, full | PASS | Geçmiş loads through `reports.yukle()`, which now throws on unreadable storage. In the running app each `?durum=` value showed exactly one state |
+| R13-c | Empty search or filter result shows `BosDurum` with a clear button | PASS | Search by report ID or date and a score-level filter. A search for "qqzzxx" showed "Aramaya uyan rapor yok" with "Süzgeci temizle", and clearing restored the 6 reports |
+| R13-d | State texts in TR/EN/AR/FA | PASS | All four states checked in Arabic and Persian in the app (RTL). Rests on decision C-2 |
 | R13-e | Screenshots of the four states in `docs/istemler/13-*.md` | PARTIAL | Four screenshots from the running Windows app (`docs/kanit/13-liste-ve-uc-durum-*.png`), captured by the tool and linked from the log. **Missing:** the student's own run of the task's §3 steps — student action |
-| R13-f | Same components used on a second list | PASS (Task 13 branch) | Genel Bakış interface list: `Yukleniyor` while loading, `HataDurumu` without Tauri (checked in headless Edge), `BosDurum` with no interfaces |
+| R13-f | Same components used on a second list | PASS | Genel Bakış interface list: `Yukleniyor` while loading, `HataDurumu` without Tauri (checked in headless Edge), `BosDurum` with no interfaces |
 
 ### Task 14 — Detail screen and navigation
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
 | R14-a | Detail screen opens from a card; the address contains the item ID | PASS | `/rapor?id=NCHK-…` (`src/components/ReportView.svelte`), opened from the Geçmiş cards (Task 13). A query string is used because the build is static; the reason is in `docs/mimari-agac.md`. Opening the address directly shows the same report |
-| R14-b | Back navigation keeps the list's search and filter | PASS (Task 14 branch) | Filters live in the URL. The "← Geçmiş" link, the browser back button and "Geçmişe dön" all returned to `/gecmis?seviye=zayif&ara=2026` with both inputs restored (headless Edge, sample reports in a test profile) |
-| R14-c | Unknown ID shows `HataDurumu` or a not-found screen | PASS (Task 14 branch) | `HataDurumu` (`role="alert"`) with "Rapor bulunamadı: … kayıtlı değil." and "Geçmişe dön"; a missing ID has its own message |
-| R14-d | Detail screen in four languages; RTL for AR/FA | PASS (Task 14 branch) | Title, labels, test names, statuses and messages in EN/AR/FA checked; `dir="rtl"` for AR/FA. Tests now store Rust's `code`/`detail`; older reports keep their Turkish message. Rests on decision C-2 |
-| R14-e | Page tree in `docs/mimari-agac.md` updated | PASS (Task 14 branch) | §1 now covers `/gecmis?ara=&seviye=`, the back link and the not-found state |
+| R14-b | Back navigation keeps the list's search and filter | PASS | Filters live in the URL. The "← Geçmiş" link, the browser back button and "Geçmişe dön" all returned to `/gecmis?seviye=zayif&ara=2026` with both inputs restored (headless Edge, sample reports in a test profile) |
+| R14-c | Unknown ID shows `HataDurumu` or a not-found screen | PASS | `HataDurumu` (`role="alert"`) with "Rapor bulunamadı: … kayıtlı değil." and "Geçmişe dön"; a missing ID has its own message |
+| R14-d | Detail screen in four languages; RTL for AR/FA | PASS | Title, labels, test names, statuses and messages in EN/AR/FA checked; `dir="rtl"` for AR/FA. Tests now store Rust's `code`/`detail`; older reports keep their Turkish message. Rests on decision C-2 |
+| R14-e | Page tree in `docs/mimari-agac.md` updated | PASS | §1 now covers `/gecmis?ara=&seviye=`, the back link and the not-found state |
 
 ### Task 15 — Rust command with typed result and error
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
 | R15-a | At least one app-specific command; template example removed | PASS | `get_network_snapshot`, `run_diagnostic`, `generate_report_id`, `get_platform_info` in `src-tauri/src/lib.rs`; no `greet` |
-| R15-b | Typed success struct and typed error enum; no panic on invalid input | PASS (Task 15 branch) | Commands return `Result<_, CommandError>` (`src-tauri/src/command_error.rs`). In the running app, `run_diagnostic` with `"foo"` returned `{"code":"unknown_diagnostic","value":"foo"}` over IPC, with no panic |
-| R15-c | All Tauri calls go through `src/lib/native.ts` | PASS (Task 15 branch) | `ExternalLink.svelte` now uses `openExternal`; no file outside `native.ts` imports `@tauri-apps/*` |
+| R15-b | Typed success struct and typed error enum; no panic on invalid input | PASS | Commands return `Result<_, CommandError>` (`src-tauri/src/command_error.rs`). In the running app, `run_diagnostic` with `"foo"` returned `{"code":"unknown_diagnostic","value":"foo"}` over IPC, with no panic |
+| R15-c | All Tauri calls go through `src/lib/native.ts` | PASS | `ExternalLink.svelte` now uses `openExternal`; no file outside `native.ts` imports `@tauri-apps/*` |
 | R15-d | Browser fallback without crashing | PASS | `NativeUnavailableError` and `hasNative` in `src/lib/native.ts` |
-| R15-e | Result and error types in `src/lib/types/`, matching Rust fields | PASS (Task 15 branch) | `src/lib/types/command.ts` (`CommandError`, `Feature`); a Rust test checks the JSON shape. In the app, `native.ts` rethrew the IPC error as `CommandFailure` carrying it |
-| R15-f | Error shown with `HataDurumu` | PASS (Task 15 branch) | Tanılama and Genel Bakış show `HataDurumu` with "Tekrar dene"; checked without Rust in headless Edge |
+| R15-e | Result and error types in `src/lib/types/`, matching Rust fields | PASS | `src/lib/types/command.ts` (`CommandError`, `Feature`); a Rust test checks the JSON shape. In the app, `native.ts` rethrew the IPC error as `CommandFailure` carrying it |
+| R15-f | Error shown with `HataDurumu` | PASS | Tanılama and Genel Bakış show `HataDurumu` with "Tekrar dene"; checked without Rust in headless Edge |
 | R15-g | ≥2 automated Rust tests; `cargo test` passes | PASS | 25 tests, 3 for the command (`known_kinds_parse`, `unknown_kind_is_typed_error`, `errors_serialize_with_code`); 24/24 on Windows (the macOS-only loopback test runs in CI) |
 | R15-h | App works on all five platforms; unsupported features hidden on that platform | PARTIAL | Windows and Android verified. macOS: CI plus a partial run. Linux: CI only. iOS: simulator only. No feature is missing on any target, so nothing is hidden; the hiding path (`destekleniyorMu("ping")`) exists. **Missing:** macOS, Linux and iOS runs, deferred by the instructor on 21.10 — P1 |
-| R15-i | `docs/platform-destegi.md` feature × platform table and AGENTS.md rule | PASS (Task 15 branch) | [`docs/platform-destegi.md`](platform-destegi.md): table, how each "farklı yolla" row is handled, evidence levels; AGENTS.md §4 rule and index |
-| R15-j | `native.ts` exposes `platform()` and `destekleniyorMu(...)` | PASS (Task 15 branch) | In the app: `platform()` → `windows`/`desktop`/`icmp-api`; `destekleniyorMu("ping")` → true |
-| R15-k | `docs/komutlar.md` documenting the commands | PASS (Task 15 branch) | [`docs/komutlar.md`](komutlar.md): inputs, outputs, `CommandError` codes and tests; in the AGENTS.md index |
+| R15-i | `docs/platform-destegi.md` feature × platform table and AGENTS.md rule | PASS | [`docs/platform-destegi.md`](platform-destegi.md): table, how each "farklı yolla" row is handled, evidence levels; AGENTS.md §4 rule and index |
+| R15-j | `native.ts` exposes `platform()` and `destekleniyorMu(...)` | PASS | In the app: `platform()` → `windows`/`desktop`/`icmp-api`; `destekleniyorMu("ping")` → true |
+| R15-k | `docs/komutlar.md` documenting the commands | PASS | [`docs/komutlar.md`](komutlar.md): inputs, outputs, `CommandError` codes and tests; in the AGENTS.md index |
 
 ### General Week 4 rules
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PASS (Task 10–15 branches) | Tasks 09.1 (PR #34, log backfilled) and 10–15 each have a `feature/NN-*` branch, a PR and a `docs/istemler/` log; the app-language groundwork has its own branch, PR and log |
+| RG-a | Each task on its own `feature/NN-kisa-ad` branch with a PR and a `docs/istemler/NN-*.md` log | PASS | Tasks 09.1 (PR #34, log backfilled) and 10–15 each have a `feature/NN-*` branch, a PR and a `docs/istemler/` log; the app-language groundwork has its own branch, PR and log |
 | RG-b | Batch 02 deadline, format and Task 16 audit criteria | UNVERIFIED | Not in the repository. The 2026-10-21 status report names the deadline (27.10.2026 23:59) and Task 16's three outputs (R16-a to R16-c); the rubric itself is still to be announced |
 | RG-c | Each task's "§ 3 Kendiniz doğrulayın" steps done by the student, with screenshots in the task's log (checklist item in Tasks 10–15) | PARTIAL | Tool-run equivalents are recorded in every log; the student's own runs and screenshots are missing for all six tasks. R10-d and R13-e are the two task-specific forms of this gap — student action |
 
@@ -230,9 +230,9 @@ No task file exists in the repository. The three outputs below come from the 202
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| R16-a | `minWidth` / `minHeight` in `tauri.conf.json` | PASS (Task 16 branch) | 320 × 480 (values not specified; chosen from the narrowest verified layout width). The running Windows app reports a minimum tracking size of 320 × 480 client pixels; all screens checked at that size |
-| R16-b | `docs/ilerleme-batch-02.md` | PASS (Task 16 branch) | Control matrix, verification table, release gate, merge and tag steps |
-| R16-c | `v0.2.0-batch-02` tag on `master` | FAIL | Not created: the Batch 02 PRs (#35–#43) are not merged yet, and the tag needs the owner's approval. Release gate is BLOCKED on these two items |
+| R16-a | `minWidth` / `minHeight` in `tauri.conf.json` | PASS | 320 × 480 (values not specified; chosen from the narrowest verified layout width). The running Windows app reports a minimum tracking size of 320 × 480 client pixels; all screens checked at that size |
+| R16-b | `docs/ilerleme-batch-02.md` | PASS | Control matrix, verification table, release gate, merge and tag steps |
+| R16-c | `v0.2.0-batch-02` tag on `master` | FAIL | Not created. The Batch 02 PRs (#35–#43, #45) were merged on 2026-10-28 and the release gate passed on `master` = `72abf11`; the tag now waits only for the owner's approval |
 
 ### Instructor status report (2026-10-21) — admin panel
 
@@ -240,11 +240,11 @@ Source: the instructor's status report of 2026-10-21, shared privately and kept 
 
 | ID | Requirement | Status | Evidence / missing work |
 |---|---|---|---|
-| RA-a | The panel lives in the main project (e.g. `admin/`), not only in a separate repository | PASS (admin branch) | `admin/` with 11 screens; pages in `src/pages/admin/`; the build produces 32 pages (11 under `/admin`). [`docs/yonetim-paneli.md`](yonetim-paneli.md) |
-| RA-b | Moved on a branch with a PR | PASS (admin branch) | PR #42 (`feature/admin-panel-tasima`) and its log [`docs/istemler/admin-panel-tasima.md`](istemler/admin-panel-tasima.md); PR #32 untouched |
-| RA-c | No hard-coded colour codes | PASS (admin branch) | Scan of `admin/`: 0 hex/rgb/hsl values, 0 Tailwind palette classes, 0 `dark:` variants. The Tailwind palette is disabled in `admin/styles/admin.css` and colour utilities map to `app.css` tokens; one token added (`--renk-koyu-yazi`, [`docs/branding.md`](branding.md)) |
-| RA-d | Texts come from a dictionary | PASS (admin branch) | `admin/i18n/{tr,en,ar,fa}.ts`, 410 keys each, parity enforced by the `Translations` type; no visible text outside dictionaries (scan). Shared labels come from `src/lib/sozluk.ts` |
-| RA-e | Archive the separate repository afterwards | UNVERIFIED | Owner's step after this branch is merged and verified; the source repository is unchanged until then |
+| RA-a | The panel lives in the main project (e.g. `admin/`), not only in a separate repository | PASS | `admin/` with 11 screens; pages in `src/pages/admin/`; the build produces 32 pages (11 under `/admin`). [`docs/yonetim-paneli.md`](yonetim-paneli.md) |
+| RA-b | Moved on a branch with a PR | PASS | PR #42 (`feature/admin-panel-tasima`) and its log [`docs/istemler/admin-panel-tasima.md`](istemler/admin-panel-tasima.md); PR #32 untouched |
+| RA-c | No hard-coded colour codes | PASS | Scan of `admin/`: 0 hex/rgb/hsl values, 0 Tailwind palette classes, 0 `dark:` variants. The Tailwind palette is disabled in `admin/styles/admin.css` and colour utilities map to `app.css` tokens; one token added (`--renk-koyu-yazi`, [`docs/branding.md`](branding.md)) |
+| RA-d | Texts come from a dictionary | PASS | `admin/i18n/{tr,en,ar,fa}.ts`, 410 keys each, parity enforced by the `Translations` type; no visible text outside dictionaries (scan). Shared labels come from `src/lib/sozluk.ts` |
+| RA-e | Archive the separate repository afterwards | UNVERIFIED | PR #42 was merged on 2026-10-28 (`1463b53`). Archiving is the owner's separate open step; the source repository is unchanged |
 | RA-f | Unstated: how the panel is reached, whether it ships in mobile builds, whether it shows data | UNVERIFIED | Not specified by the report. Provisional, reversible choices (owner's general authorization, 2026-10-21): reachable at `/admin` only, as in PR #32; part of the static build on every platform; interface only, with data screens showing a "not connected" state until C-3 is decided |
 
 ## Conflicts requiring an instructor decision
@@ -258,7 +258,7 @@ These requirements contradict binding rules already in the project. Resolve them
   - Recorded in AGENTS.md §4. Instructor confirmation is still pending.
 - **C-3 — Out-of-scope list vs. merged backend.** AGENTS.md §6 excludes login, server and database, yet PR #31 (instructor-authored) merged a SQLite and auth backend that no screen uses. The admin panel moved in for RA-a manages devices, messages and users, which is "remote management" in the same list; it is therefore kept as an interface without data until this is decided. PR #32 (instructor-authored) connects the panel to SQLite and stays open.
 
-- **C-4 — Batch 01 student details vs. no personal data.** Task 03 requires the student's name and number in the README (rows R03-*), and they are in `README.md` and `docs/proje-fikri.md`. The 2026-10-21 status report says personal data such as the student number must not be in the public repository. Removing the number from the current files is possible on a branch. It would stay in Git history and in the immutable `v0.1.0-batch-01` tag, because rewriting either is forbidden. Not decided; the owner or the instructor chooses.
+- **C-4 — Batch 01 student details vs. no personal data.** Task 03 requires the student's name and number in the README (rows R03-*). The 2026-10-21 status report says personal data such as the student number must not be in the public repository. **Owner's decision on 2026-10-28:** the number was removed from the current files in PR #46 (`e4c9fea`) — `README.md`, `docs/proje-fikri.md` and the four Hakkında pages. It stays in Git history and in the immutable `v0.1.0-batch-01` tag, because rewriting either is forbidden. The name and GitHub account remain; whether the rule also covers them is for the instructor to say (row R03-e is PARTIAL as a result).
 
 ### Open questions recorded with provisional choices
 
@@ -273,10 +273,10 @@ These are not contradictions, but the requirement does not settle them. Each cho
 Ordered by priority. Nothing in this plan is implemented by this audit.
 
 1. **Done except the self-test — Task 09.1 (NC-15).** The owner fixed the settings on 2026-10-21. The "PR güvenliği" section, its AGENTS.md link and `docs/kanit/master-korumasi.png` were merged in PR #34. **Remaining:** the direct-push self-test (R09.1-d), which the owner chose not to perform.
-2. **P1 — Decisions C-1 to C-4 (NC-16).** **Acceptance:** each decision is recorded in AGENTS.md, which is the single source for rules.
+2. **P1 — Decisions C-1 to C-4 (NC-16).** C-1 and C-2 are decided provisionally, C-4 was acted on in PR #46; instructor confirmation of all three and the C-3 answer are pending. **Acceptance:** each decision is recorded in AGENTS.md, which is the single source for rules.
 3. **Done in PR #33 — Documentation index (NC-17).** `docs/backend.md` added to the AGENTS.md index.
-4. **P1 — Tasks 10 → 15 in order (NC-14).** One `feature/NN-*` branch, PR and `docs/istemler/` log per task. Run each task's own audit prompt first and implement only the PARTIAL and FAIL rows above. **Acceptance:** each task's "Görev bittiğinde repoda ne olacak" list and checklist are met, with `bun run build` at 0 errors.
+4. **Merged on 2026-10-28 — Tasks 10 → 16 (NC-14).** One `feature/NN-*` branch, PR and `docs/istemler/` log per task, merged in order (PRs #35–#43, #45). **Remaining:** the student's own §3 runs and screenshots (R10-d, R13-e, RG-c).
 5. **P2 — Accuracy and hygiene.** iOS statements were fixed in PR #33. Still open: the macOS run status in README and Hakkında, and the README "no database" sentence after decision C-3 (NC-10). Confirm "Şube" (R03-f). Ad-hoc colors and the unused `src/app.css` (R05-f, NC-18). AI-task section in the descriptions of PRs #28–#30 (R01.2-c).
-6. **P0 — Merge the Batch 02 PRs and tag (R16-c).** PRs #35–#43 merge in order with merge commits, and each branch is updated with `master` before merging (strict checks). The release gate is then re-run on `master` and `v0.2.0-batch-02` is tagged with the owner's approval. Steps: [`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md). **Acceptance:** every gate criterion passes on `master`.
+6. **P0 — Tag `v0.2.0-batch-02` (R16-c).** The PRs were merged in order with merge commits on 2026-10-28 and the release gate passed on `master` = `72abf11`. **Remaining:** the owner approves and creates the tag. Steps: [`docs/ilerleme-batch-02.md`](ilerleme-batch-02.md).
 
 Related current-state descriptions: [`lat.md/project.md`](../lat.md/project.md) (scope and rules), [`lat.md/architecture.md`](../lat.md/architecture.md) (IPC contract, SQLite backend), [`lat.md/platforms.md`](../lat.md/platforms.md) (evidence levels), [`lat.md/workflows.md`](../lat.md/workflows.md) (Git and CI rules).

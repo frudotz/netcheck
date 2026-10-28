@@ -61,7 +61,7 @@ Claims raised about the project's history, checked against the repository, GitHu
 | iPhone showed DNS "Bulunamadı" while the DNS test passed | Reported | Not recorded; consistent with the code, because the server list and the resolver test are independent ([[networking#Network snapshot#DNS servers and device name]]) |
 | IPA export failed on a `libc`/`netdev` dependency-resolution error | Reported | No build log, branch, or PR records it; `master` builds in CI for `aarch64-apple-ios` |
 | Transient "İnternet Yok" after switching to mobile data | Verified (Android) | Observed on the Redmi in PR #30. The state comes from the HTTPS test, not ICMP as that PR suggested ([[frontend#Screens]]) |
-| Report page lacks an `h1` | Verified, fixed on the Task 14 branch | [[src/components/ReportView.svelte]] had only `h2` headings ([[tasks#Deferred#NC-07 Report page heading]]) |
+| Report page lacks an `h1` | Verified, fixed in PR #40 | [[src/components/ReportView.svelte]] had only `h2` headings ([[tasks#Deferred#NC-07 Report page heading]]) |
 | Flaky burst-uniqueness test ("D-56") | Verified (test); ID reported | About 1.2% collision chance for 10 000 IDs with a 32-bit suffix (PR #28). The ID D-56 is not in the accessible vault, which ends at D-54 |
 | iPhone touch, rotation, mobile data, and RTL not all verified | Consistent | No iPhone device record exists; these items were verified only on Android |
 
