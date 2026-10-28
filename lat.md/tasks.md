@@ -114,7 +114,7 @@ Move the AI Studio admin panel into the main project as an interface that follow
 Connect the admin panel to the local SQLite backend ([[architecture#Local SQLite backend]]).
 
 - Priority P2 · Status `done` (implementation) · Evidence: PR #48 (`fix/pr32-backend-hardening`, from PR #32's instructor-authored branch) merged on 2026-10-28 as `9c74c34` with CI 5/5; it fixes the review findings with tests ([[tests#Local backend]]) and implements [[admin/api/index.ts#AdminApi]] through [[src/lib/native.ts#invokeAdmin]] in the canonical [[admin]] panel; `src-admin/` is removed. Ten end-to-end scenarios ran in the packaged Windows app against a throwaway database ([[docs/istemler/pr32-backend-hardening.md]]).
-- Not covered by this status: the instructor's course-scope answer C-3 ([[tasks#Open work#NC-16 Conflicting course requirements]]) is still pending; the merge is the owner's decision, not instructor approval. PR #32 itself stays open for the owner to close or supersede.
+- Not covered by this status: the instructor's course-scope answer C-3 ([[tasks#Open work#NC-16 Conflicting course requirements]]) is still pending; the merge is the owner's decision, not instructor approval. PR #32 itself was closed unmerged by the owner on 2026-10-28; PR #48 supersedes it.
 - Follow-ups: [[tasks#Open work#NC-20 Backend session and sign-in limits]] and [[tasks#Open work#NC-21 Report list filters in the backend]].
 
 ### NC-20 Backend session and sign-in limits
