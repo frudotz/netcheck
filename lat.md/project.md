@@ -18,7 +18,7 @@ NetCheck is a basic diagnostic tool; the feature set is intentionally small and 
 
 In scope: network snapshot ([[networking#Network snapshot]]), five diagnostics ([[networking#Diagnostics]]), connection score ([[frontend#Connection score]]), reports and local history ([[frontend#Reports and history]]), theme, settings, a four-language app setting and four-language information pages ([[frontend#Localization]]).
 
-Out of scope, per [[AGENTS.md]]: login/registration in the app, server/API, cloud sync, analytics, AI features, speed test, port or subnet scanning, packet capture, traceroute UI, VPN detection, and remote management. A temporary local SQLite backend exists in the code; the app's own screens do not use it, and on this branch only the admin panel does, behind a local sign-in ([[architecture#Local SQLite backend]], [[architecture#Admin panel]]). Whether that connection ships is the pending scope decision C-3.
+Out of scope, per [[AGENTS.md]]: login/registration in the app, server/API, cloud sync, analytics, AI features, speed test, port or subnet scanning, packet capture, traceroute UI, VPN detection, and remote management. A temporary local SQLite backend exists in the code; the app's own screens do not use it, and only the admin panel does, behind a local sign-in ([[architecture#Local SQLite backend]], [[architecture#Admin panel]]). The connection is merged (PR #48); the instructor's scope decision C-3 on login, database and remote management is still pending.
 
 ## Product rules
 

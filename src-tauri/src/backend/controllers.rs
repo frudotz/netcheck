@@ -58,10 +58,25 @@ pub fn auth_register(app: &AppState, name: &str, email: &str, password: &str) ->
     })
 }
 
+/// Giriş: e-posta başına deneme sınırı (`AppState`), başarıda sayaç sıfırlanır ve yeni oturum başlar.
+/// Kilitliyken doğru parola da kabul edilmez (`too_many_attempts`). Askıya alınmış hesap da başarısız sayılır.
 pub fn auth_login(app: &AppState, email: &str, password: &str) -> AppResult<Value> {
-    let user = app.db.with(|c| auth::attempt(c, email, password))?;
-    app.set_user(Some(user.id));
-    app.db.with(|c| auth::user_with_access(c, user.id))
+    if let Some(secs) = app.login_locked_for(email) {
+        return Err(AppError::TooManyAttempts(secs));
+    }
+    match app.db.with(|c| auth::attempt(c, email, password)) {
+        Ok(user) => {
+            app.clear_login_failures(email);
+            app.set_user(Some(user.id));
+            app.db.with(|c| auth::user_with_access(c, user.id))
+        }
+        Err(e) => {
+            if let Some(secs) = app.record_login_failure(email) {
+                return Err(AppError::TooManyAttempts(secs));
+            }
+            Err(e)
+        }
+    }
 }
 
 pub fn auth_logout(app: &AppState) {
@@ -235,7 +250,7 @@ pub fn user_index(app: &AppState) -> AppResult<Vec<Value>> {
 pub fn user_store(app: &AppState, name: &str, email: &str, role: &str, password: Option<&str>) -> AppResult<Value> {
     app.db.transaction(|c| {
         let uid = authorize(c, app.user(), "Create:User")?;
-        if role == SUPER_ADMIN_ROLE {
+        if rbac::is_reserved_role_name(role) {
             require_super_admin(c, uid)?;
         }
         let u = auth::create_admin(c, email, role, name, password)?;
@@ -253,7 +268,7 @@ pub fn user_sync_roles(app: &AppState, user_id: i64, roles: &[String]) -> AppRes
         forbid_self_change(c, uid, user_id)?;
         let before = rbac::role_names(c, m)?;
         let was_admin = before.iter().any(|r| r == SUPER_ADMIN_ROLE);
-        let wants_admin = names.contains(&SUPER_ADMIN_ROLE);
+        let wants_admin = names.iter().any(|n| rbac::is_reserved_role_name(n));
         // `admin` rolünü vermek ya da almak yalnız süper yöneticinin işidir (yetki yükseltme kapısı).
         if was_admin || wants_admin {
             require_super_admin(c, uid)?;
@@ -356,6 +371,9 @@ pub fn role_store(app: &AppState, name: &str, permissions: &[String]) -> AppResu
         if name.is_empty() || name.chars().count() > 80 {
             return Err(AppError::validation("name", "Rol adı 1–80 karakter olmalı."));
         }
+        if rbac::is_reserved_role_name(name) {
+            return Err(AppError::validation("name", "Bu rol adı ayrılmıştır."));
+        }
         if rbac::role_find_by_name(c, name)?.is_some() {
             return Err(AppError::Conflict(format!("`{name}` adında bir rol zaten var.")));
         }
@@ -373,6 +391,9 @@ pub fn role_update(app: &AppState, name: &str, new_name: &str) -> AppResult<()> 
         let new_name = new_name.trim();
         if new_name.is_empty() || new_name.chars().count() > 80 {
             return Err(AppError::validation("name", "Rol adı 1–80 karakter olmalı."));
+        }
+        if rbac::is_reserved_role_name(new_name) {
+            return Err(AppError::validation("name", "Bu rol adı ayrılmıştır."));
         }
         rbac::role_rename(c, name, new_name)?;
         audit::record(c, Some(uid), "Role.update", "Role", name, None, Some(&json!({ "name": name })), Some(&json!({ "name": new_name })))?;

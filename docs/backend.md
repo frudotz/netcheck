@@ -36,7 +36,7 @@ Ortak tablolar: `users`, `roles`, `permissions`, `model_has_roles`, `model_has_p
 | `Device` | `devices` | `id` (metin) | platform*, appVersion*, locale, lastSeenAt, reportCount |
 | `Report` | `reports` | `id` (metin) | createdAt*, score*, passed*, failed*, network*, tests*, deviceId, shared, receivedAt, ruleVersion |
 | `ScoreRule` | `score_rules` | `version` (otomatik artan) | status, weights*, latencyBands*, levels*, publishedAt, note |
-| `DiagnosticTarget` | `diagnostic_targets` | `kind` (metin) | target*, enabled, timeoutMs |
+| `DiagnosticTarget` | `diagnostic_targets` | `kind` (metin) | target*, enabled, timeoutMs — **salt okunur** (`readonly`): hedefler Rust'ta sabittir, uygulama bu tabloyu okumaz; genel CRUD yazmayı `forbidden` ile reddeder |
 
 `*` zorunlu alan. JSON türündeki sütunlar (liste/nesne) metin olarak saklanır, okunurken nesneye çevrilir. Sütun adları, ön yüz tipleriyle birebir eşleşir.
 
@@ -66,7 +66,7 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 | `auth_setup_required` | — | Veritabanında henüz kullanıcı yoksa `true` döner |
 | `auth_register` | name, email, password | Yalnız ilk yönetici hesabını oluşturur; sonraki kayıtları reddeder |
 | `contact_message_assignees` | — | İleti yetkisi olan kullanıcılar için etkin yönetici adları ve kimlikleri |
-| `auth_login` | email, password | Giriş |
+| `auth_login` | email, password | Giriş. E-posta başına 15 dakikada 5 başarısız denemeden sonra 15 dakika kilit (`too_many_attempts`, `retryAfterSecs`); başarılı giriş sayacı sıfırlar. İlk kurulum (`auth_register`) bu sınırdan etkilenmez |
 | `auth_logout` | — | Çıkış |
 | `auth_me` | — | Oturumdaki kullanıcı + roller + izinler (yoksa null) |
 | `user_index` | — | Kullanıcı listesi (`ViewAny:User`) |
@@ -77,8 +77,8 @@ Rust'taki `snake_case` parametreler JS tarafında `camelCase` yazılır. Aşağ�
 | `user_set_password` | userId, password | Parola değiştir (`Update:User`); süper yöneticinin parolasını yalnız kendisi ya da süper yönetici; parola denetim kaydına yazılmaz |
 | `user_update` | userId, name | Ad soyad güncelle (`Update:User`); e-posta ve parola değişmez |
 | `role_index` | — | Roller + izinleri (`ViewAny:Role`) |
-| `role_store` | name, permissions?[] | Rol oluştur (`Create:Role`) |
-| `role_update` | name, newName | Rol adını değiştir (`Update:Role`) |
+| `role_store` | name, permissions?[] | Rol oluştur (`Create:Role`); `admin`'in büyük/küçük harf ve boşluk değişkenleri ayrılmış ad olarak reddedilir |
+| `role_update` | name, newName | Rol adını değiştir (`Update:Role`); ayrılmış ada çevirilemez |
 | `role_destroy` | name, reason? | Rol sil (`Delete:Role`) |
 | `role_sync_permissions` | name, permissions[] | Rolün izinlerini eşitle (`Update:Role`) |
 | `permission_index` | — | İzin listesi (`ViewAny:Permission`) |
@@ -131,10 +131,11 @@ Süzgeç anahtarı bir sütun adıysa tam eşleşme, dizi ise `IN`; `<sütun>Min
 
 ## 9. Sınırlar (geçici çözüm)
 
-- Tek kullanıcılı yerel oturum: giriş yapan kullanıcı uygulama belleğinde tutulur; uygulama kapanınca oturum biter. Her yetki denetimi kullanıcının `active` olduğunu da doğrular: askıya alınan ya da engellenen kullanıcının açık oturumu hemen geçersiz olur (`unauthenticated`).
+- Tek kullanıcılı yerel oturum: giriş yapan kullanıcı uygulama belleğinde tutulur; uygulama kapanınca oturum biter. **Süre:** 30 dakika boşta kalma ve 12 saat mutlak ömür; süresi dolan oturum ilk yetki denetiminde düşer, `auth_me` null döner. Her yetki denetimi kullanıcının `active` olduğunu da doğrular: askıya alınan ya da engellenen kullanıcının açık oturumu hemen geçersiz olur (`unauthenticated`).
+- Giriş denemesi sınırı süreç içindedir: e-posta başına 15 dakikada 5 başarısız deneme → 15 dakika kilit; parola ya da deneme içeriği saklanmaz. Uygulama yeniden başlatılınca sayaç sıfırlanır (yerel masaüstü uygulaması için kabul edilen sınır).
 - Veri cihazdadır; cihazlar arası eşitleme ve sunucu yoktur. Silinen uygulama verisiyle birlikte veritabanı da gider.
 - Parolalar Argon2id ile özetlenir; yine de bu bir **eğitim ve geliştirme altyapısıdır**, gerçek kullanıcı verisi için denetlenmiş bir sunucu gerekir.
 - İzin önbelleği yoktur; her denetim veritabanından okunur.
 - Her yazan komut tek bir SQLite transaction'ında çalışır (`Db::transaction`); denetim kaydı yazılamazsa asıl değişiklik de geri alınır.
-- WebView için CSP açıktır (`tauri.conf.json` → `app.security.csp`): yalnız uygulamanın kendi kaynakları ve Tauri IPC; geliştirme sunucusu için ayrı `devCsp`. Üretim paketinde satır içi `<script>` karmaları Tauri tarafından eklenir.
+- WebView için CSP açıktır (`tauri.conf.json` → `app.security.csp`): yalnız uygulamanın kendi kaynakları ve Tauri IPC; üretim paketinde satır içi `<script>` karmaları Tauri tarafından eklenir ve paketlenmiş uygulamada doğrulandı. `devCsp` de tanımlıdır, ancak 28.10.2026'daki `tauri dev` denemesinde Vite yanıtında CSP başlığı ya da `<meta>` görülmedi (harici `devUrl`); geliştirme derlemesi dağıtılmadığı için bu bir sınır olarak kaydedildi.
 - Arama SQLite `LIKE` ile yapılır (Türkçe büyük/küçük harf duyarlılığı sınırlıdır).

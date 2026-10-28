@@ -4,10 +4,11 @@
 
 ## Durum
 
-- **Yerel arka uca bağlı (bu dalda).** Panel, NetCheck uygulamasının içinde bu cihazdaki SQLite veritabanını ([`docs/backend.md`](backend.md)) yalnız Tauri IPC üzerinden (`admin/api/index.ts` → [`src/lib/native.ts`](../src/lib/native.ts)) okur ve yazar. Örnek ya da sahte kayıt yoktur. Tarayıcı önizlemesinde (`bun run dev`) IPC olmadığı için veri ekranları "masaüstü uygulaması gerekli" durumunu gösterir.
-- **Giriş.** Veritabanındaki ilk hesap kurulum ekranından süper yönetici olarak oluşturulur; sonraki kullanıcılar Yöneticiler ekranından geçici parolayla eklenir ve rol alır. Oturum uygulama belleğindedir; kullanıcı askıya alınınca açık oturum hemen düşer. Yetki denetimi her komutta Rust tarafındadır; menü ve düğme görünürlüğü (`admin/yol.ts` → `EKRAN_IZNI`) yalnız kullanıcı deneyimi içindir.
+- **Yerel arka uca bağlı (PR #48, `master`).** Panel, NetCheck uygulamasının içinde bu cihazdaki SQLite veritabanını ([`docs/backend.md`](backend.md)) yalnız Tauri IPC üzerinden (`admin/api/index.ts` → [`src/lib/native.ts`](../src/lib/native.ts)) okur ve yazar. Örnek ya da sahte kayıt yoktur. Tarayıcı önizlemesinde (`bun run dev`) IPC olmadığı için veri ekranları "masaüstü uygulaması gerekli" durumunu gösterir.
+- **Giriş.** Veritabanındaki ilk hesap kurulum ekranından süper yönetici olarak oluşturulur; sonraki kullanıcılar Yöneticiler ekranından geçici parolayla eklenir ve rol alır. Oturum uygulama belleğindedir; 30 dakika boşta kalınca ya da 12 saat sonra düşer, kullanıcı askıya alınınca hemen düşer. Giriş e-posta başına 15 dakikada 5 başarısız denemeyle sınırlıdır. Yetki denetimi her komutta Rust tarafındadır; menü ve düğme görünürlüğü (`admin/yol.ts` → `EKRAN_IZNI`) yalnız kullanıcı deneyimi içindir.
 - **Gizlilik.** Raporlar listede ve detayda maskeli gelir; bir alan yalnız `Reveal:PII` izniyle, tek tek ve denetim kaydıyla açılır; sayfa yenilenince yine maskelidir. CSV ve yazdırma `Export:Report` izniyle arka uçtan onay alır ve kayda geçer.
-- **Kapsam kararı.** Panelin veri bağlantısı [`docs/course-compliance.md`](course-compliance.md) C-3 kararına bağlıdır; karar beklemektedir ve bu dal birleştirilmemiştir.
+- **Tanılama hedefleri** ekranı salt okunurdur: hedefler Rust'ta sabittir ve uygulama bu tabloyu okumaz; arka uç yazmayı reddeder.
+- **Kapsam kararı.** Panelin veri bağlantısı depo sahibinin kararıyla PR #48 ile `master`'a birleşti; [`docs/course-compliance.md`](course-compliance.md) C-3 için eğitmenin kararı hâlâ beklemektedir ve birleştirme onay yerine geçmez.
 - **Ayarlar** çalışır: tema ve dil uygulamayla ortaktır (aynı `localStorage` anahtarları `tema` ve `dil`), tablo yoğunluğu yalnız panele aittir.
 - Ekranların kodu (tablolar, düzenleyiciler, onay pencereleri) bağlantı aşaması için depodadır, tip denetiminden geçer ve aşağıdaki kurallara uyar; ama bu aşamada çizilmez.
 
@@ -59,6 +60,6 @@ Kaynak depodan alınmayanlar: `react-router-dom` (ekranlar Astro sayfası), AI S
 
 ## Sonraki adımlar
 
-Arka uç güvenlik düzeltmeleri ve panelin `native.ts` üzerinden bağlanması `fix/pr32-backend-hardening` dalında yapıldı ([`docs/istemler/pr32-backend-hardening.md`](istemler/pr32-backend-hardening.md)); birleştirme C-3 kararını bekler. Hâlâ açık: raporların cihazdan panele gönderilip gönderilmeyeceği (`report_submit` kayıtlı değil; gizlilik kararı), iletişim formunun veritabanına yazıp yazmayacağı (`contact_submit` kayıtlı değil), giriş denemesi sınırı ve oturum zaman aşımı. Tanılama hedefleri düzenleyicisi, hedeflerin Rust'ta sabit olduğu kuralıyla çelişir ([`AGENTS.md`](../AGENTS.md) §6) ve uygulama bu tabloyu okumaz; kaldırılıp kaldırılmayacağı aynı karara bağlıdır.
+Arka uç güvenlik düzeltmeleri ve panelin `native.ts` üzerinden bağlanması PR #48 ile birleşti ([`docs/istemler/pr32-backend-hardening.md`](istemler/pr32-backend-hardening.md)); oturum süresi, giriş sınırı, ayrılmış rol adı ve salt okunur hedefler `fix/backend-security-followups` dalında ([`docs/istemler/backend-security-followups.md`](istemler/backend-security-followups.md)). Hâlâ açık: eğitmenin C-3 kararı; raporların cihazdan panele gönderilip gönderilmeyeceği (`report_submit` kayıtlı değil; gizlilik kararı); iletişim formunun veritabanına yazıp yazmayacağı (`contact_submit` kayıtlı değil); rapor listesinin arka uçta süzülmesi (NC-21).
 
 Kaynak depo, bu taşıma birleştirilip doğrulandıktan sonra depo sahibi tarafından arşivlenir.

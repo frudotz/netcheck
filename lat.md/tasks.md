@@ -113,16 +113,32 @@ Move the AI Studio admin panel into the main project as an interface that follow
 
 Connect the admin panel to the local SQLite backend ([[architecture#Local SQLite backend]]).
 
-- Priority P2 · Status `in progress` · Depends on: [[tasks#Open work#NC-16 Conflicting course requirements]] (C-3) for merging.
-- Evidence: branch `fix/pr32-backend-hardening` (from PR #32's `feature/src-admin-prototype`, instructor-authored) fixes the review findings with tests ([[tests#Local backend]]), merges `master` and implements [[admin/api/index.ts#AdminApi]] through [[src/lib/native.ts#invokeAdmin]] in the canonical [[admin]] panel; the `src-admin/` copy is removed. Ten end-to-end scenarios were run in the packaged Windows app against a throwaway database ([[docs/istemler/pr32-backend-hardening.md]]). Not merged.
-- Acceptance: C-3 answered by the instructor; then the branch is merged with [[architecture#Local SQLite backend]] and [[project#Scope]] as they now read. Open besides C-3: login rate limiting, a session timeout, the editable but unused `diagnostic_targets` table, and client-side paging in the panel.
+- Priority P2 · Status `done` (implementation) · Evidence: PR #48 (`fix/pr32-backend-hardening`, from PR #32's instructor-authored branch) merged on 2026-10-28 as `9c74c34` with CI 5/5; it fixes the review findings with tests ([[tests#Local backend]]) and implements [[admin/api/index.ts#AdminApi]] through [[src/lib/native.ts#invokeAdmin]] in the canonical [[admin]] panel; `src-admin/` is removed. Ten end-to-end scenarios ran in the packaged Windows app against a throwaway database ([[docs/istemler/pr32-backend-hardening.md]]).
+- Not covered by this status: the instructor's course-scope answer C-3 ([[tasks#Open work#NC-16 Conflicting course requirements]]) is still pending; the merge is the owner's decision, not instructor approval. PR #32 itself was closed unmerged by the owner on 2026-10-28; PR #48 supersedes it.
+- Follow-ups: [[tasks#Open work#NC-20 Backend session and sign-in limits]] and [[tasks#Open work#NC-21 Report list filters in the backend]].
+
+### NC-20 Backend session and sign-in limits
+
+Sessions expire (30 min idle, 12 h absolute), sign-in is rate limited per e-mail, reserved role-name variants are refused and the `diagnostic_targets` table is read-only.
+
+- Priority P2 · Status `in progress` · Evidence: branch `fix/backend-security-followups` with eight deterministic tests ([[tests#Local backend]] from "Login is locked after repeated failures" on) and the end-to-end run in [[docs/istemler/backend-security-followups.md]]; done when the draft PR merges.
+- Limits recorded in [[architecture#Local SQLite backend]]: the limiter is in-process (resets with the app) and does not cover first-admin registration, which stays open only while the database has no user.
+- Acceptance: the eight specs pass on `master`; `docs/backend.md` §5 and §9 describe the limits; the panel shows `too_many_attempts` through the dictionaries.
+
+### NC-21 Report list filters in the backend
+
+The panel's report and device lists still load the whole masked list and filter in the browser, because score level, connection type, test status, date range and platform live in JSON columns or need a join that `crud_index` cannot filter.
+
+- Priority P3 · Status `planned` · Depends on: none; messages, audit logs and devices without JSON filters already page on the backend.
+- Why deferred: only masked rows cross IPC, so this is performance, not privacy; a correct fix needs new backend filters (`json_extract` columns or a report list command), which should come with their own tests.
+- Acceptance: `getReports` and `getDevices` in [[admin/api/index.ts#api]] request one page from the backend for every filter the UI offers, with a Rust test per new filter.
 
 ### NC-13 Backend database tests
 
 Tests that open the migrated in-memory database now cover sessions, roles, CRUD write rules, transactions, bounded public inputs, export and PII reveal.
 
-- Priority P2 · Status `in progress` · Evidence: 21 tests in [[src-tauri/src/backend/tests.rs]] on `fix/pr32-backend-hardening`, specified in [[tests#Local backend]]; done when that branch merges.
-- Acceptance: the specs in [[tests#Local backend]] pass on `master`.
+- Priority P2 · Status `done` · Evidence: 21 tests in [[src-tauri/src/backend/tests.rs]] merged in PR #48 (`9c74c34`), specified in [[tests#Local backend]]; the follow-up branch adds eight more with a pinned clock.
+- Acceptance met: the specs in [[tests#Local backend]] pass on `master` (46 tests at the merge).
 
 ### NC-10 Documentation consistency
 

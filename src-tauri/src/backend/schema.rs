@@ -80,7 +80,8 @@ pub static DIAGNOSTIC_TARGET: Entity = Entity {
     search: &[],
     filters: &[],
     order_by: "\"kind\" ASC",
-    readonly: false,
+    // Hedefler Rust'ta sabittir ve uygulama bu tabloyu okumaz (AGENTS.md §6); panel yalnız gösterir.
+    readonly: true,
 };
 
 pub static PROJECT: &[&Entity] = &[&DEVICE, &REPORT, &SCORE_RULE, &DIAGNOSTIC_TARGET];

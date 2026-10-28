@@ -486,6 +486,8 @@ export const tr = {
   permDeniedDesc: "Oturumdaki hesabın rolü bu ekranı görmeye izin vermiyor. Gerekli izni bir süper yönetici verebilir.",
   adminPassword: "Geçici parola",
   adminsPasswordHint: "8–128 karakter. Kullanıcı ilk girişten sonra parolasını değiştirmeli.",
+  authErrTooMany: "Çok fazla başarısız giriş denemesi. Bir süre sonra yeniden dene.",
+targetsReadOnlyNote: "Tanılama hedefleri Rust'ta sabittir ve uygulama bu tabloyu okumaz; liste yalnız bilgi amaçlıdır. Hedefleri değiştirmek kod değişikliği ve inceleme gerektirir.",
   toastExportDenied: "Dışa aktarma için Export:Report yetkisi gerekiyor.",
 };
 
