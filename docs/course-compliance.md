@@ -232,7 +232,7 @@ No task file exists in the repository. The three outputs below come from the 202
 |---|---|---|---|
 | R16-a | `minWidth` / `minHeight` in `tauri.conf.json` | PASS | 320 × 480 (values not specified; chosen from the narrowest verified layout width). The running Windows app reports a minimum tracking size of 320 × 480 client pixels; all screens checked at that size |
 | R16-b | `docs/ilerleme-batch-02.md` | PASS | Control matrix, verification table, release gate, merge and tag steps |
-| R16-c | `v0.2.0-batch-02` tag on `master` | FAIL | Not created. The Batch 02 PRs (#35–#43, #45) were merged on 2026-10-28 and the release gate passed on `master` = `72abf11`; the tag now waits only for the owner's approval |
+| R16-c | `v0.2.0-batch-02` tag on `master` | FAIL | Not created. The Batch 02 PRs (#35–#43, #45) and the follow-ups #46–#49 were merged on 2026-10-28; the release gate passed again on `master` = `a5ef40b`; the tag now waits only for the owner's approval |
 
 ### Instructor status report (2026-10-21) — admin panel
 

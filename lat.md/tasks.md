@@ -115,15 +115,15 @@ Connect the admin panel to the local SQLite backend ([[architecture#Local SQLite
 
 - Priority P2 · Status `done` (implementation) · Evidence: PR #48 (`fix/pr32-backend-hardening`, from PR #32's instructor-authored branch) merged on 2026-10-28 as `9c74c34` with CI 5/5; it fixes the review findings with tests ([[tests#Local backend]]) and implements [[admin/api/index.ts#AdminApi]] through [[src/lib/native.ts#invokeAdmin]] in the canonical [[admin]] panel; `src-admin/` is removed. Ten end-to-end scenarios ran in the packaged Windows app against a throwaway database ([[docs/istemler/pr32-backend-hardening.md]]).
 - Not covered by this status: the instructor's course-scope answer C-3 ([[tasks#Open work#NC-16 Conflicting course requirements]]) is still pending; the merge is the owner's decision, not instructor approval. PR #32 itself was closed unmerged by the owner on 2026-10-28; PR #48 supersedes it.
-- Follow-ups: [[tasks#Open work#NC-20 Backend session and sign-in limits]] and [[tasks#Open work#NC-21 Report list filters in the backend]].
+- Follow-ups: [[tasks#Open work#NC-20 Backend session and sign-in limits]] (merged in PR #49) and [[tasks#Open work#NC-21 Report list filters in the backend]] (open).
 
 ### NC-20 Backend session and sign-in limits
 
 Sessions expire (30 min idle, 12 h absolute), sign-in is rate limited per e-mail, reserved role-name variants are refused and the `diagnostic_targets` table is read-only.
 
-- Priority P2 · Status `in progress` · Evidence: branch `fix/backend-security-followups` with eight deterministic tests ([[tests#Local backend]] from "Login is locked after repeated failures" on) and the end-to-end run in [[docs/istemler/backend-security-followups.md]]; done when the draft PR merges.
+- Priority P2 · Status `done` · Evidence: PR #49 merged on 2026-10-28 as `a5ef40b` (CI 5/5) with eight deterministic tests ([[tests#Local backend]] from "Login is locked after repeated failures" on) and the end-to-end run in [[docs/istemler/backend-security-followups.md]]; 54 Rust tests pass on `master`.
 - Limits recorded in [[architecture#Local SQLite backend]]: the limiter is in-process (resets with the app) and does not cover first-admin registration, which stays open only while the database has no user.
-- Acceptance: the eight specs pass on `master`; `docs/backend.md` §5 and §9 describe the limits; the panel shows `too_many_attempts` through the dictionaries.
+- Acceptance met: the eight specs pass on `master`; `docs/backend.md` §5 and §9 describe the limits; the panel shows `too_many_attempts` through the dictionaries. Still open by design: the limiter resets with the app and `devCsp` is not enforced in dev mode (observations recorded in the log).
 
 ### NC-21 Report list filters in the backend
 
