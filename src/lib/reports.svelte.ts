@@ -42,9 +42,13 @@ class Reports {
   /**
    * Listeleri besleyen tek yükleme işlevi (Görev 13): raporları depodan yeniden okur.
    * Okunamazsa hata fırlatır; mevcut liste değişmez ve ekran hata halini gösterir.
+   * Depoya yazılamamış (yalnız bellekte duran) raporlar korunur; yoksa `save()` başarısız olunca
+   * yeni rapor geçmişten ve detay ekranından kaybolurdu.
    */
   async yukle(): Promise<DiagnosticReport[]> {
-    this.list = read();
+    const depodaki = read();
+    const yalnizBellekte = this.list.filter((r) => !depodaki.some((d) => d.id === r.id));
+    this.list = [...yalnizBellekte, ...depodaki].slice(0, MAX_REPORTS);
     return this.list;
   }
 

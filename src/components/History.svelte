@@ -107,6 +107,8 @@
   function clearHistory() {
     reports.clear();
     confirming = false;
+    // Temizleme depoyu yeniden yazar; hata halinden de boş hale geçilsin diye yeniden yüklenir.
+    void yukle();
   }
 </script>
 
@@ -120,6 +122,18 @@
     <Yukleniyor satir={4} />
   {:else if gorunen === "hata"}
     <HataDurumu mesaj={m.gecmisHata} {tekrarDene} />
+    <!-- Depo bozuksa "Tekrar dene" hiç başaramaz; temizleme burada da sunulur ki kullanıcı kurtulabilsin. -->
+    {#if confirming}
+      <div class="kart onay" role="alertdialog" aria-label={m.temizlemeOnayiEtiketi}>
+        <p>{bicim(m.temizlemeOnayi, { n: reports.list.length })}</p>
+        <div class="dugmeler">
+          <button class="btn tehlike" onclick={clearHistory}>{m.evetTemizle}</button>
+          <button class="btn ikincil" onclick={() => (confirming = false)}>{m.vazgec}</button>
+        </div>
+      </div>
+    {:else}
+      <button class="btn ikincil temizle" onclick={() => (confirming = true)}>{m.gecmisiTemizle}</button>
+    {/if}
   {:else if gorunen === "bos"}
     <BosDurum baslik={m.gecmisBos} aciklama={m.gecmisBosAciklama} dugmeMetni={m.tanilamayiBaslat} dugmeHref="/tanilama" />
   {:else}

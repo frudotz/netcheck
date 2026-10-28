@@ -22,7 +22,7 @@ Weights: internet 35, DNS 20, gateway 15, Cloudflare 10, Google 10. A latency bo
 
 Reports live only on the device, in `localStorage` under [[src/lib/reports.svelte.ts#STORAGE_KEY]], newest first, capped at [[src/lib/reports.svelte.ts#MAX_REPORTS]].
 
-Stored entries are shape-checked when loaded, so malformed data is dropped instead of crashing the screen. Since Task 14 each test also stores Rust's `code` and `detail`, so the report screen can rebuild its message in the selected language; older reports without them show their stored Turkish message. Storage is per WebView data directory, so changing the app identifier or uninstalling the app clears history; an in-place update keeps it (seen on Android). The theme choice is stored the same way by [[src/lib/tema.svelte.ts#tema]] (day, night, or system).
+Stored entries are shape-checked when loaded, so malformed data is dropped instead of crashing the screen; if the stored value is not a list at all, History shows its error state and still offers "Geçmişi temizle" to reset the store. Reloading the list keeps reports that could not be written to storage, so a report created while storage is full or blocked stays visible for the session. Since Task 14 each test also stores Rust's `code` and `detail`, so the report screen can rebuild its message in the selected language; older reports without them show their stored Turkish message. Storage is per WebView data directory, so changing the app identifier or uninstalling the app clears history; an in-place update keeps it (seen on Android). The theme choice is stored the same way by [[src/lib/tema.svelte.ts#tema]] (day, night, or system).
 
 ## Shared UI components
 

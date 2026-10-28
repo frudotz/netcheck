@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { Locale } from "../../src/lib/types";
 import { dirOf, LOCALES } from "../../src/lib/i18n";
+import { bicim } from "../../src/lib/sozluk";
 import { tr, type Translations } from "./tr";
 import { en } from "./en";
 import { ar } from "./ar";
@@ -45,14 +46,10 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Yer tutucular uygulamanın `bicim` işleviyle doldurulur: değer içindeki `$&` gibi diziler bozulmaz.
   const t = (key: keyof Translations, params?: Record<string, string | number>): string => {
-    let text = dictionaries[locale][key];
-    if (params) {
-      Object.entries(params).forEach(([k, val]) => {
-        text = text.replace(new RegExp(`\\{${k}\\}`, "g"), String(val));
-      });
-    }
-    return text;
+    const text = dictionaries[locale][key];
+    return params ? bicim(text, params) : text;
   };
 
   useEffect(() => {
