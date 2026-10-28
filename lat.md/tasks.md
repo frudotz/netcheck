@@ -57,27 +57,27 @@ Record a reproducible physical-iPhone run; smoke tests are reported as successfu
 
 Four course requirements contradict binding project rules and need an owner or instructor decision.
 
-- Priority P1 · Status `blocked` · Depends on: the instructor's answer for C-3, a decision on C-4, and confirmation of the C-1 and C-2 decisions.
+- Priority P1 · Status `blocked` · Depends on: the instructor's answer for C-3, and confirmation of the C-1, C-2 and C-4 decisions.
 - Conflicts C-1 to C-4 in [[docs/course-compliance.md]]:
   - Task 11 sample data versus [[project#Product rules]] (no fake data). Decided on 2026-10-21 under the owner's general authorization: documentation-range records in [[src/lib/veri/ornek.ts]] that no screen imports, recorded in [[AGENTS.md]]; instructor confirmation pending.
   - Four-language state and detail texts versus Turkish-only app screens. Decided on 2026-10-21 under the same authorization: an app language setting with a dictionary ([[decisions#Turkish-first interface]]), recorded in [[AGENTS.md]]; instructor confirmation pending.
   - The AGENTS.md out-of-scope list versus [[architecture#Local SQLite backend]].
-  - C-4: the Task 03 README requires the student number, while the 2026-10-21 status report forbids personal data in the public repository; the number also stays in history and in the immutable Batch 01 tag. Undecided.
+  - C-4: the Task 03 README requires the student number, while the 2026-10-21 status report forbids personal data in the public repository. Decided by the owner on 2026-10-28: the number was removed from the current files in PR #46 (`e4c9fea`); it stays in history and in the immutable Batch 01 tag, which are not rewritten. Whether the rule also covers the name awaits the instructor.
 - Acceptance: each decision is recorded once in [[AGENTS.md]] and reflected here.
 
 ### NC-17 Documentation index completeness
 
 The AGENTS.md documentation index must list every `docs/*.md`; [[docs/backend.md]] from PR #31 was missing, a Task 08 regression.
 
-- Priority P1 · Status `in progress` · Evidence: the row is added on the PR #33 branch; the task is done when PR #33 merges.
+- Priority P1 · Status `done` · Evidence: merged in PR #33 (`2e09390`); the index row exists on `master`.
 - Acceptance: every top-level `docs/*.md` appears in the AGENTS.md index with a working link (row R08-a).
 
 ### NC-14 Week 04 course tasks
 
-Course tasks 10–16 (method log, data contract, card, list states, detail screen, typed Rust command, Batch 02 audit) from [[docs/tasks/week-4/README.md]] and, for Task 16, the instructor's 2026-10-21 status report; all seven are in review as PRs #35–#43.
+Course tasks 10–16 from [[docs/tasks/week-4/README.md]] (Task 16 from the instructor's 2026-10-21 status report); all seven were merged into `master` on 2026-10-28 as PRs #35–#43, followed by the fix PR #45 (`master` = `72abf11`).
 
 - Priority P1 · Status `in progress` · Depends on: [[tasks#Open work#NC-15 Master protection ruleset]] (the Task 09.1 prerequisite) and, for Tasks 11, 13 and 14, [[tasks#Open work#NC-16 Conflicting course requirements]].
-- Evidence: rows R10 to R15 in [[docs/course-compliance.md]]. Task 10 is on `feature/10-calisma-yontemi` with its log [[docs/istemler/10-calisma-yontemi.md]]; the student's own new-chat rule test is still open. Task 11 is on `feature/11-veri-sozlesmesi` with its log [[docs/istemler/11-veri-sozlesmesi.md]], Task 12 on `feature/12-kart-bileseni` with [[docs/istemler/12-kart-bileseni.md]], Task 13 on `feature/13-liste-ve-uc-durum` with [[docs/istemler/13-liste-ve-uc-durum.md]], Task 14 on `feature/14-detay-ekrani` with [[docs/istemler/14-detay-ekrani.md]], Task 15 on `feature/15-rust-komutu` with [[docs/istemler/15-rust-komutu.md]], and Task 16 on `feature/16-batch-02-denetimi` with [[docs/istemler/16-batch-02-denetimi.md]] and the release gate in [[docs/ilerleme-batch-02.md]]. Open: merging the PRs in order and the `v0.2.0-batch-02` tag (R16-c, owner's approval), the student's own runs and screenshots (R10-d, R13-e) and macOS, Linux and iOS runs (R15-h, deferred).
+- Evidence: rows R10 to R16 in [[docs/course-compliance.md]] and the prompt logs on `master`: [[docs/istemler/10-calisma-yontemi.md]], [[docs/istemler/11-veri-sozlesmesi.md]], [[docs/istemler/12-kart-bileseni.md]], [[docs/istemler/13-liste-ve-uc-durum.md]], [[docs/istemler/14-detay-ekrani.md]], [[docs/istemler/15-rust-komutu.md]], [[docs/istemler/16-batch-02-denetimi.md]] and [[docs/istemler/yerel-denetim-duzeltmeleri.md]]. The release gate in [[docs/ilerleme-batch-02.md]] was re-run on `72abf11` on 2026-10-28 and passed (build, type check, Rust tests, `lat check`). Open: the `v0.2.0-batch-02` tag (R16-c, owner's approval), the student's own new-chat rule test, runs and screenshots (R10-d, R13-e, RG-c) and macOS, Linux and iOS runs (R15-h, deferred).
 - Acceptance: as defined in each task file, one branch, PR and prompt log per task, and the release gate in [[docs/ilerleme-batch-02.md]] passing on `master`. Deadline 27.10.2026 23:59; the Task 16 rubric is announced in class.
 
 ### NC-04 iOS local network permission
@@ -105,8 +105,8 @@ Android release APKs are unsigned; there is no keystore, AAB, or store configura
 
 Move the AI Studio admin panel into the main project as an interface that follows the project rules (instructor's 21.10.2026 status report).
 
-- Priority P1 · Status `in progress` · Evidence: PR #42 (`feature/admin-panel-tasima`) with its log [[docs/istemler/admin-panel-tasima.md]]; [[architecture#Admin panel]] describes the result and [[docs/yonetim-paneli.md]] the rules. Checked in the running Windows app and in a browser on the production build: 11 screens at 320–1280 px in TR, AR and FA, both themes.
-- Open: archiving the separate repository is the owner's step after merge; whether the panel is reachable from the app or ships in mobile builds is undecided (RA-f in [[docs/course-compliance.md]]).
+- Priority P1 · Status `in progress` · Evidence: PR #42 (`feature/admin-panel-tasima`), merged on 2026-10-28 (`1463b53`), with its log [[docs/istemler/admin-panel-tasima.md]]; [[architecture#Admin panel]] describes the result and [[docs/yonetim-paneli.md]] the rules. Checked in the running Windows app and in a browser on the production build: 11 screens at 320–1280 px in TR, AR and FA, both themes.
+- Open: archiving the separate repository is the owner's separate step, not started; whether the panel is reachable from the app or ships in mobile builds is undecided (RA-f in [[docs/course-compliance.md]]).
 - Acceptance: merged with 0 hex/rgb/palette classes and no visible text outside the dictionaries in `admin/`; the app's CSS unchanged apart from the new token.
 
 ### NC-11 Admin panel on SQLite
@@ -129,7 +129,7 @@ Add tests that open the in-memory database, because migrations, RBAC, and CRUD c
 Repository documents contradict each other on platform run status and on whether the app has a database.
 
 - Priority P2 · Status `in progress` · Depends on: [[tasks#Open work#NC-16 Conflicting course requirements]] for the database sentence.
-- Done on the PR #33 branch: iOS status in [[README.md]], [[docs/proje-fikri.md]], [[docs/klasor-mimarisi.md]] and the four Hakkında pages now matches [[platforms#iOS]]: simulator build, physical iPhone not verified.
+- Done in PR #33: iOS status in [[README.md]], [[docs/proje-fikri.md]], [[docs/klasor-mimarisi.md]] and the four Hakkında pages now matches [[platforms#iOS]]: simulator build, physical iPhone not verified.
 - Still open: README and Hakkında say macOS was never run as an app, although PR #28 recorded a debug `.app` launch. README also says there is no database.
 - Acceptance: [[README.md]], [[docs/proje-fikri.md]], [[docs/klasor-mimarisi.md]], and the four Hakkında pages match [[platforms#Support matrix]]. README's "no database" sentence reflects the unused SQLite backend, and [[docs/backend.md]] §8 matches the actual tests.
 
@@ -156,7 +156,7 @@ Right after switching from Wi-Fi to mobile data, the overview can show "İnterne
 
 The report screen had no `h1`, unlike the other four app screens, which affects heading navigation for assistive technology.
 
-- Priority P3 · Status `in progress` · Evidence: the Task 14 branch adds an `h1` to [[src/components/ReportView.svelte]]; done when it merges.
+- Priority P3 · Status `done` · Evidence: the Task 14 PR #40, merged on 2026-10-28 (`d052768`), added an `h1` to [[src/components/ReportView.svelte]].
 
 ### NC-08 Flaky report ID burst test
 

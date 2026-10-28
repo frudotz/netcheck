@@ -4,26 +4,26 @@
 
 ## Durum özeti
 
-Batch 02'nin bütün görevleri birer dalda ve PR'da hazır; otomatik kontroller geçiyor. **Yayın kapısı şu an BLOCKED:** PR'lar henüz `master`'a birleştirilmedi ve etiket ancak birleştirmeden sonra atılabilir ([Yayın kapısı](#yayın-kapısı)). Öğrencinin kendisinin yapması gereken adımlar [en altta](#öğrencinin-yapacakları).
+Batch 02'nin bütün PR'ları (#35–#43 ve düzeltme PR'ı #45) 28.10.2026'da sırayla, merge commit ile `master`'a birleşti; `master` = `72abf11`. Yayın kapısının teknik ölçütleri aynı gün bu commit üzerinde yeniden çalıştırıldı ve geçti. **Kapı yalnız K13'te bekliyor:** `v0.2.0-batch-02` etiketi depo sahibinin onayıyla atılır ([Yayın kapısı](#yayın-kapısı)). Öğrencinin kendisinin yapması gereken adımlar [en altta](#öğrencinin-yapacakları).
 
 ## Batch 02 kontrol matrisi
 
-PR'lar zincirleme açıldı: her biri bir öncekinin dalı üstünde ve tabanı o dal. Böylece her PR'ın "Files changed" sekmesi yalnız kendi görevini gösterir. Durum 22.10.2026, `master` = `9970845`.
+PR'lar zincirleme açıldı: her biri bir öncekinin dalı üstünde ve tabanı o dal. Böylece her PR'ın "Files changed" sekmesi yalnız kendi görevini gösterir. Zincir 22.10.2026'da `master` = `9970845` üzerinden açıldı; durum 28.10.2026, `master` = `72abf11`.
 
 | Görev | Eğitmen tablosunda istenen | Durum | PR | Kanıt |
 |---|---|---|---|---|
 | 09.1 Master koruması | Kural seti; `docs/kurallar.md` "PR güvenliği"; `docs/kanit/master-korumasi.png` | Birleştirildi | #34 (`9970845`) | [`kurallar.md` § PR güvenliği](kurallar.md#pr-güvenliği). Doğrudan push denemesi yapılmadı (R09.1-d). |
 | lat.md (Hafta 05 adım 1) | `lat.md/`, `lat check` temiz, PR ile birleştirme | Birleştirildi | #33 (`2e09390`) | `lat check` her dalda geçiyor |
-| 10 Çalışma yöntemi | `docs/gorev-sartnamesi.md`; `docs/istemler/` ve görev başına günlük | PR açık | #35 | [`istemler/`](istemler/README.md); yeni sohbet kural testi öğrencide (R10-d) |
-| 11 Veri sözleşmesi | `src/lib/types/` (≥3 tip, `index.ts`); `docs/veri-modeli.md`; `check` betiği | PR açık | #36 | [`veri-modeli.md`](veri-modeli.md); `bun run check` |
-| Uygulama dili (12–14 hazırlığı, C-2) | Görev 12–14'ün dil değiştirme adımları için ön koşul | PR açık | #37 | [`istemler/uygulama-dili.md`](istemler/uygulama-dili.md) |
-| 12 Kart bileşeni | `src/lib/components/ui/Kart.svelte` | PR açık | #38 | [`istemler/12-kart-bileseni.md`](istemler/12-kart-bileseni.md) |
-| 13 Liste ve üç durum | `Yukleniyor`, `BosDurum`, `HataDurumu` ve dört hal | PR açık | #39 | `docs/kanit/13-liste-ve-uc-durum-*.png`; öğrencinin kendi ekran görüntüleri (R13-e) |
-| 14 Detay ekranı | Kimlikli detay, geri dönüş, "bulunamadı" | PR açık | #40 | [`istemler/14-detay-ekrani.md`](istemler/14-detay-ekrani.md) |
-| 15 Rust komutu ve platform | `docs/platform-destegi.md` (ve tipli hata, `docs/komutlar.md`) | PR açık | #41 | [`platform-destegi.md`](platform-destegi.md); macOS/Linux/iOS çalıştırması ertelendi (R15-h) |
-| Yönetim paneli (Hafta 05) | AI Studio panelini `admin/`'e taşı; sabit renk yok; metinler sözlükten | PR açık | #42 | [`yonetim-paneli.md`](yonetim-paneli.md); kaynak deponun arşivi birleştirmeden sonra |
-| 16 Batch 02 denetimi | `minWidth`/`minHeight`; bu belge; `v0.2.0-batch-02` | PR açık; etiket yok | #43 | Pencere en az 320 × 480 ([aşağıda](#pencere-boyutu)) |
-| Yerel denetim düzeltmeleri (27.10) | Kod incelemesinde bulunan kusurlar (rapor kaybı, test listesi, komut hatası mesajı, bozuk depo, panel `t()`) | PR açık | #45 | Günlük #45'in dalında: `docs/istemler/yerel-denetim-duzeltmeleri.md` |
+| 10 Çalışma yöntemi | `docs/gorev-sartnamesi.md`; `docs/istemler/` ve görev başına günlük | Birleştirildi | #35 (`021a0d0`) | [`istemler/`](istemler/README.md); yeni sohbet kural testi öğrencide (R10-d) |
+| 11 Veri sözleşmesi | `src/lib/types/` (≥3 tip, `index.ts`); `docs/veri-modeli.md`; `check` betiği | Birleştirildi | #36 (`86f64e7`) | [`veri-modeli.md`](veri-modeli.md); `bun run check` |
+| Uygulama dili (12–14 hazırlığı, C-2) | Görev 12–14'ün dil değiştirme adımları için ön koşul | Birleştirildi | #37 (`0840e5a`) | [`istemler/uygulama-dili.md`](istemler/uygulama-dili.md) |
+| 12 Kart bileşeni | `src/lib/components/ui/Kart.svelte` | Birleştirildi | #38 (`6cfbaa4`) | [`istemler/12-kart-bileseni.md`](istemler/12-kart-bileseni.md) |
+| 13 Liste ve üç durum | `Yukleniyor`, `BosDurum`, `HataDurumu` ve dört hal | Birleştirildi | #39 (`e36c391`) | `docs/kanit/13-liste-ve-uc-durum-*.png`; öğrencinin kendi ekran görüntüleri (R13-e) |
+| 14 Detay ekranı | Kimlikli detay, geri dönüş, "bulunamadı" | Birleştirildi | #40 (`d052768`) | [`istemler/14-detay-ekrani.md`](istemler/14-detay-ekrani.md) |
+| 15 Rust komutu ve platform | `docs/platform-destegi.md` (ve tipli hata, `docs/komutlar.md`) | Birleştirildi | #41 (`2da32a1`) | [`platform-destegi.md`](platform-destegi.md); macOS/Linux/iOS çalıştırması ertelendi (R15-h) |
+| Yönetim paneli (Hafta 05) | AI Studio panelini `admin/`'e taşı; sabit renk yok; metinler sözlükten | Birleştirildi | #42 (`1463b53`) | [`yonetim-paneli.md`](yonetim-paneli.md); kaynak deponun arşivi ayrı, açık adım (RA-e) |
+| 16 Batch 02 denetimi | `minWidth`/`minHeight`; bu belge; `v0.2.0-batch-02` | Birleştirildi; etiket onay bekliyor | #43 (`6759088`) | Pencere en az 320 × 480 ([aşağıda](#pencere-boyutu)) |
+| Yerel denetim düzeltmeleri (27.10) | Kod incelemesinde bulunan kusurlar (rapor kaybı, test listesi, komut hatası mesajı, bozuk depo, panel `t()`) | Birleştirildi | #45 (`72abf11`) | [`istemler/yerel-denetim-duzeltmeleri.md`](istemler/yerel-denetim-duzeltmeleri.md) |
 
 ## Pencere boyutu
 
@@ -36,15 +36,15 @@ Doğrulama (Windows, `bun run tauri dev`):
 
 ## Doğrulama
 
-Görev 16 dalının son hâlinde (`feature/16-batch-02-denetimi`, Windows):
+`master` = `72abf11` üzerinde, 28.10.2026, Windows; ana çalışma kopyasına dokunmadan bu commit'e ayrılmış temiz bir worktree'de (`bun install --frozen-lockfile` sonrası):
 
 | Kontrol | Sonuç |
 |---|---|
 | `bun run build` | 32 sayfa, 0 hata, `Complete!` |
-| `bun run check` | 0 hata, 0 uyarı |
+| `bun run check` | 85 dosya, 0 hata, 0 uyarı |
 | `cargo test --locked` | 24/24 Windows'ta (toplam 25; macOS'a özgü test CI'da) |
 | `lat check` | geçti |
-| CI (5 zorunlu kontrol) | #35–#43 son commit'lerinde 5/5 (22.10.2026; 27.10'da yeniden okundu, değişmedi) |
+| CI (5 zorunlu kontrol) | Her PR'ın birleştirilen son commit'inde 5/5 (28.10.2026); `master`'daki `72abf11` push çalıştırması 5/5 |
 
 ## Yayın kapısı
 
@@ -52,37 +52,38 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
 
 | # | Ölçüt | Sonuç | Neden |
 |---|---|---|---|
-| K1 | Eğitmen tablosundaki ❌ ve 🟡 maddelerin dosyaları `master`'da | **BLOCKED** | Hepsi açık PR'larda (#35–#43, düzeltmeler #45). PR'ları depo sahibi birleştirir ([`AGENTS.md`](../AGENTS.md) § Çalışma döngüsü madde 7). |
+| K1 | Eğitmen tablosundaki ❌ ve 🟡 maddelerin dosyaları `master`'da | PASS | #35–#43 ve #45, 28.10.2026'da depo sahibi tarafından sırayla merge commit ile birleştirildi; `master` = `72abf11` |
 | K2 | Her görev ayrı dal, PR ve istem günlüğü | PASS | Kontrol matrisi; [`istemler/`](istemler/README.md) |
-| K3 | `bun run build` 0 hata | PASS | 32 sayfa |
+| K3 | `bun run build` 0 hata | PASS | 32 sayfa, `master` üzerinde |
 | K4 | `bun run check` 0 hata, 0 uyarı | PASS | |
 | K5 | Rust testleri geçiyor | PASS | 24/24 Windows; CI'da üç masaüstü işletim sistemi |
 | K6 | `lat check` temiz | PASS | |
-| K7 | Beş zorunlu CI kontrolü her PR'ın son commit'inde | PASS (#35–#43) | Birleştirme sırasında her dal güncellenince yeniden çalışır |
+| K7 | Beş zorunlu CI kontrolü her PR'ın son commit'inde | PASS (#35–#43, #45) | Her dal birleştirmeden önce `master` ile merge commit'le güncellendi ve 5/5 yeniden geçti. #36'da iki merge tabanı oluştuğu için GitHub birleştirmeyi hesaplayamadı ve iş akışı tetiklenmedi; taban dal (#35'in ucu) #36'ya merge edilince (`dc42a45`) çözüldü |
 | K8 | Uyum matrisinde etiket dışında FAIL yok | PASS | [`course-compliance.md`](course-compliance.md) özeti; tek FAIL R16-c, yani K13 |
 | K9 | `v0.1.0-batch-01` değişmedi | PASS | `aebd3fe` → `b9fc299` |
 | K10 | Öğrencinin kendi kanıtları | UNVERIFIED | R10-d (yeni sohbette kural testi), R13-e ve görevlerin §3 ekran görüntüleri yalnız öğrenci tarafından yapılabilir |
 | K11 | Görev 16 rubriği | UNVERIFIED | Derste duyurulacak; depoda yok |
-| K12 | Kişisel veri depoda yok (durum raporunun kuralı) | UNVERIFIED | Batch 01 README'sinin istediği öğrenci bilgisi depoda; karar bekliyor (C-4) |
-| K13 | `v0.2.0-batch-02` etiketi `master`'da | **BLOCKED** | K1'e ve depo sahibinin onayına bağlı |
+| K12 | Kişisel veri depoda yok (durum raporunun kuralı) | PASS (güncel dosyalar) | Öğrenci numarası 28.10.2026'da PR #46 (`e4c9fea`) ile README, `docs/proje-fikri.md` ve dört dildeki Hakkında sayfasından kaldırıldı. Numara Git geçmişinde ve değişmez `v0.1.0-batch-01` etiketinde durur; geçmiş yeniden yazılmaz. Ad soyad ve GitHub hesabı kaldı; kuralın bunları da kapsayıp kapsamadığı eğitmene sorulacak (C-4) |
+| K13 | `v0.2.0-batch-02` etiketi `master`'da | **BLOCKED** (onay bekliyor) | K1 geçti; etiket yalnız depo sahibinin onayıyla `72abf11` üzerine atılır. 28.10.2026 itibarıyla onay verilmedi, etiket yok |
 
-**Sonuç: BLOCKED** (K1, K13). Teknik ölçütlerin hepsi geçiyor. Engeller birleştirme ve onay; K10–K12 öğrenci ya da eğitmen kararı bekliyor.
+**Sonuç: BLOCKED** (yalnız K13). Teknik ölçütlerin hepsi 28.10.2026'da `master` = `72abf11` üzerinde geçti. Kalan tek engel etiket onayı. K10 (öğrencinin kendi kanıtları) ve K11 (rubrik) hâlâ UNVERIFIED; bunlar etiketi engellemez ama yapılmış sayılmaz.
 
 ## Birleştirme ve etiket
 
-`master` kuralı PR'ın `master`'ın son hâlini içermesini istiyor (strict). Bu yüzden PR'lar sırayla birleştirilir:
+`master` kuralı PR'ın `master`'ın son hâlini içermesini istiyor (strict). Bu yüzden PR'lar sırayla birleştirildi; 1–4. adımlar 28.10.2026'da tamamlandı, 5. adım onay bekliyor.
 
-1. **#35'i "Create a merge commit" ile birleştirin.** Squash kullanmayın: üstteki dallar aynı commit'leri taşıdığı için squash çakışma çıkarır. GitHub dalı siler ve #36'nın tabanını `master` yapar.
-2. **Sıradaki dalı `master` ile güncelleyin** (merge, rebase yok):
+1. **Yapıldı — #35 "Create a merge commit" ile birleştirildi** (`021a0d0`). Squash kullanılmadı: üstteki dallar aynı commit'leri taşıdığı için squash çakışma çıkarırdı. GitHub dalı sildi ve #36'nın tabanını `master` yaptı.
+2. **Yapıldı — sıradaki dal her seferinde `master` ile güncellendi** (merge commit, rebase yok; her güncelleme ağacı değiştirmedi):
    ```bash
    git fetch origin
    git checkout feature/11-veri-sozlesmesi
    git merge origin/master
    git push
    ```
-3. **Beş kontrol yeşil olunca o PR'ı da merge commit ile birleştirin.** 2–3. adımları sırayla #37, #38, #39, #40, #41, #42, #43 ve #45 (27.10 yerel denetim düzeltmeleri) için tekrarlayın.
-4. **Yayın kapısını `master` üzerinde yeniden çalıştırın:** `bun run build`, `bun run check`, `cargo test`, `lat check`. K1 artık geçmeli.
-5. **Etiketi onayınızla atın:**
+   Not: #36'da dal ve tabanı `master`'ı ayrı ayrı almış, iki merge tabanı oluşmuştu. Yerel Git bunu çözerken GitHub birleştirmeyi hesaplayamadı, PR "CONFLICTING" göründü ve `pull_request` iş akışı hiç tetiklenmedi. Çözüm, taban dalın ucunu (#35) #36'ya normal merge ile almak oldu (`dc42a45`); sonra kontroller koştu.
+3. **Yapıldı — beş kontrol yeşil olunca her PR merge commit ile birleştirildi:** #36 `86f64e7`, #37 `0840e5a`, #38 `6cfbaa4`, #39 `e36c391`, #40 `d052768`, #41 `2da32a1`, #42 `1463b53`, #43 `6759088`, #45 `72abf11`.
+4. **Yapıldı — yayın kapısı `master` = `72abf11` üzerinde yeniden çalıştırıldı:** dört kontrol de geçti ([Doğrulama](#doğrulama)). K1 geçti.
+5. **Etiketi onayınızla atın** (henüz atılmadı):
    ```bash
    git checkout master
    git pull origin master
@@ -92,9 +93,9 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
 
 ## Öğrencinin yapacakları
 
-- PR'ları yukarıdaki sırayla birleştirmek ve etiketi atmak.
+- `v0.2.0-batch-02` etiketini onaylayıp atmak (PR'lar birleşti; komut yukarıda).
 - Görev 10–15'in her birinde "§ 3 Kendiniz doğrulayın" adımları ve kontrol listesindeki "ekran görüntüleri günlükte" maddesi (RG-c); özellikle Görev 10'un yeni sohbet testi (R10-d) ve Görev 13'ün dört hal görüntüsü (R13-e). Görev 15 § 3.6: elinizdeki her cihazda uygulamayı açmak.
-- Yönetim paneli PR'ı (#42) birleşip doğrulandıktan sonra `frudotz/netcheck-gorev-aistudio` deposunu arşivlemek.
+- Yönetim paneli PR'ı (#42) birleşti (`1463b53`); `frudotz/netcheck-gorev-aistudio` deposunu arşivlemek ayrı ve açık bir adım olarak sizde (RA-e).
 - PR #32 (eğitmenin): durum raporu "uygunsa merge edin, değilse yorum yazın" diyor. Yorum 21.10.2026'da yazıldı (birleştirilmesi önerilmiyor; C-3 ve güvenlik bulguları). Kalan adım: eğitmenin yanıtını beklemek.
 - Kullanılan yapay zeka aracı hakkında geri bildirimi Telegram'daki konuya yazmak (durum raporundaki istek).
-- C-4 (depodaki öğrenci bilgisi) için karar.
+- C-4: öğrenci numarası güncel dosyalardan kaldırıldı (PR #46). Kuralın ad soyadı da kapsayıp kapsamadığını eğitmene sormak.
