@@ -27,6 +27,7 @@ Astro pages are thin shells that mount Svelte components; shared state and IPC l
 - **Shell:** [[src/layouts/Layout.astro]] with [[src/components/AppHeader.svelte]] and [[src/components/AppNav.svelte]]; information pages use [[src/layouts/InfoLayout.astro]].
 - **State:** the diagnostics run store [[src/lib/diagnostics.svelte.ts#diagnostics]], the report store [[src/lib/reports.svelte.ts#reports]], and the theme store [[src/lib/tema.svelte.ts#tema]].
 - **Presentation helpers:** labels in [[src/lib/labels.ts]], scoring in [[src/lib/score.ts]], locale helpers in [[src/lib/i18n.ts]].
+- **Admin panel:** eleven `/admin` pages with their own shell; see [[architecture#Admin panel]].
 
 ## Rust modules
 
@@ -65,4 +66,15 @@ Current-state facts:
 - The backend score rule duplicates the frontend weights in [[src/lib/score.ts#computeScore]]; the two must be changed together.
 - Runtime behavior of the backend on Android and iOS has not been verified (CI only checks that it compiles).
 - Unit tests cover email validation, password hashing, scoring, levels, rule validation, and masking ([[tests#Local backend]]). Migrations, RBAC, and the CRUD controllers have no tests on `master`, although [[docs/backend.md]] §8 says they do.
-- An admin panel that uses this backend is in open PR #32 and is not part of `master`; see [[tasks#Open work#NC-11 Admin panel on SQLite]].
+- The admin panel in [[admin]] does not call these commands ([[architecture#Admin panel]]). Wiring it to this backend, as open PR #32 does, waits for the scope decision; see [[tasks#Open work#NC-11 Admin panel on SQLite]].
+
+## Admin panel
+
+A React admin panel, moved from the separate AI Studio repository at the instructor's request, lives in [[admin]] and is rendered as eleven static `/admin` pages. It is UI only: no data source, sample data, login or IPC.
+
+[[src/pages/admin/index.astro]] and [[src/pages/admin/[gorunum].astro]] pass a screen name from [[admin/yol.ts#Gorunum]] to [[admin/App.tsx]] inside [[src/layouts/AdminLayout.astro]], a shell separate from the app's. Navigation is plain links between pages; a report is addressed as `/admin/rapor?id=` for the same static-build reason as the app's report page.
+
+- **Not connected:** [[admin/api/index.ts#bagli]] is `false` and every [[admin/api/index.ts#AdminApi]] method rejects with [[admin/api/index.ts#PanelBagliDegil]]. While not connected, `App.tsx` renders [[admin/components/BagliDegil.tsx#BagliDegil]] (what the screen is for and why it is empty) instead of the data screens, so no list, form or button that cannot work is shown. Only Settings ([[admin/yol.ts#YEREL_GORUNUMLER]]) works.
+- **Shared preferences:** theme and language use the app's `localStorage` keys and values (`tema`, `dil`), so a choice made in either place applies to both; table density is panel-only.
+- **Colors:** [[admin/styles/admin.css]] imports Tailwind with its default palette disabled and maps color utilities to the `app.css` tokens (plus `--renk-koyu-yazi` for the dark top bar). The app's CSS is unchanged by Tailwind; [[decisions#Admin panel stays UI only]] records why.
+- **Text and types:** all visible text comes from `admin/i18n` (`tr.ts` is the source; the `Translations` type enforces the same keys in `en`, `ar`, `fa`); test names, connection types, dates and result messages reuse [[src/lib/sozluk.ts#sozluk]]. Core types are imported from [[src/lib/types/index.ts]]; only panel entities live in [[admin/domain/types.ts]].

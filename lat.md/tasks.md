@@ -100,12 +100,21 @@ Android release APKs are unsigned; there is no keystore, AAB, or store configura
 - Priority P2 · Status `planned` · Depends on: a decision on store distribution and key custody.
 - Acceptance: a signed release build is installed and smoke-tested on a device, with the keystore and passwords kept outside the repository.
 
+### NC-19 Admin panel move into the project
+
+Move the AI Studio admin panel into the main project as an interface that follows the project rules (instructor's 21.10.2026 status report).
+
+- Priority P1 · Status `in progress` · Evidence: PR #42 (`feature/admin-panel-tasima`) with its log [[docs/istemler/admin-panel-tasima.md]]; [[architecture#Admin panel]] describes the result and [[docs/yonetim-paneli.md]] the rules. Checked in the running Windows app and in a browser on the production build: 11 screens at 320–1280 px in TR, AR and FA, both themes.
+- Open: archiving the separate repository is the owner's step after merge; whether the panel is reachable from the app or ships in mobile builds is undecided (RA-f in [[docs/course-compliance.md]]).
+- Acceptance: merged with 0 hex/rgb/palette classes and no visible text outside the dictionaries in `admin/`; the app's CSS unchanged apart from the new token.
+
 ### NC-11 Admin panel on SQLite
 
-Connect an admin panel to the local SQLite backend ([[architecture#Local SQLite backend]]).
+Connect the admin panel to the local SQLite backend ([[architecture#Local SQLite backend]]).
 
-- Priority P2 · Status `in progress` · Evidence: open PR #32 (`feature/src-admin-prototype`), not merged. Its description states real IPC was not tested end to end in a running Tauri app.
-- Acceptance: defined by that PR's review; once merged, update [[architecture#Local SQLite backend]] and [[project#Scope]].
+- Priority P2 · Status `blocked` · Depends on: [[tasks#Open work#NC-16 Conflicting course requirements]] (C-3), [[tasks#Open work#NC-19 Admin panel move into the project]], and fixes for the backend security findings from the PR #32 review (masking, self-promotion, admin lockout, password reset by duplicate e-mail, unauthenticated submissions).
+- Evidence: open PR #32 (`feature/src-admin-prototype`, instructor-authored) wires the AI Studio copy of the panel to SQLite; not merged, and its real IPC was never run in the app.
+- Acceptance: the panel's [[admin/api/index.ts#AdminApi]] is implemented through [[src/lib/native.ts]], each security finding has a test, and [[architecture#Local SQLite backend]] and [[project#Scope]] are updated.
 
 ### NC-13 Backend database tests
 

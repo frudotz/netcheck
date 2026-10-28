@@ -26,8 +26,14 @@ netcheck/
 │   ├── Cargo.toml           # Rust kütüphaneleri ve bağımlılıkları
 │   └── src/                 # lib.rs (komut kaydı), platformdan bağımsız modüller + platform/ (OS'e özgü kod)
 │
+├── admin/                   # Yönetim paneli (React; yalnız arayüz, veri kaynağı yok) — docs/yonetim-paneli.md
+│   ├── features/ components/ # Ekranlar ve panel bileşenleri
+│   ├── i18n/                # Panel sözlükleri (tr kaynak; en, ar, fa)
+│   ├── api/                 # Veri arayüzü; şimdilik "bağlı değil" uygulaması
+│   └── styles/admin.css     # Tailwind, renkler yalnız app.css token'larından
+│
 ├── src/                     # Ön yüz kaynak kodları (Frontend)
-│   ├── layouts/             # Sayfa iskeletleri (Layout.astro, ortak header/nav, ClientRouter)
+│   ├── layouts/             # Sayfa iskeletleri (Layout.astro, ortak header/nav, ClientRouter; AdminLayout.astro)
 │   ├── pages/               # Dosya tabanlı rota sistemi (URL rotaları: .astro, .mdx)
 │   ├── components/          # Ekran bileşenleri (.svelte, .tsx)
 │   ├── lib/                 # İş mantığı, Rust IPC sarmalayıcıları, Svelte 5 store'ları ($state)
@@ -82,6 +88,10 @@ netcheck/
 
 ### 10. `docs/` (Dokümantasyon)
 - **Ne konur?** Mimari kararlar, marka renkleri, görev kılavuzları ve proje planları. Görev dosyalarının istediği kanıt görselleri `docs/kanit/` alt klasöründe durur.
+
+### 11. `admin/` (Yönetim Paneli)
+- **Ne konur?** AI Studio ile ayrı depoda üretilip ana projeye taşınan React yönetim paneli: ekranlar (`features/`), panel bileşenleri (`components/`), sözlükler (`i18n/`), veri arayüzü (`api/`), panele özgü tipler (`domain/`) ve stil (`styles/admin.css`). Sayfaları `src/pages/admin/` altındadır, kabuğu `src/layouts/AdminLayout.astro`.
+- **Kural:** Renkler yalnız `src/styles/app.css` token'larından, metinler yalnız `admin/i18n/` sözlüklerinden gelir; çekirdek tipler `src/lib/types/`'tan alınır. Panel şimdilik hiçbir veri kaynağına bağlı değildir. Ayrıntı: [`docs/yonetim-paneli.md`](yonetim-paneli.md).
 
 ---
 

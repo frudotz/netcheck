@@ -28,7 +28,7 @@ bun run tauri dev
 ```bash
 bun run dev
 ```
-> [http://127.0.0.1:1420](http://127.0.0.1:1420) adresinde açılır. Tarayıcıda Rust komutlarına erişilemediği için ağ ekranları "yalnızca masaüstü uygulamasında" uyarısı gösterir; sahte veri üretilmez.
+> [http://127.0.0.1:1420](http://127.0.0.1:1420) adresinde açılır. Tarayıcıda Rust komutlarına erişilemediği için ağ ekranları "yalnızca masaüstü uygulamasında" uyarısı gösterir; sahte veri üretilmez. Yönetim paneli [http://127.0.0.1:1420/admin](http://127.0.0.1:1420/admin) adresindedir; henüz bir veri kaynağına bağlı değildir ([`docs/yonetim-paneli.md`](yonetim-paneli.md)).
 
 5. **Üretim derlemesi (statik ön yüz):**
 ```bash
