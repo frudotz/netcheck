@@ -60,4 +60,4 @@ Worktree, `72abf11` + bu değişiklikler, Windows:
 
 ## PR
 
-Açılınca buraya yazılır.
+[#47](https://github.com/frudotz/netcheck/pull/47) (taban: `master`).
