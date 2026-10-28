@@ -1,5 +1,10 @@
 // Genel arayüz bileşenlerinin girdileri; bileşenler uygulamanın veri tiplerini tanımaz.
 
+/** Bir ekranın veri alamadığı durum; metni ekran seçili dilde gösterir (HataDurumu). */
+export type EkranHatasi =
+  | "yalniz-uygulamada" // Rust yok (tarayıcı önizlemesi)
+  | "alinamadi"; // komut başarısız oldu
+
 /** Kart etiketinin anlamı; rengi `--durum-*` değişkenlerinden gelir. */
 export type EtiketTuru = "bilgi" | "basari" | "uyari" | "hata";
 

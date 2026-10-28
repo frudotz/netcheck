@@ -1,36 +1,52 @@
 <script lang="ts">
-  // Tanılama — sabit hedeflere bağlantı testleri (hedefler Rust'ta tanımlı)
+  // Tanılama — sabit hedeflere bağlantı testleri (hedefler Rust'ta tanımlı).
+  // Görev 15: hata HataDurumu ile gösterilir; metinler dört dilde sözlükten gelir.
+  import type { DiagnosticTest } from "$lib/types";
   import { diagnostics } from "$lib/diagnostics.svelte";
-  import { formatLatency } from "$lib/labels";
+  import { diagnosticTargetHint, formatLatency } from "$lib/labels";
   import { reportHref } from "$lib/reports.svelte";
-  import { SCORE_NOTE } from "$lib/score";
+  import { dil } from "$lib/dil.svelte";
+  import { bicim, testAdi, testMesaji } from "$lib/sozluk";
+  import HataDurumu from "$lib/components/ui/HataDurumu.svelte";
   import ScoreGauge from "./ScoreGauge.svelte";
   import StatusBadge from "./StatusBadge.svelte";
+
+  const m = $derived(dil.metin);
+  const ok = $derived(dil.kod === "ar" || dil.kod === "fa" ? "←" : "→");
+
+  /** Ağ geçidi bilinmezken gösterilen açıklama seçili dilde; diğer hedefler adres olduğu için olduğu gibi. */
+  function hedef(t: DiagnosticTest): string {
+    if (t.id === "gateway" && (!t.target || t.target === diagnosticTargetHint.gateway)) return m.hedefVarsayilanGecit;
+    return t.target ?? "—";
+  }
 </script>
 
 <div class="sayfa">
   <div class="tanilama">
     <div class="giris">
-      <h1>Tanılama</h1>
-      <p class="aciklama">Gateway, genel DNS sunucuları, alan adı çözümleme ve HTTPS bağlantısı test edilir.</p>
+      <h1>{m.menuTanilama}</h1>
+      <p class="aciklama">{m.tanilamaAciklama}</p>
     </div>
 
     <button class="btn" onclick={() => diagnostics.start()} disabled={diagnostics.running}>
-      {diagnostics.running ? "Tanılama çalıştırılıyor..." : "Tanılamayı Başlat"}
+      {diagnostics.running ? m.tanilamaCalisiyor : m.tanilamayiBaslat}
     </button>
 
-    {#if diagnostics.error}
-      <p class="kart uyari" role="alert">{diagnostics.error}</p>
+    {#if diagnostics.hata}
+      <HataDurumu
+        mesaj={diagnostics.hata === "yalniz-uygulamada" ? m.yalnizUygulamada : m.tanilamaCalistirilamadi}
+        tekrarDene={() => diagnostics.start()}
+      />
     {/if}
 
     {#if diagnostics.report}
       <section class="kart sonuc" aria-live="polite">
         <ScoreGauge score={diagnostics.report.score} size={88} />
         <div class="sonuc-metin">
-          <span class="etiket">Rapor oluşturuldu</span>
-          <code>{diagnostics.report.id}</code>
-          <span class="not">Bağlantı Skoru — {SCORE_NOTE}</span>
-          <a class="satir-link" href={reportHref(diagnostics.report.id)}>Raporu görüntüle →</a>
+          <span class="etiket">{m.raporOlusturuldu}</span>
+          <code class="mono">{diagnostics.report.id}</code>
+          <span class="not">{m.baglantiSkoru} — {m.skorNotu}</span>
+          <a class="satir-link" href={reportHref(diagnostics.report.id)}>{m.raporuGoruntule} {ok}</a>
         </div>
       </section>
     {/if}
@@ -40,14 +56,14 @@
         <li>
           <div class="ust">
             <div>
-              <strong>{t.name}</strong>
-              <span class="hedef">{t.target ?? "—"}</span>
+              <strong>{testAdi(m, t.id)}</strong>
+              <span class="hedef mono">{hedef(t)}</span>
             </div>
             <StatusBadge status={t.status} />
           </div>
           {#if t.status === "success" || t.status === "failed" || t.status === "unavailable"}
             <div class="alt">
-              <span>{t.message}</span>
+              <span dir="auto">{testMesaji(m, t)}</span>
               <span class="gecikme">{formatLatency(t.latencyMs)}</span>
             </div>
           {/if}
@@ -56,7 +72,7 @@
     </ul>
 
     {#if diagnostics.running}
-      <p class="ilerleme" role="status">{diagnostics.completed} / {diagnostics.tests.length} test tamamlandı</p>
+      <p class="ilerleme" role="status">{bicim(m.testlerTamamlandi, { n: diagnostics.completed, toplam: diagnostics.tests.length })}</p>
     {/if}
   </div>
 </div>
@@ -87,11 +103,6 @@
       grid-column: 2;
       grid-row: 1 / -1;
     }
-  }
-
-  .uyari {
-    margin: 0;
-    padding: 0.875rem var(--bosluk-4);
   }
 
   .sonuc {

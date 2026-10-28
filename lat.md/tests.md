@@ -4,7 +4,7 @@ lat:
 ---
 # Tests
 
-Specifications for every Rust unit test on `master` (22 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
+Specifications for every Rust unit test (25 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
 
 Run with `cd src-tauri && cargo test`. Some tests touch the real network or are limited to certain targets, as noted. There are no frontend unit tests; UI behavior is verified manually or with browser automation ([[workflows#Build and checks]]).
 
@@ -97,6 +97,22 @@ Tests for [[src-tauri/src/diagnostics.rs]] ([[networking#Diagnostics]]).
 ### Live diagnostics smoke
 
 All five diagnostics return without panicking, and any successful outcome carries a latency; results depend on the host network.
+
+### Known kinds parse
+
+Each of the five kind names the frontend sends (`gateway`, `cloudflare`, `google`, `dns`, `internet`) parses to its [[src-tauri/src/diagnostics.rs#DiagnosticKind]] (course Task 15, success case).
+
+### Unknown kind is a typed error
+
+Unknown, empty, differently cased and injection-like values parse to `CommandError::UnknownDiagnostic` carrying the input, instead of panicking or reaching a target (course Task 15, error case).
+
+## Commands
+
+Tests for the typed command error in [[src-tauri/src/command_error.rs]] ([[architecture#IPC contract]]).
+
+### Error serialization
+
+`CommandError` serializes as `{ "code": "task_failed" }` and `{ "code": "unknown_diagnostic", "value": … }`, the shape `src/lib/types/command.ts` expects.
 
 ## Local backend
 

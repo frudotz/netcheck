@@ -2,7 +2,7 @@
   // Genel Bakış — Rust'tan alınan gerçek ağ anlık görüntüsü, hızlı bağlantı kontrolü ve son skor.
   // Ağ bilgileri ve arayüzler genel Kart bileşeniyle listelenir (Görev 12); metinler sözlükten gelir.
   import { onMount } from "svelte";
-  import type { DiagnosticOutcome, KartOzellikleri, LinkState, NetworkSnapshot } from "$lib/types";
+  import type { DiagnosticOutcome, EkranHatasi, KartOzellikleri, LinkState, NetworkSnapshot } from "$lib/types";
   import { getNetworkSnapshot, NativeUnavailableError, runDiagnostic } from "$lib/native";
   import { formatLatency } from "$lib/labels";
   import { reports, reportHref } from "$lib/reports.svelte";
@@ -23,7 +23,7 @@
   let loading = $state(true);
   let checking = $state(false);
   // Hata metni dil değişince yeniden çizilsin diye tür olarak saklanır.
-  let hata = $state<"yalniz-uygulamada" | "alinamadi" | null>(null);
+  let hata = $state<EkranHatasi | null>(null);
   let mounted = $state(false);
 
   async function quickCheck() {

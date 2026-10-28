@@ -155,6 +155,15 @@ const tr = {
   hataHttp: "Sunucu beklenmeyen bir yanıt döndürdü.",
   hataHttps: "HTTPS bağlantısı kurulamadı.",
   testTamamlanamadi: "Test tamamlanamadı.",
+
+  // Tanılama ekranı (Görev 15: hata HataDurumu ile)
+  tanilamaAciklama: "Gateway, genel DNS sunucuları, alan adı çözümleme ve HTTPS bağlantısı test edilir.",
+  tanilamaCalisiyor: "Tanılama çalıştırılıyor...",
+  tanilamaCalistirilamadi: "Tanılama çalıştırılamadı. Lütfen tekrar deneyin.",
+  raporOlusturuldu: "Rapor oluşturuldu",
+  raporuGoruntule: "Raporu görüntüle",
+  testlerTamamlandi: "{n} / {toplam} test tamamlandı",
+  hedefVarsayilanGecit: "Varsayılan ağ geçidi",
 };
 
 export type Metinler = { [K in keyof typeof tr]: string };
@@ -293,6 +302,14 @@ const en: Metinler = {
   hataHttp: "The server returned an unexpected response.",
   hataHttps: "Could not establish the HTTPS connection.",
   testTamamlanamadi: "The test could not be completed.",
+
+  tanilamaAciklama: "Tests the gateway, public DNS servers, domain name resolution and the HTTPS connection.",
+  tanilamaCalisiyor: "Running diagnostics...",
+  tanilamaCalistirilamadi: "Diagnostics could not be run. Please try again.",
+  raporOlusturuldu: "Report created",
+  raporuGoruntule: "View report",
+  testlerTamamlandi: "{n} / {toplam} tests completed",
+  hedefVarsayilanGecit: "Default gateway",
 };
 
 const ar: Metinler = {
@@ -429,6 +446,14 @@ const ar: Metinler = {
   hataHttp: "أعاد الخادم استجابة غير متوقعة.",
   hataHttps: "تعذّر إنشاء اتصال HTTPS.",
   testTamamlanamadi: "تعذّر إكمال الاختبار.",
+
+  tanilamaAciklama: "يختبر البوابة وخوادم DNS العامة وتحليل أسماء النطاقات واتصال HTTPS.",
+  tanilamaCalisiyor: "جارٍ تشغيل التشخيص...",
+  tanilamaCalistirilamadi: "تعذّر تشغيل التشخيص. يرجى المحاولة مرة أخرى.",
+  raporOlusturuldu: "تم إنشاء التقرير",
+  raporuGoruntule: "عرض التقرير",
+  testlerTamamlandi: "اكتمل {n} من {toplam} اختبارات",
+  hedefVarsayilanGecit: "البوابة الافتراضية",
 };
 
 const fa: Metinler = {
@@ -565,6 +590,14 @@ const fa: Metinler = {
   hataHttp: "سرور پاسخ غیرمنتظره‌ای داد.",
   hataHttps: "برقراری اتصال HTTPS ممکن نشد.",
   testTamamlanamadi: "آزمون کامل نشد.",
+
+  tanilamaAciklama: "دروازه، سرورهای DNS عمومی، تفکیک نام دامنه و اتصال HTTPS آزمایش می‌شوند.",
+  tanilamaCalisiyor: "در حال اجرای عیب‌یابی...",
+  tanilamaCalistirilamadi: "اجرای عیب‌یابی ممکن نشد. لطفاً دوباره تلاش کنید.",
+  raporOlusturuldu: "گزارش ایجاد شد",
+  raporuGoruntule: "مشاهدهٔ گزارش",
+  testlerTamamlandi: "{n} از {toplam} آزمون کامل شد",
+  hedefVarsayilanGecit: "دروازهٔ پیش‌فرض",
 };
 
 export const sozluk: Record<Locale, Metinler> = { tr, en, ar, fa };
