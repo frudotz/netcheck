@@ -1,3 +1,4 @@
+mod permissions;
 mod command_error;
 mod diagnostics;
 mod network;
@@ -44,8 +45,12 @@ mod backend;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_notification::init())
         .setup(|app| backend::commands::setup(app))
         .invoke_handler(tauri::generate_handler![
+            permissions::permissions_status,
+            permissions::permission_request,
+            permissions::bildirim_gonder,
             get_network_snapshot,
             run_diagnostic,
             generate_report_id,
