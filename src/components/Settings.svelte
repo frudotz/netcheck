@@ -118,6 +118,7 @@
       <div><dt>{m.pingYontemi}</dt><dd>{ortam !== null && typeof ortam === "object" ? icmpEtiketi(m, ortam.icmp) : "—"}</dd></div>
       <div><dt>{m.ders}</dt><dd>{m.dersDeger}</dd></div>
     </dl>
+    <a class="satir-link" href="/izinler">{m.izinlerBaglantisi}</a>
     <div class="baglantilar">
       <ExternalLink href="https://github.com/frudotz/netcheck">{m.kaynakKod}</ExternalLink>
     </div>

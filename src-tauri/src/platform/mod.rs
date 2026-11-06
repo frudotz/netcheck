@@ -3,6 +3,7 @@
 // arayüzleri kullanır. Tauri'nin `desktop` / `mobile` cfg takma adları kullanılır.
 pub mod device;
 pub mod icmp;
+pub mod permissions;
 
 use serde::Serialize;
 

@@ -5,7 +5,7 @@
 // kendileri sorgulamaz, `destekleniyorMu` kullanır. Komut listesi: docs/komutlar.md
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import type { CommandError, DiagnosticKind, DiagnosticOutcome, Feature, NetworkSnapshot, PlatformInfo } from "./types";
+import type { CommandError, DiagnosticKind, DiagnosticOutcome, Feature, NetworkSnapshot, PermissionEntry, PlatformInfo } from "./types";
 
 export type AdminCommand =
   | "auth_setup_required"
@@ -84,6 +84,14 @@ export function generateReportId(): Promise<string> {
   return call<string>("generate_report_id");
 }
 
+/**
+ * İzin envanteri (/izinler): bu derleme hedefinin bildirdiği ve bilinçli olarak istemediği izinler.
+ * Statik sözleşmedir; işletim sisteminden okunmaz, hiçbir sistem izin diyaloğu açmaz (docs/izinler.md).
+ */
+export function permissionInventory(): Promise<PermissionEntry[]> {
+  return call<PermissionEntry[]>("get_permission_inventory");
+}
+
 let platformBilgisi: Promise<PlatformInfo> | null = null;
 
 /** Çalışma ortamı: işletim sistemi, masaüstü/mobil ailesi ve ping yöntemi (oturum boyunca bir kez okunur). */
@@ -111,24 +119,4 @@ export async function openExternal(url: string): Promise<boolean> {
   if (!(await destekleniyorMu("external-link"))) return false;
   await openUrl(url);
   return true;
-}
-
-
-/** İzin durumunu okur; web'de (Rust yoksa) boş döner, asla diyalog açmaz. */
-export async function izinDurumu(): Promise<import("./types").IzinDurumu[]> {
-  if (!(typeof window !== "undefined" && "__TAURI_INTERNALS__" in window)) return [];
-  const { invoke } = await import("@tauri-apps/api/core");
-  return invoke<import("./types").IzinDurumu[]>("permissions_status");
-}
-/** Verilen izin için OS diyaloğunu açar, güncel durumu döner. */
-export async function izinIste(id: string): Promise<import("./types").IzinDurumu[]> {
-  if (!(typeof window !== "undefined" && "__TAURI_INTERNALS__" in window)) return [];
-  const { invoke } = await import("@tauri-apps/api/core");
-  return invoke<import("./types").IzinDurumu[]>("permission_request", { id });
-}
-/** Bildirim gönderir (izin verildiyse). */
-export async function bildirimGonder(baslik: string, govde: string): Promise<void> {
-  if (!(typeof window !== "undefined" && "__TAURI_INTERNALS__" in window)) return;
-  const { invoke } = await import("@tauri-apps/api/core");
-  await invoke("bildirim_gonder", { baslik, govde });
 }

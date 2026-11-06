@@ -19,6 +19,7 @@ NetCheck tek kod tabanından Android, iOS, macOS, Windows ve Linux için derleni
 | Rapor kimliği (Rust) | Destekleniyor | Destekleniyor | Destekleniyor | Destekleniyor | Destekleniyor |
 | Geçmiş, tema, dil (`localStorage`) | Destekleniyor | Destekleniyor | Destekleniyor | Destekleniyor | Destekleniyor |
 | Bağlantıyı tarayıcıda açma | Destekleniyor | Destekleniyor | Destekleniyor | Destekleniyor | Destekleniyor |
+| İzin envanteri (`/izinler`) | Farklı yolla: platforma göre sabit tablo | Farklı yolla | Farklı yolla | Farklı yolla: `INTERNET`, `ACCESS_NETWORK_STATE` | Farklı yolla: yerel ağ anahtarı doğrulanmadı |
 
 Kaynaklar: [`src-tauri/src/platform/icmp.rs`](../src-tauri/src/platform/icmp.rs) (ping yöntemleri), [`src-tauri/src/platform/device.rs`](../src-tauri/src/platform/device.rs) (cihaz adı), `netdev` özellikleri [`src-tauri/Cargo.toml`](../src-tauri/Cargo.toml). Ayrıntı: [`lat.md/networking.md`](../lat.md/networking.md).
 
@@ -27,6 +28,7 @@ Kaynaklar: [`src-tauri/src/platform/icmp.rs`](../src-tauri/src/platform/icmp.rs)
 - **Ping:** her platformun yöntemi `get_platform_info` yanıtında `icmp` olarak döner ve Ayarlar'da gösterilir. IPv6 hedefleri hiçbir platformda desteklenmez; hedefler zaten IPv4'tür.
 - **DNS sunucu listesi:** listenin boş gelmesi geçerli bir sonuçtur ve "Bulunamadı" gösterilir. DNS testi ayrı çalışır, liste boşken de geçebilir.
 - **Cihaz adı:** okunamazsa "Kullanılamıyor" gösterilir; uydurulmaz.
+- **İzin envanteri:** [`src-tauri/src/platform/permissions.rs`](../src-tauri/src/platform/permissions.rs) derleme hedefine göre sabit bir tablo seçer; işletim sisteminden izin durumu okunmaz ve diyalog açılmaz. Uygulamanın hiçbir platformda çalışma zamanı izni yoktur; gerekçeler [`docs/izinler.md`](izinler.md).
 - **Yok:** beş hedef platformun hiçbirinde "yok" satırı yoktur. Arayüz bunu [`src/lib/native.ts`](../src/lib/native.ts) `destekleniyorMu(ozellik)` ile sorar; bileşenler platform adını kendileri sorgulamaz. Ping yöntemi olmayan bir derlemede (`icmp: "unavailable"`, beş platform dışında) ping testleri hiç çalıştırılmaz ve Tanılama listesinde görünmez.
 - **Tarayıcı önizlemesi** (`bun run dev`) bir platform değildir. Rust olmadığı için `destekleniyorMu` her özellik için `false` döner, ekranlar çökmeden "yalnızca NetCheck uygulamasında" mesajını gösterir.
 

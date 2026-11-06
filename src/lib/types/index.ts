@@ -3,8 +3,8 @@
 export type * from "./command";
 export type * from "./diagnostic";
 export type * from "./network";
+export type * from "./permission";
 export type * from "./platform";
 export type * from "./preferences";
 export type * from "./report";
 export type * from "./ui";
-export type { IzinDurumu } from "./izin";

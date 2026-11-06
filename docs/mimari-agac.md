@@ -30,7 +30,10 @@ NetCheck
 │   └── Bilinmeyen ya da eksik kimlik → HataDurumu ("Rapor bulunamadı", "Geçmişe dön")
 │
 ├── /ayarlar (Ayarlar)
-│   └── Tema (Sistem / Gündüz / Gece), uygulama dili (TR / EN / AR / FA), yerel veri, bilgi sayfası bağlantıları, uygulama bilgisi
+│   └── Tema (Sistem / Gündüz / Gece), uygulama dili (TR / EN / AR / FA), yerel veri, bilgi sayfası bağlantıları, uygulama bilgisi → İzinler
+│
+├── /izinler (İzinler; Ayarlar → "İzinler ve gerekçeleri")
+│   └── Bu derlemenin izin envanteri: bildirildi / gerekmez / istenmiyor / doğrulanmadı; Rust'tan statik gelir, sistem izni okunmaz, diyalog açılmaz (docs/izinler.md)
 │
 └── Bilgi Sayfaları (TR kökte; EN/AR/FA dil önekiyle — AR/FA `dir="rtl"`)
     ├── /hakkinda  · /en/hakkinda  · /ar/hakkinda  · /fa/hakkinda   (MDX + React bileşeni)
@@ -45,11 +48,11 @@ Yönetim Paneli (/admin, yalnız arayüz; uygulama menüsünden bağlantı yok) 
 └── /admin/ayarlar → Tema ve dil (uygulamayla ortak), tablo yoğunluğu
 ```
 
-Toplam 32 rota: 5 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil) + 11 yönetim paneli ekranı. Uygulama ekranları ve panel tek rotada dört dilde çizilir (Ayarlar → dil).
+Toplam 33 rota: 6 uygulama ekranı + 16 bilgi sayfası (4 sayfa × 4 dil) + 11 yönetim paneli ekranı. Uygulama ekranları ve panel tek rotada dört dilde çizilir (Ayarlar → dil).
 
 Rapor kimliği yol yerine sorgu dizesindedir (`/rapor?id=`): uygulama statik derlenir ve raporlar yalnız cihazda bulunduğu için `/rapor/NCHK-…` gibi kimlikli yollar önceden üretilemez; Tauri paketinde böyle bir yol 404 verir. Adres yine kimliği içerir, doğrudan açılabilir ve geri tuşu çalışır.
 
-Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş; tüm bilgi sayfaları → Ayarlar sekmesi etkin).
+Alt menü: Genel Bakış · Tanılama · Geçmiş · Ayarlar (`/rapor` → Geçmiş; `/izinler` ve tüm bilgi sayfaları → Ayarlar sekmesi etkin).
 
 ## 2. Yönetim Arayüzü
 

@@ -12,6 +12,7 @@ Bu belge, bu depoda çalışan tüm yapay zeka ajanları (Antigravity, Cursor, C
 | [`docs/veri-modeli.md`](docs/veri-modeli.md) | Veri sözleşmesi: tipler, alanlar, ilişkiler, örnek veri | Alan tabloları yalnız burada; tiplerin kendisi `src/lib/types/` içinde. |
 | [`docs/komutlar.md`](docs/komutlar.md) | Uygulama Rust komutları: girdi, çıktı, tipli hata | Yeni ya da değişen komut burada belgelenir; ekranlar yalnız `src/lib/native.ts` üzerinden çağırır. |
 | [`docs/platform-destegi.md`](docs/platform-destegi.md) | Özellik × platform tablosu ve doğrulama düzeyleri | Yeni özellik eklenirken bu tablo güncellenir; desteklenmeyen özellik o platformda görünmez. |
+| [`docs/izinler.md`](docs/izinler.md) | İzin envanteri ve gerekçeleri (platform başına) | Açıklanamayan izin istenmez. Yeni izin ya da capability önce burada gerekçelendirilir; envanterin tek kaynağı `src-tauri/src/platform/permissions.rs`, testleri `cargo test permissions`. |
 | [`docs/klasor-mimarisi.md`](docs/klasor-mimarisi.md) | Dizin ve dosya mimarisi | Klasör yapısı yalnızca burada tanımlanır. Yeni dosya eklerken bu hiyerarşiye uy. |
 | [`docs/branding.md`](docs/branding.md) | Marka, renk token'ları, ikonlar | Ad-hoc renk yazılmaz; yalnızca `src/styles/app.css` içindeki CSS değişkenleri kullanılır. Yeni token önce burada tanımlanır. |
 | [`docs/mimari-agac.md`](docs/mimari-agac.md) | Sayfa ağacı, platformlar, breakpoint'ler | Yeni rota veya sayfa eklerken bu ağaca uyulur ve ağaç güncellenir. |

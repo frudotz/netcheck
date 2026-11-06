@@ -1,4 +1,3 @@
-mod permissions;
 mod command_error;
 mod diagnostics;
 mod network;
@@ -39,22 +38,26 @@ fn get_platform_info() -> platform::PlatformInfo {
     platform::info()
 }
 
+// NetCheck: izin envanteri — invoke("get_permission_inventory") → PermissionEntry[]
+// Statik sözleşmedir: işletim sisteminden okunmaz, diyalog açmaz, izin istemez (docs/izinler.md).
+#[tauri::command]
+fn get_permission_inventory() -> &'static [platform::permissions::PermissionEntry] {
+    platform::permissions::inventory()
+}
+
 mod backend;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_notification::init())
         .setup(|app| backend::commands::setup(app))
         .invoke_handler(tauri::generate_handler![
-            permissions::permissions_status,
-            permissions::permission_request,
-            permissions::bildirim_gonder,
             get_network_snapshot,
             run_diagnostic,
             generate_report_id,
             get_platform_info,
+            get_permission_inventory,
             backend::commands::auth_register,
             backend::commands::auth_login,
             backend::commands::auth_logout,
