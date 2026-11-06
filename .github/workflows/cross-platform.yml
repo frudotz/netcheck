@@ -107,6 +107,14 @@ jobs:
           test -d "$JAVA_HOME"
           bun run tauri android build --debug --target aarch64 --apk
 
+      # `cargo test` below builds the crate for the Linux host, which needs the same Tauri
+      # system libraries as the Desktop (ubuntu) job.
+      - name: Tauri system dependencies (Linux, host test build)
+        if: contains(matrix.target, 'android')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev
+
       - name: Merged manifest matches permission inventory
         if: contains(matrix.target, 'android')
         working-directory: src-tauri
