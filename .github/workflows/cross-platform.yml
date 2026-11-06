@@ -100,10 +100,12 @@ jobs:
       # permissions the app really requests (docs/izinler.md).
       - name: Android debug APK (manifest merge)
         if: contains(matrix.target, 'android')
-        env:
-          NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
-          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
-        run: bun run tauri android build --debug --target aarch64 --apk
+        run: |
+          export NDK_HOME="${ANDROID_NDK_LATEST_HOME:?ANDROID_NDK_LATEST_HOME is not set}"
+          export JAVA_HOME="${JAVA_HOME_17_X64:?JAVA_HOME_17_X64 is not set}"
+          test -d "$NDK_HOME"
+          test -d "$JAVA_HOME"
+          bun run tauri android build --debug --target aarch64 --apk
 
       - name: Merged manifest matches permission inventory
         if: contains(matrix.target, 'android')
