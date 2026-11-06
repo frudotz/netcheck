@@ -22,11 +22,11 @@ A change is not done until the checks matching what it touched pass; CI enforces
 
 ## Continuous integration
 
-[[.github/workflows/cross-platform.yml]] runs on pull requests and pushes to `master`; it builds and tests code but never launches the app.
+[[.github/workflows/cross-platform.yml]] runs on pull requests and pushes to `master`; it builds and tests code and packages one Android debug APK, but never launches the app.
 
 - **Desktop** (Windows, Ubuntu, macOS): `bun install --frozen-lockfile`, `bun run build`, svelte-check (Linux only), `cargo check --locked`, `cargo test --locked`. The macOS job is where [[tests#ICMP#Darwin concurrent loopback]] runs.
-- **Mobile Rust:** `cargo check --locked --lib` for `aarch64-linux-android` (NDK clang from the runner) and `aarch64-apple-ios`.
-- Not covered: installers, APK/IPA packaging, simulators, devices, and frontend behavior.
+- **Mobile Rust:** `cargo check --locked --lib` for `aarch64-linux-android` (NDK clang from the runner) and `aarch64-apple-ios`. The Android job then builds the `aarch64` debug APK with `tauri android build` and runs [[tests#Permission inventory#Merged Android manifest agrees]] against the merged manifest, so a dependency that adds a permission fails the job.
+- Not covered: installers, IPA packaging, simulators, devices, and frontend behavior.
 
 ## Git and review rules
 

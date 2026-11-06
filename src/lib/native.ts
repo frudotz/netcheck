@@ -5,7 +5,7 @@
 // kendileri sorgulamaz, `destekleniyorMu` kullanır. Komut listesi: docs/komutlar.md
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import type { CommandError, DiagnosticKind, DiagnosticOutcome, Feature, NetworkSnapshot, PlatformInfo } from "./types";
+import type { CommandError, DiagnosticKind, DiagnosticOutcome, Feature, NetworkSnapshot, PermissionEntry, PlatformInfo } from "./types";
 
 export type AdminCommand =
   | "auth_setup_required"
@@ -82,6 +82,14 @@ export function runDiagnostic(kind: DiagnosticKind): Promise<DiagnosticOutcome> 
 /** Rapor kimliği yalnızca Rust tarafında üretilir (NCHK-YYYY-XXXXXXXX). */
 export function generateReportId(): Promise<string> {
   return call<string>("generate_report_id");
+}
+
+/**
+ * İzin envanteri (/izinler): bu derleme hedefinin bildirdiği ve bilinçli olarak istemediği izinler.
+ * Statik sözleşmedir; işletim sisteminden okunmaz, hiçbir sistem izin diyaloğu açmaz (docs/izinler.md).
+ */
+export function permissionInventory(): Promise<PermissionEntry[]> {
+  return call<PermissionEntry[]>("get_permission_inventory");
 }
 
 let platformBilgisi: Promise<PlatformInfo> | null = null;

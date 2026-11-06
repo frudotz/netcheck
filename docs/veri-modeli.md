@@ -94,6 +94,23 @@ PlatformInfo (Rust)    raporla ilişkisi yok; Ayarlar ekranında gösterilir
 | `family` | `PlatformFamily` | Z | Masaüstü ya da mobil |
 | `icmp` | `IcmpBackend` | Z | Ping yöntemi |
 
+## İzin kaydı: `PermissionEntry`
+
+[`permission.ts`](../src/lib/types/permission.ts) · Rust `get_permission_inventory` · Ekran `/izinler` · Gerekçeler: [`docs/izinler.md`](izinler.md)
+
+Statik envanter: bu derleme hedefinin bildirdiği ve bilinçli olarak istemediği izinler. İşletim sisteminden okunmaz; canlı izin durumu değildir.
+
+| Alan | Tip | | Açıklama |
+|---|---|---|---|
+| `id` | `PermissionId` | Z | Sözlük anahtarı; ad ve gerekçe seçili dilde `izinMetni` ile çizilir |
+| `kind` | `PermissionKind` | Z | İşletim sistemi izni ya da Tauri yetkisi |
+| `os` | `OsName` | Z | Derleme hedefi |
+| `technicalId` | `string \| null` | Z | Manifest izni, `Info.plist` anahtarı ya da capability adı; yoksa `null` |
+| `required` | `boolean` | Z | Temel işlev bu izin olmadan çalışmaz |
+| `runtimePrompt` | `boolean \| null` | Z | Çalışma zamanı diyaloğu gösterilir mi; `null` cihazda doğrulanmadı (yalnız `unverified` kayıtlarda, bugün iOS yerel ağ) |
+| `status` | `PermissionStatus` | Z | Durum |
+| `features` | `Feature[]` | Z | Etkilenen özellikler; boşsa yetenek kullanılmıyor |
+
 ## Sabit seçenek listeleri
 
 | Tip | Değerler |
@@ -107,6 +124,8 @@ PlatformInfo (Rust)    raporla ilişkisi yok; Ayarlar ekranında gösterilir
 | `OsName` | `windows`, `macos`, `linux`, `android`, `ios` |
 | `PlatformFamily` | `desktop`, `mobile` |
 | `IcmpBackend` | `icmp-api`, `system-ping`, `icmp-socket`, `unavailable` |
+| `PermissionId` | `internet`, `network-state`, `wifi-state`, `local-network`, `external-link`, `notifications`, `location`, `camera`, `microphone` |
+| `PermissionKind` / `PermissionStatus` | `os`, `tauri` / `declared`, `not-needed`, `not-requested`, `unverified` |
 | `LinkState` | `checking`, `online`, `no-internet`, `offline`, `unknown` (Genel Bakış; HTTPS testinden türetilir) |
 | `Tema` / `TemaTercihi` | `gunduz`, `gece` / ayrıca `sistem` |
 | `Locale` / `InfoSlug` | `tr`, `en`, `ar`, `fa` / `hakkinda`, `iletisim`, `kosullar`, `gizlilik` |

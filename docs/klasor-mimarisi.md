@@ -58,7 +58,7 @@ netcheck/
 - **Nasıl kullanılır?** Kod içinde `/logo.svg` veya `/favicon.png` şeklinde kök dizinden çağrılır.
 
 ### 3. `src-tauri/` (Native Çekirdek)
-- **Ne konur?** Rust backend kodları (`src/lib.rs` komut kaydı; platformdan bağımsız `network.rs`, `diagnostics.rs`, `report_id.rs`; işletim sistemine göre değişen her şey `src/platform/` altında — ör. `platform/icmp.rs`: Windows `IcmpSendEcho`, macOS/Linux sistem `ping`, Android ayrıcalıksız ICMP soketi, iOS Darwin ICMP datagram soketi), Cargo paketleri (`Cargo.toml`), izinler (`capabilities/`) ve pencere ayarları (`tauri.conf.json`).
+- **Ne konur?** Rust backend kodları (`src/lib.rs` komut kaydı; platformdan bağımsız `network.rs`, `diagnostics.rs`, `report_id.rs`; işletim sistemine göre değişen her şey `src/platform/` altında — ör. `platform/icmp.rs`: Windows `IcmpSendEcho`, macOS/Linux sistem `ping`, Android ayrıcalıksız ICMP soketi, iOS Darwin ICMP datagram soketi; `platform/permissions.rs`: platforma göre izin envanteri), Cargo paketleri (`Cargo.toml`), izinler (`capabilities/`, gerekçeleri `docs/izinler.md`) ve pencere ayarları (`tauri.conf.json`).
 - **Ne zaman kullanılır?** İşletim sistemiyle konuşan native kodlar (ağ arayüzleri, ping, DNS, HTTPS testi, rapor kimliği) yazılırken. Test hedefleri burada sabittir; ön yüzden komuta serbest girdi aktarılmaz.
 
 ### 4. `src/layouts/` (Sayfa İskeletleri)
@@ -66,7 +66,7 @@ netcheck/
 - **Ne zaman kullanılır?** Üst bar, alt gezinme menüsü, tema kontrolü (`document.documentElement.dataset.tema`) ve yumuşak sayfa geçişleri (`<ClientRouter />`) burada tanımlanır. Sayfalar bu layout'u sarmalar.
 
 ### 5. `src/pages/` (Dosya Tabanlı Rotalar)
-- **Ne konur?** Kullanıcının gezeceği sayfalar: uygulama ekranları (`index.astro`, `tanilama.astro`, `rapor.astro`, `gecmis.astro`, `ayarlar.astro`) ve bilgi sayfaları (`hakkinda.mdx`, `iletisim.astro`, `kosullar.mdx`, `gizlilik.mdx`; diğer diller `en/`, `ar/`, `fa/` alt klasörlerinde). Sayfa listesi: [`docs/mimari-agac.md`](mimari-agac.md).
+- **Ne konur?** Kullanıcının gezeceği sayfalar: uygulama ekranları (`index.astro`, `tanilama.astro`, `rapor.astro`, `gecmis.astro`, `ayarlar.astro`, `izinler.astro`) ve bilgi sayfaları (`hakkinda.mdx`, `iletisim.astro`, `kosullar.mdx`, `gizlilik.mdx`; diğer diller `en/`, `ar/`, `fa/` alt klasörlerinde). Sayfa listesi: [`docs/mimari-agac.md`](mimari-agac.md).
 - **Kural:** Dosya adı doğrudan URL yolu olur. İçerik ağırlıklı sayfalar için `.mdx`, dinamik veya bileşen içeren sayfalar için `.astro` kullanılır.
 
 ### 6. `src/components/` ve `src/lib/components/ui/` (UI Bileşenleri)

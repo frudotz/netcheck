@@ -6,12 +6,13 @@ The frontend never touches the network directly. Rust owns network discovery, di
 
 ## IPC contract
 
-The UI uses exactly four Tauri commands, wrapped in [[src/lib/native.ts]]; their names and payload shapes are the frontend–backend contract, documented in [[docs/komutlar.md]].
+The UI uses exactly five Tauri commands, wrapped in [[src/lib/native.ts]]; their names and payload shapes are the frontend–backend contract, documented in [[docs/komutlar.md]].
 
 - `get_network_snapshot` → [[src-tauri/src/lib.rs#get_network_snapshot]] returns a [[networking#Network snapshot]].
 - `run_diagnostic(kind)` runs one fixed test from [[networking#Diagnostics]]. `kind` arrives as a string and is parsed into [[src-tauri/src/diagnostics.rs#DiagnosticKind]]; an unknown value becomes a typed error, so the frontend cannot choose a target.
 - `generate_report_id` returns `NCHK-YYYY-XXXXXXXX` from [[src-tauri/src/report_id.rs#generate]] (see [[decisions#Report IDs come from Rust]]).
 - `get_platform_info` returns `{ os, family, icmp }` from [[src-tauri/src/platform/mod.rs#info]] so Settings can show the real platform and ping method.
+- `get_permission_inventory` returns the static permission inventory of the build target from [[src-tauri/src/platform/permissions.rs#inventory]] for the `/izinler` screen. It reads no OS permission state and opens no dialog; there is no command that requests a permission ([[decisions#Least-privilege mobile permissions]], [[docs/izinler.md]]).
 
 Failures are typed: commands return [[src-tauri/src/command_error.rs#CommandError]] (`unknown_diagnostic` with the received value, or `task_failed`), serialized as `{ "code": … }`. `native.ts` rethrows it as `CommandFailure`, and screens show a localized message through `HataDurumu` rather than raw errors. Components call no Tauri API directly (course Task 15). `native.ts` also exposes `platform()` and `destekleniyorMu(ozellik)`, and screens ask the latter instead of checking platform names; the feature table is [[docs/platform-destegi.md]].
 
@@ -23,7 +24,7 @@ Snapshot and diagnostics are blocking system calls, so they run on `spawn_blocki
 
 Astro pages are thin shells that mount Svelte components; shared state and IPC live in `src/lib`.
 
-- **Pages** ([[src/pages]]): `/` overview, `/tanilama` diagnostics, `/rapor?id=` report, `/gecmis` history, `/ayarlar` settings, plus information pages `hakkinda`, `iletisim`, `kosullar`, `gizlilik` in Turkish (root) and under `/en`, `/ar`, `/fa`.
+- **Pages** ([[src/pages]]): `/` overview, `/tanilama` diagnostics, `/rapor?id=` report, `/gecmis` history, `/ayarlar` settings, `/izinler` permission inventory ([[src/components/Permissions.svelte]]), plus information pages `hakkinda`, `iletisim`, `kosullar`, `gizlilik` in Turkish (root) and under `/en`, `/ar`, `/fa`.
 - **Shell:** [[src/layouts/Layout.astro]] with [[src/components/AppHeader.svelte]] and [[src/components/AppNav.svelte]]; information pages use [[src/layouts/InfoLayout.astro]].
 - **State:** the diagnostics run store [[src/lib/diagnostics.svelte.ts#diagnostics]], the report store [[src/lib/reports.svelte.ts#reports]], and the theme store [[src/lib/tema.svelte.ts#tema]].
 - **Presentation helpers:** labels in [[src/lib/labels.ts]], scoring in [[src/lib/score.ts]], locale helpers in [[src/lib/i18n.ts]].
@@ -36,7 +37,7 @@ The Rust crate separates platform-independent logic from OS-specific code, which
 - [[src-tauri/src/network.rs]] — snapshot assembly and the gateway rule.
 - [[src-tauri/src/diagnostics.rs]] — the five fixed tests and their outcome model.
 - [[src-tauri/src/report_id.rs]] — report identifiers.
-- [[src-tauri/src/platform/mod.rs]] — [[src-tauri/src/platform/mod.rs#PlatformInfo]]; [[src-tauri/src/platform/icmp.rs]] ping backends; [[src-tauri/src/platform/device.rs]] device name.
+- [[src-tauri/src/platform/mod.rs]] — [[src-tauri/src/platform/mod.rs#PlatformInfo]]; [[src-tauri/src/platform/icmp.rs]] ping backends; [[src-tauri/src/platform/device.rs]] device name; [[src-tauri/src/platform/permissions.rs]] the per-target permission inventory ([[src-tauri/src/platform/permissions.rs#PermissionEntry]]).
 - [[src-tauri/src/backend/mod.rs]] — the local SQLite backend.
 
 Platform selection uses Tauri's `desktop`/`mobile` cfg aliases and `target_os`; see [[decisions#Single platform layer]].

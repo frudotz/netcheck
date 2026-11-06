@@ -4,7 +4,7 @@ lat:
 ---
 # Tests
 
-Specifications for every Rust unit test (54 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
+Specifications for every Rust unit test (60 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
 
 Run with `cd src-tauri && cargo test`. Some tests touch the real network or are limited to certain targets, as noted. There are no frontend unit tests; UI behavior is verified manually or with browser automation ([[workflows#Build and checks]]).
 
@@ -85,6 +85,38 @@ A desktop build reports the desktop family, the compile-time OS, and a ping back
 ### Desktop keeps OS hostname
 
 On desktop the device name equals the trimmed OS hostname, and the mobile-only `localhost` placeholder filter is not applied.
+
+## Permission inventory
+
+Tests that keep the static permission inventory in [[src-tauri/src/platform/permissions.rs]] equal to the platform configuration files ([[decisions#Least-privilege mobile permissions]]). They read the files under `src-tauri` and run on every desktop target.
+
+### Never prompts
+
+No entry in any per-target table or in [[src-tauri/src/platform/permissions.rs#inventory]] reports a runtime prompt; only `unverified` entries leave it open (`None`), every declared entry has a technical identifier, and the selected table matches the compile-time OS.
+
+### Android manifest agrees
+
+The `uses-permission` names in the Android source manifest are exactly the declared Android entries, which are `INTERNET` and `ACCESS_NETWORK_STATE`; none of the unrequested identifiers appears in the manifest.
+
+### Merged Android manifest agrees
+
+The merged manifest Gradle produced for the debug APK requests exactly the declared Android entries, and no notification-plugin receiver is present.
+
+The file comes from `NETCHECK_MERGED_MANIFEST`; without the variable the test skips, and the Android CI job sets it after building the APK ([[workflows#Continuous integration]]). Both `uses-permission` and `uses-permission-sdk-23` count as requests; their names are compared after removing the AndroidX `<permission>` the app defines for itself, and `app.tauri.notification` must not appear.
+
+### Synthetic manifest rejects sdk-23 request
+
+On a synthetic manifest, a `uses-permission-sdk-23` request for `CAMERA` fails the comparison as outside the inventory, just as a plain `uses-permission` request does.
+
+The same check accepts the two declared permissions in either element, keeps ignoring the app's own AndroidX `<permission>`, and still rejects an `app.tauri.notification` receiver.
+
+### iOS plist agrees
+
+The iOS `Info.plist` contains no `UsageDescription` key, the iOS table declares no OS permission, and its single unverified entry is `NSLocalNetworkUsageDescription` with the runtime prompt left open (D-54).
+
+### Capability agrees
+
+[[src-tauri/capabilities/default.json]] lists exactly `core:default` and `opener:default`, and every Tauri entry in every table is declared and present there.
 
 ## Diagnostics
 
