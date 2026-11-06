@@ -38,8 +38,8 @@ export interface PermissionEntry {
   technicalId: string | null;
   /** Temel işlev bu izin olmadan çalışmaz. */
   required: boolean;
-  /** Çalışma zamanında sistem diyaloğu gösterilir mi; NetCheck'te her zaman `false`. */
-  runtimePrompt: boolean;
+  /** Çalışma zamanında sistem diyaloğu gösterilir mi; `null` cihazda doğrulanmadı (yalnız `unverified` kayıtlarda). */
+  runtimePrompt: boolean | null;
   /** Durum. */
   status: PermissionStatus;
   /** Etkilenen özellikler; boşsa yetenek kullanılmıyor. */

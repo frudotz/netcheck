@@ -74,6 +74,15 @@ Dal ucunda, Windows, worktree:
 - **Tarayıcıda** (geliştirme sunucusu 127.0.0.1:1420, başsız Chromium, agent-browser, Rust yok): `/izinler` TR/EN/AR/FA'da `HataDurumu` içinde o dilin `izinlerYalnizUygulamada` metnini gösterir; `<html lang dir>` `tr ltr` / `en ltr` / `ar rtl` / `fa rtl`.
 - **Çalışan Windows uygulamasında** (`bun run tauri dev`, WebView2 CDP 9222, agent-browser, 2026-11-06): Ayarlar → "İzinler ve gerekçeleri →" bağlantısı `/izinler`'e götürür; alt menüde Ayarlar sekmesi etkin kalır. Dört dilde de yükleniyor ve hata yok, 6 kart: "Bildirilen ve gerekli izinler" (İnternet erişimi · Gerekli · Bu platformda izin gerekmez; Bağlantıyı tarayıcıda açma · İsteğe bağlı · `opener:default` · Bildirildi) ve "İstenmeyen izinler" (Bildirimler, Konum, Kamera, Mikrofon · İstenmiyor). Her satırda "Çalışma zamanı diyaloğu: Sorulmaz"; platform satırı "Masaüstü uygulaması · Windows". Uygulama verisi (dil) denemeden sonra geri alındı.
 
+## İkinci inceleme düzeltmeleri (06.11)
+
+| Bulgu | Yapılan |
+|---|---|
+| iOS `local-network` kaydı `unverified` olduğu hâlde `runtime_prompt: false` ve ekranda kesin "Sorulmaz" | `runtime_prompt` üç durumlu (`Some(false)` / `Some(true)` / `None`), TS'te `boolean \| null`; yalnız doğrulanmamış kayıt `None`; ekranda "Doğrulanmadı" (dört dilde `izinCalismaZamaniDogrulanmadi`, ayrıca `izinCalismaZamaniVar`). Test: `None` yalnız `unverified` kayıtlarda olabilir. Diğer kayıtlar değişmedi |
+| Manifest testi yalnız kaynak dosyayı okuyor; Gradle birleşmesinin eklediği izinleri yakalamıyor | Yeni test `merged_android_manifest_declares_exactly_the_inventory`: `NETCHECK_MERGED_MANIFEST` ile verilen birleşik manifestte `<uses-permission>` adları (AndroidX'in uygulama kimliğiyle tanımladığı `<permission>` hariç) tam olarak envanter; `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`, `WAKE_LOCK` ve `app.tauri.notification` alıcısı yok. CI Android işi `aarch64` debug APK üretip testi değişkenle çalıştırır; dosya yoksa ya da uyuşmazsa iş başarısız olur |
+
+Doğrulama (06.11, worktree): `cargo test --locked` 59/59; `NETCHECK_MERGED_MANIFEST` ile yerel x86_64 debug APK'nın birleşik manifestine karşı yeni test geçti; `bun run check` 0 hata; `bun run build` 33 sayfa; `git diff --check` ve `lat check` temiz. CI'daki APK adımı ilk kez bu commit'le çalışacak; sonucu push sonrası görülecek.
+
 ## Bilinen sınırlamalar ve açık maddeler
 
 - Envanter statiktir: işletim sistemi ayarlarından değiştirilebilen bir izin olmadığı için canlı durum gösterilmez; böyle bir izin eklenirse bu ekranın tasarımı yeniden ele alınmalıdır.

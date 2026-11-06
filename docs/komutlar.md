@@ -39,6 +39,6 @@ JSON örneği: `{ "code": "unknown_diagnostic", "value": "foo" }`.
 - `known_kinds_parse`: beş tür doğru ayrıştırılır (başarılı girdi).
 - `unknown_kind_is_typed_error`: bilinmeyen, boş, büyük harfli ve komut benzeri girdiler `unknown_diagnostic` hatası olur (hatalı girdi).
 - `errors_serialize_with_code`: hatanın JSON biçimi TypeScript tipiyle aynıdır.
-- `cargo test permissions` (4 test): hiçbir izin kaydı çalışma zamanı diyaloğu bildirmez; Android manifesti tam olarak envanterin bildirdiği izinleri içerir; iOS `Info.plist`'te kullanım açıklaması anahtarı yoktur; capability dosyası yalnız `core:default` ve `opener:default` içerir.
+- `cargo test permissions` (5 test): hiçbir izin kaydı çalışma zamanı diyaloğu bildirmez (yalnız doğrulanmamış kayıt açık bırakır); Android kaynak manifesti ve, `NETCHECK_MERGED_MANIFEST` verildiğinde, debug APK'nın birleşik manifesti tam olarak envanterin bildirdiği izinleri içerir; iOS `Info.plist`'te kullanım açıklaması anahtarı yoktur; capability dosyası yalnız `core:default` ve `opener:default` içerir.
 
 Belirtimler: [`lat.md/tests.md`](../lat.md/tests.md).

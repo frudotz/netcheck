@@ -6,8 +6,8 @@ NetCheck yalnız gerçekten kullandığı izni ister. İlke: **açıklayamadığ
 
 - **Tek kaynak:** envanter [`src-tauri/src/platform/permissions.rs`](../src-tauri/src/platform/permissions.rs) içindeki sabit tablolardır; derleme hedefine göre biri seçilir. Ön yüz tipi [`src/lib/types/permission.ts`](../src/lib/types/permission.ts), komut `get_permission_inventory` ([`docs/komutlar.md`](komutlar.md)).
 - **Statiktir:** liste işletim sisteminden okunmaz, hiçbir sistem izin diyaloğu açılmaz ve çalışma zamanı izni istenmez. Uygulamanın bugün çalışma zamanında istediği izin yoktur; bu yüzden "izin iste" komutu da yoktur.
-- **Ekran:** `/izinler` ([`src/components/Permissions.svelte`](../src/components/Permissions.svelte)), Ayarlar → "İzinler ve gerekçeleri". Her kayıt için ad, tür, platform, teknik kimlik, gerekli / isteğe bağlı, durum, çalışma zamanı diyaloğu (her zaman "sorulmaz"), gerekçe ve etkilenen özellikler gösterilir. Metinler dört dilde [`src/lib/sozluk.ts`](../src/lib/sozluk.ts) sözlüğünden gelir. Tarayıcı önizlemesinde Rust olmadığı için "yalnızca uygulamada" mesajı görünür; durum uydurulmaz.
-- **Tutarlılık testleri** (`cd src-tauri && cargo test permissions`): Android manifesti tam olarak envanterin bildirdiği izinleri içerir; iOS `Info.plist` hiçbir `UsageDescription` anahtarı taşımaz; [`capabilities/default.json`](../src-tauri/capabilities/default.json) yalnız `core:default` ve `opener:default` içerir; hiçbir kayıt çalışma zamanı diyaloğu bildirmez. Yeni bir izin bu üç dosyadan birine eklenirse testler, envanter ve bu belge güncellenmeden kırılır.
+- **Ekran:** `/izinler` ([`src/components/Permissions.svelte`](../src/components/Permissions.svelte)), Ayarlar → "İzinler ve gerekçeleri". Her kayıt için ad, tür, platform, teknik kimlik, gerekli / isteğe bağlı, durum, çalışma zamanı diyaloğu ("sorulmaz"; cihazda doğrulanmamış iOS yerel ağ kaydında "doğrulanmadı"), gerekçe ve etkilenen özellikler gösterilir. Metinler dört dilde [`src/lib/sozluk.ts`](../src/lib/sozluk.ts) sözlüğünden gelir. Tarayıcı önizlemesinde Rust olmadığı için "yalnızca uygulamada" mesajı görünür; durum uydurulmaz.
+- **Tutarlılık testleri** (`cd src-tauri && cargo test permissions`): Android manifesti tam olarak envanterin bildirdiği izinleri içerir; iOS `Info.plist` hiçbir `UsageDescription` anahtarı taşımaz; [`capabilities/default.json`](../src-tauri/capabilities/default.json) yalnız `core:default` ve `opener:default` içerir; hiçbir kayıt çalışma zamanı diyaloğu bildirmez ve yalnız `unverified` kayıt bunu açık bırakır. Debug APK üretildikten sonra birleşik manifest de aynı envanterle karşılaştırılır (aşağıda). Yeni bir izin bu üç dosyadan birine eklenirse testler, envanter ve bu belge güncellenmeden kırılır.
 
 ## Durum değerleri
 
@@ -16,7 +16,7 @@ NetCheck yalnız gerçekten kullandığı izni ister. İlke: **açıklayamadığ
 | `declared` | Manifest, `Info.plist` ya da capability dosyasında bildirildi; kurulum anında verilir, kullanıcıya sorulmaz |
 | `not-needed` | Bu platform bu yetenek için izin kavramı tanımlamaz (masaüstü ve iOS'ta ağ erişimi) |
 | `not-requested` | Uygulama bilinçli olarak istemez; yapılandırmada yoktur |
-| `unverified` | Gerekip gerekmediği cihazda henüz doğrulanmadı; eklenmedi |
+| `unverified` | Gerekip gerekmediği ve sistem diyaloğu açıp açmayacağı cihazda henüz doğrulanmadı; eklenmedi (`runtimePrompt: null`) |
 
 ## Envanter
 
@@ -49,6 +49,17 @@ Windows ve Linux: masaüstü uygulaması için ağ izni kavramı yoktur; `opener
 ## Tauri yetkileri
 
 [`capabilities/default.json`](../src-tauri/capabilities/default.json) yalnız `core:default` ve `opener:default` içerir. Uygulama komutları (`get_network_snapshot`, `run_diagnostic`, `generate_report_id`, `get_platform_info`, `get_permission_inventory`) capability gerektirmez; ön yüz onları yalnız [`src/lib/native.ts`](../src/lib/native.ts) üzerinden çağırır. Yeni bir eklenti yetkisi ancak onu kullanan bir özellik ve bu belgede bir gerekçe varsa eklenir.
+
+## Birleşik Android manifesti
+
+Kaynak manifest tek başına yeterli kanıt değildir: Gradle, bağımlılıkların (Tauri Android kitaplığı, eklentiler, AndroidX) manifestlerini birleştirir ve bir eklenti kendi izinlerini bu yolla ekleyebilir. Bu yüzden debug APK üretildikten sonra birleşik manifest de envanterle karşılaştırılır:
+
+```bash
+bun run tauri android build --debug --target x86_64 --apk
+cd src-tauri && NETCHECK_MERGED_MANIFEST=gen/android/app/build/intermediates/merged_manifest/universalDebug/processUniversalDebugMainManifest/AndroidManifest.xml cargo test --locked merged_android_manifest
+```
+
+Test `merged_android_manifest_declares_exactly_the_inventory` yalnız `<uses-permission>` kayıtlarına bakar; AndroidX'in uygulama kimliğiyle tanımladığı `<permission>` (ör. `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`) uygulamanın talep ettiği bir izin değildir ve sayılmaz. Kalan `uses-permission` adları tam olarak `INTERNET` ve `ACCESS_NETWORK_STATE` olmalı, `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`, `WAKE_LOCK` gibi istenmeyen izinler ve `app.tauri.notification` alıcıları bulunmamalıdır. Ortam değişkeni verilmezse test atlanır; CI'daki Android işi APK'yı üretip bu testi değişkenle çalıştırır, uyuşmazlıkta iş başarısız olur ([`.github/workflows/cross-platform.yml`](../.github/workflows/cross-platform.yml)).
 
 ## Bildirim eklentisi neden eklenmedi
 

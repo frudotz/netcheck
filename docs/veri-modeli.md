@@ -107,7 +107,7 @@ Statik envanter: bu derleme hedefinin bildirdiği ve bilinçli olarak istemediğ
 | `os` | `OsName` | Z | Derleme hedefi |
 | `technicalId` | `string \| null` | Z | Manifest izni, `Info.plist` anahtarı ya da capability adı; yoksa `null` |
 | `required` | `boolean` | Z | Temel işlev bu izin olmadan çalışmaz |
-| `runtimePrompt` | `boolean` | Z | Çalışma zamanı diyaloğu gösterilir mi; her kayıtta `false` |
+| `runtimePrompt` | `boolean \| null` | Z | Çalışma zamanı diyaloğu gösterilir mi; `null` cihazda doğrulanmadı (yalnız `unverified` kayıtlarda, bugün iOS yerel ağ) |
 | `status` | `PermissionStatus` | Z | Durum |
 | `features` | `Feature[]` | Z | Etkilenen özellikler; boşsa yetenek kullanılmıyor |
 

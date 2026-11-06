@@ -41,8 +41,9 @@ pub struct PermissionEntry {
     pub technical_id: Option<&'static str>,
     /// Uygulamanın temel işlevi bu izin olmadan çalışmaz.
     pub required: bool,
-    /// Kullanıcıya çalışma zamanında sistem diyaloğu gösterilir mi. NetCheck'te hiçbir izin için gösterilmez.
-    pub runtime_prompt: bool,
+    /// Kullanıcıya çalışma zamanında sistem diyaloğu gösterilir mi: `Some(false)` gösterilmez,
+    /// `Some(true)` gösterilir (bugün hiçbir kayıtta yok), `None` cihazda doğrulanmadı.
+    pub runtime_prompt: Option<bool>,
     pub status: PermissionStatus,
     /// Etkilenen özellikler (`src/lib/types/command.ts` `Feature` değerleri).
     pub features: &'static [&'static str],
@@ -59,7 +60,12 @@ const fn entry(
     status: PermissionStatus,
     features: &'static [&'static str],
 ) -> PermissionEntry {
-    PermissionEntry { id, kind, os, technical_id, required, runtime_prompt: false, status, features }
+    PermissionEntry { id, kind, os, technical_id, required, runtime_prompt: Some(false), status, features }
+}
+
+/// Davranışı cihazda doğrulanmamış kayıt: sistem diyaloğu açılıp açılmayacağı bilinmiyor (D-54).
+const fn unverified(id: &'static str, os: &'static str, technical_id: &'static str, features: &'static [&'static str]) -> PermissionEntry {
+    PermissionEntry { id, kind: PermissionKind::Os, os, technical_id: Some(technical_id), required: false, runtime_prompt: None, status: PermissionStatus::Unverified, features }
 }
 
 /// Tauri opener yetkisi: bağlantıyı varsayılan tarayıcıda açar; beş hedefte aynı.
@@ -82,7 +88,7 @@ pub const ANDROID: &[PermissionEntry] = &[
 /// iOS: ağ erişimi izinsizdir; yerel ağ anahtarı cihazda doğrulanana kadar `Unverified` (D-54).
 pub const IOS: &[PermissionEntry] = &[
     entry("internet", PermissionKind::Os, "ios", None, true, PermissionStatus::NotNeeded, NETWORK_FEATURES),
-    entry("local-network", PermissionKind::Os, "ios", Some("NSLocalNetworkUsageDescription"), false, PermissionStatus::Unverified, &["ping"]),
+    unverified("local-network", "ios", "NSLocalNetworkUsageDescription", &["ping"]),
     opener("ios"),
     entry("notifications", PermissionKind::Os, "ios", Some("UNUserNotificationCenter"), false, PermissionStatus::NotRequested, &[]),
     entry("location", PermissionKind::Os, "ios", Some("NSLocationWhenInUseUsageDescription"), false, PermissionStatus::NotRequested, &[]),
@@ -153,7 +159,8 @@ mod tests {
     fn inventory_never_prompts_and_matches_target() {
         for table in [ANDROID, IOS, MACOS, WINDOWS, LINUX, inventory()] {
             for e in table {
-                assert!(!e.runtime_prompt, "{} must not prompt", e.id);
+                assert_ne!(e.runtime_prompt, Some(true), "{} must not prompt", e.id);
+                assert_eq!(e.runtime_prompt.is_none(), e.status == PermissionStatus::Unverified, "{}: only unverified entries leave the prompt open", e.id);
                 assert!(e.technical_id.is_some() || e.status != PermissionStatus::Declared, "{} declared without id", e.id);
             }
         }
@@ -190,6 +197,7 @@ mod tests {
         let unverified: Vec<_> = IOS.iter().filter(|e| e.status == PermissionStatus::Unverified).collect();
         assert_eq!(unverified.len(), 1);
         assert_eq!(unverified[0].technical_id, Some("NSLocalNetworkUsageDescription"));
+        assert_eq!(unverified[0].runtime_prompt, None);
     }
 
     // @lat: [[tests#Permission inventory#Capability agrees]]
@@ -204,5 +212,42 @@ mod tests {
                 assert!(permissions.contains(&e.technical_id.unwrap()), "{} not in capability", e.id);
             }
         }
+    }
+    /// Bir manifest metnindeki `<etiket … android:name="…">` adlarını toplar (tek ya da çok satırlı öğe).
+    fn android_names<'a>(manifest: &'a str, element: &str) -> Vec<&'a str> {
+        manifest
+            .split('<')
+            .filter(|chunk| chunk.starts_with(element) && chunk[element.len()..].starts_with(|c: char| c.is_whitespace()))
+            .map(|chunk| chunk.split('>').next().unwrap_or(chunk))
+            .filter_map(|open_tag| open_tag.split("android:name=\"").nth(1))
+            .filter_map(|rest| rest.split('"').next())
+            .collect()
+    }
+
+    // @lat: [[tests#Permission inventory#Merged Android manifest agrees]]
+    #[test]
+    fn merged_android_manifest_declares_exactly_the_inventory() {
+        let Some(path) = std::env::var_os("NETCHECK_MERGED_MANIFEST") else {
+            eprintln!("skipped: set NETCHECK_MERGED_MANIFEST to the merged AndroidManifest.xml of a debug APK build");
+            return;
+        };
+        let manifest = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.to_string_lossy()));
+        // AndroidX, uygulamanın kendi kimliğiyle bir <permission> tanımlar ve onu kullanır; bu, kullanıcıdan
+        // istenen bir izin değildir ve envantere girmez. Yalnız uygulama kimliğiyle başlayanlar ayıklanır.
+        let own_definitions = android_names(&manifest, "permission");
+        assert!(own_definitions.iter().all(|p| p.starts_with("edu.istinye.netcheck.")), "{own_definitions:?}");
+        let mut requested: Vec<&str> = android_names(&manifest, "uses-permission")
+            .into_iter()
+            .filter(|p| !own_definitions.contains(p))
+            .collect();
+        requested.sort_unstable();
+        requested.dedup();
+        let mut declared = declared_os(ANDROID);
+        declared.sort_unstable();
+        assert_eq!(requested, declared, "merged manifest requests permissions outside the inventory");
+        for banned in ["POST_NOTIFICATIONS", "RECEIVE_BOOT_COMPLETED", "WAKE_LOCK", "ACCESS_WIFI_STATE", "ACCESS_FINE_LOCATION", "CAMERA", "RECORD_AUDIO"] {
+            assert!(!manifest.contains(&format!("android.permission.{banned}")), "{banned} must stay out");
+        }
+        assert!(!manifest.contains("app.tauri.notification"), "notification plugin receivers must stay out");
     }
 }

@@ -75,7 +75,7 @@
                   <div><dt>{m.izinTur}</dt><dd>{kayit.kind === "os" ? m.izinTurOs : m.izinTurTauri}</dd></div>
                   <div><dt>{m.izinTeknikKimlik}</dt><dd class="mono">{kayit.technicalId ?? "—"}</dd></div>
                   <div><dt>{m.izinDurum}</dt><dd>{izinDurumEtiketi(m, kayit.status)}</dd></div>
-                  <div><dt>{m.izinCalismaZamani}</dt><dd>{kayit.runtimePrompt ? m.bilinmiyor : m.izinCalismaZamaniYok}</dd></div>
+                  <div><dt>{m.izinCalismaZamani}</dt><dd>{kayit.runtimePrompt === null ? m.izinCalismaZamaniDogrulanmadi : kayit.runtimePrompt ? m.izinCalismaZamaniVar : m.izinCalismaZamaniYok}</dd></div>
                   <div>
                     <dt>{m.izinEtkilenen}</dt>
                     <dd>{kayit.features.length > 0 ? kayit.features.map((f) => ozellikAdi(m, f)).join(" · ") : m.izinEtkilenenYok}</dd>

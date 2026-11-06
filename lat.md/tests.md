@@ -4,7 +4,7 @@ lat:
 ---
 # Tests
 
-Specifications for every Rust unit test (58 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
+Specifications for every Rust unit test (59 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
 
 Run with `cd src-tauri && cargo test`. Some tests touch the real network or are limited to certain targets, as noted. There are no frontend unit tests; UI behavior is verified manually or with browser automation ([[workflows#Build and checks]]).
 
@@ -92,15 +92,21 @@ Tests that keep the static permission inventory in [[src-tauri/src/platform/perm
 
 ### Never prompts
 
-No entry in any per-target table or in [[src-tauri/src/platform/permissions.rs#inventory]] reports a runtime prompt, every declared entry has a technical identifier, and the selected table matches the compile-time OS.
+No entry in any per-target table or in [[src-tauri/src/platform/permissions.rs#inventory]] reports a runtime prompt; only `unverified` entries leave it open (`None`), every declared entry has a technical identifier, and the selected table matches the compile-time OS.
 
 ### Android manifest agrees
 
-The `uses-permission` names in the Android manifest are exactly the declared Android entries, which are `INTERNET` and `ACCESS_NETWORK_STATE`; none of the unrequested identifiers appears in the manifest.
+The `uses-permission` names in the Android source manifest are exactly the declared Android entries, which are `INTERNET` and `ACCESS_NETWORK_STATE`; none of the unrequested identifiers appears in the manifest.
+
+### Merged Android manifest agrees
+
+The merged manifest Gradle produced for the debug APK requests exactly the declared Android entries, and no notification-plugin receiver is present.
+
+The file comes from `NETCHECK_MERGED_MANIFEST`; without the variable the test skips, and the Android CI job sets it after building the APK ([[workflows#Continuous integration]]). `uses-permission` names are compared after removing the AndroidX `<permission>` the app defines for itself, and `app.tauri.notification` must not appear.
 
 ### iOS plist agrees
 
-The iOS `Info.plist` contains no `UsageDescription` key, the iOS table declares no OS permission, and its single unverified entry is `NSLocalNetworkUsageDescription` (D-54).
+The iOS `Info.plist` contains no `UsageDescription` key, the iOS table declares no OS permission, and its single unverified entry is `NSLocalNetworkUsageDescription` with the runtime prompt left open (D-54).
 
 ### Capability agrees
 

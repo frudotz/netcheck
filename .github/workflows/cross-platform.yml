@@ -1,7 +1,8 @@
 # Cross-platform compile/test check.
 # The main development host is Windows; this workflow compiles the platform-specific
 # Rust paths (src-tauri/src/platform) on Linux, macOS, Android and iOS targets.
-# It does not build installers, run emulators or run the app on devices.
+# The Android job also packages a debug APK so the merged manifest can be checked against the
+# permission inventory (docs/izinler.md). It does not run emulators or run the app on devices.
 name: Cross-platform check
 
 on:
@@ -94,3 +95,22 @@ jobs:
       - name: cargo check (library, ${{ matrix.target }})
         working-directory: src-tauri
         run: cargo check --locked --lib --target ${{ matrix.target }}
+
+      # Gradle merges dependency manifests into the APK's; only the merged file proves which
+      # permissions the app really requests (docs/izinler.md).
+      - name: Android debug APK (manifest merge)
+        if: contains(matrix.target, 'android')
+        env:
+          NDK_HOME: ${{ env.ANDROID_NDK_LATEST_HOME }}
+          JAVA_HOME: ${{ env.JAVA_HOME_17_X64 }}
+        run: bun run tauri android build --debug --target aarch64 --apk
+
+      - name: Merged manifest matches permission inventory
+        if: contains(matrix.target, 'android')
+        working-directory: src-tauri
+        run: |
+          MANIFEST=$(find gen/android/app/build/intermediates/merged_manifest -path '*Debug*' -name AndroidManifest.xml | head -n 1)
+          test -n "$MANIFEST" || { echo 'merged manifest not found'; exit 1; }
+          echo "merged manifest: $MANIFEST"
+          grep -n 'uses-permission' "$MANIFEST"
+          NETCHECK_MERGED_MANIFEST="$MANIFEST" cargo test --locked merged_android_manifest -- --nocapture
