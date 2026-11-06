@@ -214,6 +214,7 @@ mod tests {
         }
     }
     /// Bir manifest metnindeki `<etiket … android:name="…">` adlarını toplar (tek ya da çok satırlı öğe).
+    /// `element` tam etiket adıdır: `uses-permission`, `uses-permission-sdk-23` ve `permission` ayrı ayrı eşleşir.
     fn android_names<'a>(manifest: &'a str, element: &str) -> Vec<&'a str> {
         manifest
             .split('<')
@@ -224,6 +225,40 @@ mod tests {
             .collect()
     }
 
+    /// Android'in iki izin talebi etiketi; ikisi de aynı envanterle karşılaştırılır.
+    const REQUEST_ELEMENTS: [&str; 2] = ["uses-permission", "uses-permission-sdk-23"];
+
+    /// Birleşik manifesti envanterle karşılaştırır; uyuşmazlıkta nedenini döner.
+    fn check_merged_manifest(manifest: &str) -> Result<(), String> {
+        // AndroidX, uygulamanın kendi kimliğiyle bir <permission> tanımlar ve onu kullanır; bu, kullanıcıdan
+        // istenen bir izin değildir ve envantere girmez. Yalnız uygulama kimliğiyle başlayanlar ayıklanır.
+        let own_definitions = android_names(manifest, "permission");
+        if let Some(foreign) = own_definitions.iter().find(|p| !p.starts_with("edu.istinye.netcheck.")) {
+            return Err(format!("unexpected <permission> definition {foreign}"));
+        }
+        let mut requested: Vec<&str> = REQUEST_ELEMENTS
+            .iter()
+            .flat_map(|element| android_names(manifest, element))
+            .filter(|p| !own_definitions.contains(p))
+            .collect();
+        requested.sort_unstable();
+        requested.dedup();
+        let mut declared = declared_os(ANDROID);
+        declared.sort_unstable();
+        if requested != declared {
+            return Err(format!("merged manifest requests permissions outside the inventory: requested {requested:?}, declared {declared:?}"));
+        }
+        for banned in ["POST_NOTIFICATIONS", "RECEIVE_BOOT_COMPLETED", "WAKE_LOCK", "ACCESS_WIFI_STATE", "ACCESS_FINE_LOCATION", "CAMERA", "RECORD_AUDIO"] {
+            if manifest.contains(&format!("android.permission.{banned}")) {
+                return Err(format!("{banned} must stay out"));
+            }
+        }
+        if manifest.contains("app.tauri.notification") {
+            return Err("notification plugin receivers must stay out".into());
+        }
+        Ok(())
+    }
+
     // @lat: [[tests#Permission inventory#Merged Android manifest agrees]]
     #[test]
     fn merged_android_manifest_declares_exactly_the_inventory() {
@@ -232,22 +267,51 @@ mod tests {
             return;
         };
         let manifest = std::fs::read_to_string(&path).unwrap_or_else(|e| panic!("{}: {e}", path.to_string_lossy()));
-        // AndroidX, uygulamanın kendi kimliğiyle bir <permission> tanımlar ve onu kullanır; bu, kullanıcıdan
-        // istenen bir izin değildir ve envantere girmez. Yalnız uygulama kimliğiyle başlayanlar ayıklanır.
-        let own_definitions = android_names(&manifest, "permission");
-        assert!(own_definitions.iter().all(|p| p.starts_with("edu.istinye.netcheck.")), "{own_definitions:?}");
-        let mut requested: Vec<&str> = android_names(&manifest, "uses-permission")
-            .into_iter()
-            .filter(|p| !own_definitions.contains(p))
-            .collect();
-        requested.sort_unstable();
-        requested.dedup();
-        let mut declared = declared_os(ANDROID);
-        declared.sort_unstable();
-        assert_eq!(requested, declared, "merged manifest requests permissions outside the inventory");
-        for banned in ["POST_NOTIFICATIONS", "RECEIVE_BOOT_COMPLETED", "WAKE_LOCK", "ACCESS_WIFI_STATE", "ACCESS_FINE_LOCATION", "CAMERA", "RECORD_AUDIO"] {
-            assert!(!manifest.contains(&format!("android.permission.{banned}")), "{banned} must stay out");
-        }
-        assert!(!manifest.contains("app.tauri.notification"), "notification plugin receivers must stay out");
+        check_merged_manifest(&manifest).unwrap_or_else(|e| panic!("{e}"));
+    }
+
+    // @lat: [[tests#Permission inventory#Synthetic manifest rejects sdk-23 request]]
+    #[test]
+    fn synthetic_manifest_counts_sdk23_requests() {
+        let base = r#"<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="edu.istinye.netcheck">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <permission
+        android:name="edu.istinye.netcheck.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="edu.istinye.netcheck.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <application android:label="NetCheck" />
+</manifest>"#;
+        // Kaynak manifestle aynı iki izin ve AndroidX'in kendi tanımı: geçer.
+        assert_eq!(check_merged_manifest(base), Ok(()));
+
+        // <uses-permission-sdk-23> de bir izin talebidir; envanter dışıysa doğrulama düşer.
+        let with_sdk23 = base.replace(
+            "<application",
+            "<uses-permission-sdk-23 android:name=\"android.permission.CAMERA\"/>\n    <application",
+        );
+        let err = check_merged_manifest(&with_sdk23).unwrap_err();
+        assert!(err.contains("android.permission.CAMERA"), "{err}");
+        assert!(err.contains("outside the inventory"), "{err}");
+
+        // Aynı izin düz <uses-permission> ile de yakalanır (mevcut davranış korunur).
+        let with_plain = base.replace(
+            "<application",
+            "<uses-permission android:name=\"android.permission.POST_NOTIFICATIONS\" />\n    <application",
+        );
+        let err = check_merged_manifest(&with_plain).unwrap_err();
+        assert!(err.contains("android.permission.POST_NOTIFICATIONS"), "{err}");
+
+        // Envanterdeki bir izin sdk-23 etiketiyle istenirse yine kabul edilir; etiket adı değil izin adı sayılır.
+        let sdk23_internet = base.replace(
+            "<uses-permission android:name=\"android.permission.INTERNET\" />",
+            "<uses-permission-sdk-23 android:name=\"android.permission.INTERNET\" />",
+        );
+        assert_eq!(check_merged_manifest(&sdk23_internet), Ok(()));
+
+        // Eklenti alıcısı tek başına da reddedilir.
+        let with_receiver = base.replace("<application android:label=\"NetCheck\" />", "<application><receiver android:name=\"app.tauri.notification.TimedNotificationPublisher\" /></application>");
+        assert!(check_merged_manifest(&with_receiver).unwrap_err().contains("notification plugin"));
     }
 }

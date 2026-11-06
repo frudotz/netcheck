@@ -4,7 +4,7 @@ lat:
 ---
 # Tests
 
-Specifications for every Rust unit test (59 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
+Specifications for every Rust unit test (60 tests); each leaf is referenced by exactly one `@lat:` comment beside its test.
 
 Run with `cd src-tauri && cargo test`. Some tests touch the real network or are limited to certain targets, as noted. There are no frontend unit tests; UI behavior is verified manually or with browser automation ([[workflows#Build and checks]]).
 
@@ -102,7 +102,13 @@ The `uses-permission` names in the Android source manifest are exactly the decla
 
 The merged manifest Gradle produced for the debug APK requests exactly the declared Android entries, and no notification-plugin receiver is present.
 
-The file comes from `NETCHECK_MERGED_MANIFEST`; without the variable the test skips, and the Android CI job sets it after building the APK ([[workflows#Continuous integration]]). `uses-permission` names are compared after removing the AndroidX `<permission>` the app defines for itself, and `app.tauri.notification` must not appear.
+The file comes from `NETCHECK_MERGED_MANIFEST`; without the variable the test skips, and the Android CI job sets it after building the APK ([[workflows#Continuous integration]]). Both `uses-permission` and `uses-permission-sdk-23` count as requests; their names are compared after removing the AndroidX `<permission>` the app defines for itself, and `app.tauri.notification` must not appear.
+
+### Synthetic manifest rejects sdk-23 request
+
+On a synthetic manifest, a `uses-permission-sdk-23` request for `CAMERA` fails the comparison as outside the inventory, just as a plain `uses-permission` request does.
+
+The same check accepts the two declared permissions in either element, keeps ignoring the app's own AndroidX `<permission>`, and still rejects an `app.tauri.notification` receiver.
 
 ### iOS plist agrees
 
