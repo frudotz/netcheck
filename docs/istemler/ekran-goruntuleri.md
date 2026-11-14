@@ -69,7 +69,7 @@ Ham çıktılar orkestratör kayıtlarında (`.orchestrator/logs/`, depoya girme
 - `lat check` → "All checks passed".
 - `cargo test` → **yapılmadı**; Rust değişmedi.
 - İnceleme düzeltmelerinden sonra yeniden: `bun run check` (0 hata, 0 uyarı), `bun run build` (33 sayfa), `lat check` geçti; `bun run screenshots` 99 PNG + ZIP, çıkış 0; `unzip -tq` hatasız, girdi tarihi 1980-01-01; geçici klasör, 1420 portu ve tarayıcı oturumu çalıştırma sonunda boş. Ctrl+C yolu elle denenmedi.
-- `proje.zip` → bkz. aşağıda.
+- `proje.zip` → `git archive --format=zip --prefix=netcheck/ HEAD` ile depo dışına (worktree'nin yanındaki `teslim/` klasörü) üretildi: `unzip -tq` hatasız, 379 izlenen dosya (dizinlerle 475 girdi), `scripts/ekran-goruntuleri.ts` içinde; `node_modules`, `target`, `dist`, `dist-admin`, `.astro`, `.orchestrator`, `screenshots/`, `screenshots.zip`, `.lat-build` ve Android derleme çıktısı girdisi 0. Arşiv, bu günlüğü de içeren son commit'ten yeniden üretilir. Blackboard'a yükleme yapılmadı (öğrenci yapar).
 
 ## Bilinen sınırlamalar ve açık maddeler
 
@@ -82,4 +82,4 @@ Ham çıktılar orkestratör kayıtlarında (`.orchestrator/logs/`, depoya girme
 
 ## PR
 
-Henüz yok. Orkestratör işlem kapısı push/PR işlemini politika gereği reddetti (`allowed_push_branches` ve `allowed_pr_base_branches` boş); dal yalnız yerelde commit edildi.
+Henüz yok. Commit orkestratör işlem kapısından geçti (`authorize-operation commit` → izinli; denetim kaydı `.orchestrator/audit/operations.jsonl`). Push için kapı reddetti: "Branch 'feature/ekran-goruntuleri' is not in allowed_push_branches." (`allowed_push_branches` ve `allowed_pr_base_branches` boş). Bu nedenle dal gönderilmedi ve PR açılmadı; engellenen deneme denetim kaydına yazıldı. Depo sahibi politikayı güncelleyip onay verirse dal gönderilir ve PR açılır; bağlantı buraya eklenir.
