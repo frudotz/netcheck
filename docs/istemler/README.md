@@ -47,3 +47,4 @@ Her günlük bu sırayla şu başlıkları taşır:
 | Batch 02 yayın kapısı ve belge eşitleme (28.10) | [`batch-02-yayin-kapisi.md`](batch-02-yayin-kapisi.md) |
 | PR #32 arka uç sertleştirme ve panel bağlantısı (28.10) | [`pr32-backend-hardening.md`](pr32-backend-hardening.md) |
 | Arka uç oturum süresi, giriş sınırı ve kalan bulgular (28.10) | [`backend-security-followups.md`](backend-security-followups.md) |
+| Ekran görüntüleri (Blackboard teslimi, 14.11) | [`ekran-goruntuleri.md`](ekran-goruntuleri.md) |

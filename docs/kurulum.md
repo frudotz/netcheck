@@ -66,4 +66,12 @@ cargo test
 ```
 > Ağ testleri gerçek ağ üzerinde çalışır; çevrimdışıyken tanılama testleri "Başarısız" döner, birim testleri yine geçer.
 
+8. **Ekran görüntüleri (teslim, isteğe bağlı):** ek gereksinim — [Vercel Agent Browser](https://github.com/vercel-labs/agent-browser) (`npm install -g agent-browser && agent-browser install`; yolu `AGENT_BROWSER_BIN` ile verilebilir). Port 1420 boş olmalıdır (`bun run dev` / `preview` kapalı).
+```bash
+bun run screenshots                    # derler, her rotayı 390x844, 820x1180, 1440x900 boyutunda tam sayfa yakalar
+bun run screenshots --no-build         # mevcut dist/ ile
+bun run screenshots --viewport-only    # yalnız görünen alan (tam sayfa yerine)
+```
+> Betik: [`scripts/ekran-goruntuleri.ts`](../scripts/ekran-goruntuleri.ts). Derlenen statik çıktı (`dist/`) `astro preview` ile 127.0.0.1:1420'de sunulur; rota listesi `dist/` içindeki sayfalardan çıkarılır. Her rota boş yerel depolama, açık tema ve azaltılmış hareketle, uygulamanın varsayılan dilinde (Türkçe) açılır; tarayıcıda Rust IPC olmadığından ekranlar "yalnızca uygulamada" / boş / "bağlı değil" durumlarını gösterir. Dosya adı `<sayfa>-<phone|tablet|desktop>.png` (örn. `home-phone.png`; sayfa adları `home`, `tr-hakkinda`, `en-gizlilik`, `admin-ozet` …). Hakkında sayfalarındaki geliştirici bilgileri yalnız görüntüde maskelenir; her sayfa yakalanmadan önce IP / MAC / e-posta / rapor kimliği, dolu form alanı ve geliştirici adı (sayfa metni ve yer tutucular) taranır, beklenmeyen değer görülürse üretim durur. Çıktı `screenshots/` (PNG + `manifest.json`) ve `screenshots.zip`; ikisi de commit edilmez.
+
 ---

@@ -18,6 +18,7 @@ netcheck/
 ├── .gitignore               # Versiyon kontrol dışı bırakılan dosyalar
 ├── .github/workflows/       # CI: Linux/macOS/Windows + Android/iOS Rust derleme kontrolü
 │
+├── scripts/                 # Geliştirme betikleri (Bun ile çalışır; uygulamaya girmez) — ekran görüntüsü teslimi: docs/kurulum.md
 ├── public/                  # Statik varlıklar (Derlenmeyen logolar, favicon, görseller)
 ├── src-tauri/               # Rust Tauri çekirdeği (Pencere, yetkiler, native komutlar)
 │   ├── tauri.conf.json      # Masaüstü/mobil pencere ayarları ve frontendDist hedefi
