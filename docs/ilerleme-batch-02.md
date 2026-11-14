@@ -4,7 +4,7 @@
 
 ## Durum özeti
 
-Batch 02'nin bütün PR'ları (#35–#43 ve düzeltme PR'ı #45) 28.10.2026'da sırayla, merge commit ile `master`'a birleşti (`72abf11`). Aynı gün #46 (kişisel veri), #47 (belge eşitleme), #48 (arka uç sertleştirme + panel bağlantısı) ve #49 (oturum süresi, giriş sınırı, ayrılmış rol adı, salt okunur hedefler) de birleşti; **`master` = `a5ef40b`**. Yayın kapısının teknik ölçütleri bu son commit üzerinde yeniden çalıştırıldı ve geçti. **Kapı yalnız K13'te bekliyor:** `v0.2.0-batch-02` etiketi depo sahibinin onayıyla atılır ([Yayın kapısı](#yayın-kapısı)). Öğrencinin kendisinin yapması gereken adımlar [en altta](#öğrencinin-yapacakları).
+Batch 02'nin bütün PR'ları (#35–#43 ve düzeltme PR'ı #45) 28.10.2026'da sırayla, merge commit ile `master`'a birleşti (`72abf11`). Aynı gün #46 (kişisel veri), #47 (belge eşitleme), #48 (arka uç sertleştirme + panel bağlantısı) ve #49 (oturum süresi, giriş sınırı, ayrılmış rol adı, salt okunur hedefler) de birleşti; **`master` = `a5ef40b`**. Yayın kapısının teknik ölçütleri bu son commit üzerinde yeniden çalıştırıldı ve geçti. **Etiket atıldı:** depo sahibinin onayıyla `v0.2.0-batch-02` (annotated) 28.10.2026'da `master` = `458f1ee` üzerine oluşturuldu, `origin`'e gönderildi ve GitHub Release yayımlandı ([Yayın kapısı](#yayın-kapısı)). Teknik ölçütler o commit'te 5/5 CI ile yeniden geçti. Öğrencinin kendisinin yapması gereken adımlar [en altta](#öğrencinin-yapacakları).
 
 ## Batch 02 kontrol matrisi
 
@@ -64,14 +64,14 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
 | K5 | Rust testleri geçiyor | PASS | 54/54 Windows (`a5ef40b`); CI'da üç masaüstü işletim sistemi |
 | K6 | `lat check` temiz | PASS | |
 | K7 | Beş zorunlu CI kontrolü her PR'ın son commit'inde | PASS (#35–#43, #45, #46–#49) | Her dal birleştirmeden önce `master` ile merge commit'le güncellendi ve 5/5 yeniden geçti. #36'da iki merge tabanı oluştuğu için GitHub birleştirmeyi hesaplayamadı ve iş akışı tetiklenmedi; taban dal (#35'in ucu) #36'ya merge edilince (`dc42a45`) çözüldü |
-| K8 | Uyum matrisinde etiket dışında FAIL yok | PASS | [`course-compliance.md`](course-compliance.md) özeti; tek FAIL R16-c, yani K13 |
+| K8 | Uyum matrisinde etiket dışında FAIL yok | PASS | [`course-compliance.md`](course-compliance.md) özeti; etiket atılınca R16-c de PASS oldu, FAIL kalmadı |
 | K9 | `v0.1.0-batch-01` değişmedi | PASS | `aebd3fe` → `b9fc299` |
 | K10 | Öğrencinin kendi kanıtları | UNVERIFIED | R10-d (yeni sohbette kural testi), R13-e ve görevlerin §3 ekran görüntüleri yalnız öğrenci tarafından yapılabilir |
 | K11 | Görev 16 rubriği | UNVERIFIED | Derste duyurulacak; depoda yok |
 | K12 | Kişisel veri depoda yok (durum raporunun kuralı) | PASS (güncel dosyalar) | Öğrenci numarası 28.10.2026'da PR #46 (`e4c9fea`) ile README, `docs/proje-fikri.md` ve dört dildeki Hakkında sayfasından kaldırıldı. Numara Git geçmişinde ve değişmez `v0.1.0-batch-01` etiketinde durur; geçmiş yeniden yazılmaz. Ad soyad ve GitHub hesabı kaldı; kuralın bunları da kapsayıp kapsamadığı eğitmene sorulacak (C-4) |
-| K13 | `v0.2.0-batch-02` etiketi `master`'da | **BLOCKED** (onay bekliyor) | K1 geçti; etiket yalnız depo sahibinin onayıyla güncel `master` (`a5ef40b`) üzerine atılır. 28.10.2026 itibarıyla onay verilmedi, etiket yok |
+| K13 | `v0.2.0-batch-02` etiketi `master`'da | PASS | Depo sahibinin onayıyla 28.10.2026'da atıldı: annotated etiket (tag nesnesi `8cb2121`) → `master` = `458f1ee576175c2a3878bfc10cc38e7a058ed57d` (PR #50 merge commit'i); mesaj görev metniyle birebir; Release: https://github.com/frudotz/netcheck/releases/tag/v0.2.0-batch-02. `v0.1.0-batch-01` değişmedi |
 
-**Sonuç: BLOCKED** (yalnız K13). Teknik ölçütlerin hepsi 28.10.2026'da `master` = `a5ef40b` üzerinde geçti. Kalan tek engel etiket onayı. K10 (öğrencinin kendi kanıtları) ve K11 (rubrik) hâlâ UNVERIFIED; bunlar etiketi engellemez ama yapılmış sayılmaz.
+**Sonuç: PASS** (K1–K9, K12, K13). Teknik ölçütlerin hepsi 28.10.2026'da `master` = `a5ef40b` ve ardından etiketin hedefi `458f1ee` üzerinde (CI 5/5) geçti; etiket ve Release oluşturuldu. K10 (öğrencinin kendi kanıtları) ve K11 (rubrik) hâlâ UNVERIFIED; bunlar etiketi engellemez ama yapılmış sayılmaz.
 
 ## Birleştirme ve etiket
 
@@ -88,7 +88,7 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
    Not: #36'da dal ve tabanı `master`'ı ayrı ayrı almış, iki merge tabanı oluşmuştu. Yerel Git bunu çözerken GitHub birleştirmeyi hesaplayamadı, PR "CONFLICTING" göründü ve `pull_request` iş akışı hiç tetiklenmedi. Çözüm, taban dalın ucunu (#35) #36'ya normal merge ile almak oldu (`dc42a45`); sonra kontroller koştu.
 3. **Yapıldı — beş kontrol yeşil olunca her PR merge commit ile birleştirildi:** #36 `86f64e7`, #37 `0840e5a`, #38 `6cfbaa4`, #39 `e36c391`, #40 `d052768`, #41 `2da32a1`, #42 `1463b53`, #43 `6759088`, #45 `72abf11`.
 4. **Yapıldı — yayın kapısı `master` üzerinde yeniden çalıştırıldı** (`72abf11`, sonra #46–#49'dan sonra `a5ef40b`): dört kontrol de geçti ([Doğrulama](#doğrulama)). K1 geçti.
-5. **Etiketi onayınızla atın** (henüz atılmadı):
+5. **Yapıldı — etiket depo sahibinin onayıyla atıldı** (28.10.2026, hedef `458f1ee`, Release yayımlandı). Kullanılan komutlar:
    ```bash
    git checkout master
    git pull origin master
@@ -98,7 +98,7 @@ Depoda ayrı bir yayın kapısı betiği yok. Ölçütler eğitmen tablosundan, 
 
 ## Öğrencinin yapacakları
 
-- `v0.2.0-batch-02` etiketini onaylayıp atmak (PR'lar birleşti; komut yukarıda).
+- ~~`v0.2.0-batch-02` etiketini onaylayıp atmak~~ — yapıldı (28.10.2026, `458f1ee`, Release yayımlandı). Batch 02'nin Blackboard/teslim biçimi rubrikte duyurulunca (RG-b) teslim öğrencide.
 - Görev 10–15'in her birinde "§ 3 Kendiniz doğrulayın" adımları ve kontrol listesindeki "ekran görüntüleri günlükte" maddesi (RG-c); özellikle Görev 10'un yeni sohbet testi (R10-d) ve Görev 13'ün dört hal görüntüsü (R13-e). Görev 15 § 3.6: elinizdeki her cihazda uygulamayı açmak.
 - Yönetim paneli PR'ı (#42) birleşti (`1463b53`); `frudotz/netcheck-gorev-aistudio` deposunu arşivlemek ayrı ve açık bir adım olarak sizde (RA-e).
 - PR #32 (eğitmenin): durum raporu "uygunsa merge edin, değilse yorum yazın" diyor. Yorum 21.10.2026'da yazıldı; PR 28.10.2026'da birleştirilmeden kapatıldı, yerine sertleştirilmiş entegrasyon PR #48 ile birleşti. **Eğitmenin C-3 kapsam kararı hâlâ bekleniyor**; birleştirme onay yerine geçmez.
