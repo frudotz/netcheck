@@ -32,7 +32,7 @@ const PORT = 1420;
 const BASE = `http://${HOST}:${PORT}`;
 
 const SIZES = [
-  { name: "mobile", width: 390, height: 844 },
+  { name: "phone", width: 390, height: 844 },
   { name: "tablet", width: 820, height: 1180 },
   { name: "desktop", width: 1440, height: 900 },
 ] as const;
