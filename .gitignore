@@ -18,3 +18,7 @@ docs/tasks/**/raw/
 .lat-build
 .claude
 .mcp.json
+
+# Ekran görüntüsü teslimi (bun run screenshots); commit edilmez
+/screenshots/
+/screenshots.zip

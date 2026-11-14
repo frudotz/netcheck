@@ -1,6 +1,6 @@
 # Frontend
 
-The UI is five Turkish app screens plus multilingual information pages, sharing one responsive shell and storing all state in the browser's local storage.
+The UI is six Turkish app screens plus multilingual information pages, sharing one responsive shell and storing all state in the browser's local storage.
 
 ## Screens
 
@@ -37,7 +37,7 @@ The state components from Task 13 are [[src/lib/components/ui/Yukleniyor.svelte]
 
 App screens default to Turkish and can be switched to English, Arabic or Persian; the four information pages exist in all four languages on their own routes. Arabic and Persian render right-to-left.
 
-The app language lives in [[src/lib/dil.svelte.ts#dil]] and is stored in `localStorage` under `dil`. An inline script in [[src/layouts/Layout.astro]] applies it before first paint and after each client-side navigation, except on information pages, whose route fixes the language (`data-sabit-dil`). Texts come from [[src/lib/sozluk.ts#sozluk]], keyed identically in all four languages. All five app screens, the shell and the shared components use it. [[src/lib/labels.ts]] keeps only the Turkish name, target hint and message written into each report at creation time, plus latency formatting; the contact form and the information pages keep their own per-language texts.
+The app language lives in [[src/lib/dil.svelte.ts#dil]] and is stored in `localStorage` under `dil`. An inline script in [[src/layouts/Layout.astro]] applies it before first paint and after each client-side navigation, except on information pages, whose route fixes the language (`data-sabit-dil`). Texts come from [[src/lib/sozluk.ts#sozluk]], keyed identically in all four languages. All six app screens, the shell and the shared components use it. [[src/lib/labels.ts]] keeps only the Turkish name, target hint and message written into each report at creation time, plus latency formatting; the contact form and the information pages keep their own per-language texts.
 
 The admin panel follows the same `dil` setting with its own dictionaries in `admin/i18n` ([[architecture#Admin panel]]).
 

@@ -11,11 +11,17 @@ The web UI and the native app run from the same Astro build on port 1420.
 - Android: `bun run tauri android dev`, or debug/release APK builds. A debug APK's WebView is inspected via `adb forward tcp:<port> localabstract:webview_devtools_remote_<pid>`.
 - iOS (macOS with Xcode only): `bun run tauri ios build --debug --target aarch64-sim`, then `xcrun simctl install`/`launch`. The `tauri ios` subcommand does not exist on Windows.
 
+### Screenshot capture
+
+`bun run screenshots` captures every built route at 390x844, 820x1180 and 1440x900 for course submissions; details and flags are in [[docs/kurulum.md]].
+
+[[scripts/ekran-goruntuleri.ts]] serves `dist/` with `astro preview` and drives a named Vercel Agent Browser session, so no Playwright dependency exists. Routes come from the built `index.html` files, each opened with cleared storage, light theme and reduced motion; it shows only browser-preview states. Full-page mode grows the viewport to the document height because the CLI's `--full` capture leaves the fixed bottom nav mid-page. The About pages' developer values are masked in the capture only ([[scripts/ekran-goruntuleri.ts#REDACT_JS]]), and [[scripts/ekran-goruntuleri.ts#privacyGuard]] stops the run on any IP outside the fixed targets, MAC, e-mail, report ID, filled field or unmasked developer name. Output (`screenshots/`, `screenshots.zip`) is git-ignored; the ZIP is written without dependencies and re-read to verify names, sizes and CRCs.
+
 ## Build and checks
 
 A change is not done until the checks matching what it touched pass; CI enforces the Rust and type checks on every pull request.
 
-- `bun run build` — static frontend; must finish with 0 errors (32 pages on `master`, 11 of them under `/admin`).
+- `bun run build` — static frontend; must finish with 0 errors (33 pages on `master`: 6 app screens, 16 information pages, 11 under `/admin`).
 - `bun run check` — `astro check` and `svelte-check`; 0 errors and 0 warnings expected (CI runs `svelte-check` on Linux).
 - `cd src-tauri && cargo check --locked && cargo test --locked` — Rust; specs in [[tests]].
 - `lat check` — knowledge-graph validation; required whenever `lat.md/` or `@lat:` references change.
@@ -36,7 +42,7 @@ Every change goes through a branch and a pull request into a protected `master`.
 - Who may merge and how outside PRs are reviewed is defined only in the "PR güvenliği" section of [[docs/kurallar.md]].
 - Course tasks follow the "Çalışma döngüsü" in [[AGENTS.md]]: a filled [[docs/gorev-sartnamesi.md]], a plan approved before any change, a `feature/NN-kisa-ad` branch with a prompt log under [[docs/istemler/README.md]], validation, a PR, and a merge only with the owner's approval.
 - Commit prefixes `feat:`, `fix:`, `docs:`. No history rewriting or force-push. PR descriptions state what changed, why, how it was tested, and known limitations.
-- Screenshots, recordings, and automation scripts are not committed, except evidence images a task file explicitly requires, such as [[docs/kanit/master-korumasi.png]]. Device screenshots may contain public IPs.
+- Screenshots, recordings, and throwaway automation files are not committed, except evidence images a task file explicitly requires, such as [[docs/kanit/master-korumasi.png]]. Device screenshots may contain public IPs. The reusable capture script ([[workflows#Development#Screenshot capture]]) is committed; its output is ignored.
 - `upstream` (`keyvanarasteh/hello-mobil`) is fetch-only; nothing is pushed there.
 
 ## Release and verification requirements

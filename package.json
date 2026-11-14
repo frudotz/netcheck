@@ -8,6 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check && svelte-check --tsconfig ./tsconfig.json",
+    "screenshots": "bun scripts/ekran-goruntuleri.ts",
     "astro": "astro",
     "tauri": "tauri"
   },
