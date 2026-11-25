@@ -68,6 +68,15 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
+      # npm paketleri bun.lock'tan, Rust crate'leri Cargo.lock'tan gelir; ikisinin minor sürümü
+      # ayrışırsa "version mismatched Tauri packages" hatası çıkar. tauri* crate'lerini güncelle.
+      - name: Tauri crate sürümlerini npm ile eşle
+        shell: bash
+        run: |
+          for p in $(awk -F'"' '/^name = "tauri/ {print $2}' src-tauri/Cargo.lock | sort -u); do
+            cargo update --manifest-path src-tauri/Cargo.toml -p "$p" || true
+          done
+
       - name: Derle (ve etiketliyse Release'e yükle)
         uses: tauri-apps/tauri-action@v0
         env:
@@ -126,6 +135,15 @@ jobs:
           echo "NDK_HOME=$ANDROID_HOME/ndk/27.1.12297006" >> "$GITHUB_ENV"
 
       - run: bun install --frozen-lockfile
+
+      # npm paketleri bun.lock'tan, Rust crate'leri Cargo.lock'tan gelir; ikisinin minor sürümü
+      # ayrışırsa "version mismatched Tauri packages" hatası çıkar. tauri* crate'lerini güncelle.
+      - name: Tauri crate sürümlerini npm ile eşle
+        shell: bash
+        run: |
+          for p in $(awk -F'"' '/^name = "tauri/ {print $2}' src-tauri/Cargo.lock | sort -u); do
+            cargo update --manifest-path src-tauri/Cargo.toml -p "$p" || true
+          done
 
       - name: Android projesini üret (repoda yoksa)
         run: '[ -d src-tauri/gen/android ] || bunx tauri android init --ci'
