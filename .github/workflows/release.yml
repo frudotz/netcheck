@@ -23,6 +23,9 @@ on:
   pull_request:
     paths:
       - '.github/workflows/release.yml'
+      - 'src-tauri/**'
+      - 'package.json'
+      - 'bun.lock'
   workflow_dispatch:
 
 permissions:

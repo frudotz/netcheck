@@ -33,6 +33,18 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "category": "Utility",
+    "shortDescription": "NetCheck",
+    "longDescription": "NetCheck — İstinye Üniversitesi MYO063 Mobil Programlama projesi",
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    },
+    "iOS": {
+      "minimumSystemVersion": "15.0"
+    },
+    "android": {
+      "minSdkVersion": 24
+    }
   }
 }
