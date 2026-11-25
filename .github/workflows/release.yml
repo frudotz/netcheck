@@ -1,0 +1,316 @@
+# Otomatik derleme ve yayın (release).
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# Etiket (v*) gönderilince Windows / macOS (universal) / Linux kurulum dosyaları, bir Android APK ve
+# iPhone + iPad için imzasız bir IPA derlenir ve GitHub Release'e eklenir. Pull request'te ve elle çalıştırmada (Actions -> Run workflow)
+# yalnızca derleme denenir; dosyalar "Artifacts" altında indirilir, Release oluşmaz.
+#
+# Telegram (isteğe bağlı): repo secret'larına TELEGRAM_BOT_TOKEN ve TELEGRAM_CHAT_ID eklenirse
+# başlangıç, sonuç (başarılı / hatalı, iş iş) ve yayınlanan release dosyaları bot ile gönderilir.
+# Secret yoksa bu adımlar sessizce atlanır. PR çalışmaları bildirim göndermez.
+#
+# İmzalama yok: Apple Developer hesabı gerekmez. macOS'ta uygulama ilk açılışta
+# sağ tık -> Aç ile onaylanır; Windows SmartScreen "Yine de çalıştır" uyarısı verebilir.
+# APK, Android'in debug anahtarıyla imzalanır (Play Store'a yüklenemez, doğrudan kurulabilir).
+# IPA imzasızdır (--no-sign): Sideloadly / AltStore ile kendi Apple ID'nle imzalayıp iPhone veya
+# iPad'e kurarsın. TestFlight / App Store için ücretli Apple Developer hesabı gerekir; bu workflow'da yok.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  PUBLISH: ${{ github.ref_type == 'tag' }}
+
+jobs:
+  notify-start:
+    name: Telegram - başladı
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions: {}
+    continue-on-error: true
+    steps:
+      - name: Başlangıcı bildir
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] || { echo 'Telegram ayarlı değil, atlandı'; exit 0; }
+          text="🚀 ${GITHUB_REPOSITORY#*/} — ${GITHUB_REF_TYPE} ${GITHUB_REF_NAME}: derleme başladı
+          ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          curl -fsS --max-time 20 "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --form-string "chat_id=${TELEGRAM_CHAT_ID}" --form-string "text=${text}" -F disable_web_page_preview=true > /dev/null
+
+  desktop:
+    name: ${{ matrix.name }}
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            args: ''
+          - name: macOS (universal)
+            os: macos-latest
+            args: --target universal-apple-darwin
+            targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - name: Linux
+            os: ubuntu-22.04
+            args: ''
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Linux sistem bağımlılıkları
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev patchelf
+
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.targets }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - run: bun install --frozen-lockfile
+
+      # npm paketleri bun.lock'tan, Rust crate'leri Cargo.lock'tan gelir; ikisinin minor sürümü
+      # ayrışırsa "version mismatched Tauri packages" hatası çıkar. tauri* crate'lerini güncelle.
+      - name: Tauri crate sürümlerini npm ile eşle
+        shell: bash
+        run: |
+          for p in $(awk -F'"' '/^name = "tauri/ {print $2}' src-tauri/Cargo.lock | sort -u); do
+            cargo update --manifest-path src-tauri/Cargo.toml -p "$p" || true
+          done
+
+      - name: Derle (ve etiketliyse Release'e yükle)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tauriScript: bunx tauri
+          tagName: ${{ env.PUBLISH == 'true' && github.ref_name || '' }}
+          releaseName: ${{ github.ref_name }}
+          releaseBody: 'Otomatik derleme. Kurulum dosyaları aşağıdaki Assets bölümünde.'
+          releaseDraft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          args: ${{ matrix.args }}
+
+      - uses: actions/upload-artifact@v4
+        if: env.PUBLISH != 'true'
+        with:
+          name: ${{ runner.os }}-kurulum
+          path: |
+            src-tauri/target/release/bundle/**/*.msi
+            src-tauri/target/release/bundle/**/*.exe
+            src-tauri/target/release/bundle/**/*.deb
+            src-tauri/target/release/bundle/**/*.rpm
+            src-tauri/target/release/bundle/**/*.AppImage
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+          if-no-files-found: error
+
+  android:
+    name: Android APK
+    needs: desktop
+    # Masaüstü derlemesi başarısızsa da APK denensin; ama Release yoksa yükleme adımı atlanır.
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: android
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK / NDK
+        run: |
+          SDKM="$(dirname "$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager | head -1)")"
+          export PATH="$SDKM:$PATH"
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.1.12297006"
+          echo "NDK_HOME=$ANDROID_HOME/ndk/27.1.12297006" >> "$GITHUB_ENV"
+
+      - run: bun install --frozen-lockfile
+
+      # npm paketleri bun.lock'tan, Rust crate'leri Cargo.lock'tan gelir; ikisinin minor sürümü
+      # ayrışırsa "version mismatched Tauri packages" hatası çıkar. tauri* crate'lerini güncelle.
+      - name: Tauri crate sürümlerini npm ile eşle
+        shell: bash
+        run: |
+          for p in $(awk -F'"' '/^name = "tauri/ {print $2}' src-tauri/Cargo.lock | sort -u); do
+            cargo update --manifest-path src-tauri/Cargo.toml -p "$p" || true
+          done
+
+      - name: Android projesini üret (repoda yoksa)
+        run: '[ -d src-tauri/gen/android ] || bunx tauri android init --ci'
+
+      - name: APK derle
+        run: bunx tauri android build --apk
+
+      - name: APK imzala (debug anahtarı)
+        id: sign
+        run: |
+          keytool -genkeypair -keystore "$RUNNER_TEMP/debug.keystore" -storepass android -alias androiddebugkey -keypass android \
+            -dname "CN=Android Debug,O=Android,C=US" -keyalg RSA -keysize 2048 -validity 10000 > /dev/null 2>&1
+          UNSIGNED="$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' | head -1)"
+          OUT="${GITHUB_REPOSITORY#*/}_${GITHUB_REF_NAME//\//-}_android.apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" sign --ks "$RUNNER_TEMP/debug.keystore" \
+            --ks-pass pass:android --key-pass pass:android --ks-key-alias androiddebugkey --out "$OUT" "$UNSIGNED"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$OUT" | head -3
+          echo "apk=$OUT" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        if: env.PUBLISH != 'true'
+        with:
+          name: android-apk
+          path: ${{ steps.sign.outputs.apk }}
+          if-no-files-found: error
+
+      - name: APK'yi Release'e ekle
+        if: env.PUBLISH == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" "${{ steps.sign.outputs.apk }}" --clobber
+
+  ios:
+    name: iOS IPA (iPhone + iPad, imzasız)
+    needs: desktop
+    if: ${{ !cancelled() }}
+    permissions:
+      contents: write
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: ios
+
+      - run: bun install --frozen-lockfile
+
+      - name: Tauri crate sürümlerini npm ile eşle
+        shell: bash
+        run: |
+          for p in $(awk -F'"' '/^name = "tauri/ {print $2}' src-tauri/Cargo.lock | sort -u); do
+            cargo update --manifest-path src-tauri/Cargo.toml -p "$p" || true
+          done
+
+      - name: iOS projesini üret (repoda yoksa)
+        run: |
+          command -v xcodegen > /dev/null || brew install xcodegen
+          [ -d src-tauri/gen/apple ] || bunx tauri ios init --ci
+
+      # Sertifika yok: CLI uygulamayı imzasız arşivler ve Payload/<uygulama>.app'i .ipa'ya paketler.
+      # Şablonun varsayılan cihaz ailesi iPhone + iPad'dir.
+      - name: İmzasız IPA derle
+        run: bunx tauri ios build --ci --no-sign
+
+      - name: IPA'yı bul
+        id: ipa
+        run: |
+          SRC="$(find src-tauri/gen/apple -name '*.ipa' | head -1)"
+          [ -n "$SRC" ] || { echo 'IPA bulunamadı' >&2; exit 1; }
+          OUT="${GITHUB_REPOSITORY#*/}_${GITHUB_REF_NAME//\//-}_ios_unsigned.ipa"
+          cp "$SRC" "$OUT"
+          echo "ipa=$OUT" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        if: env.PUBLISH != 'true'
+        with:
+          name: ios-ipa
+          path: ${{ steps.ipa.outputs.ipa }}
+          if-no-files-found: error
+
+      - name: IPA'yı Release'e ekle
+        if: env.PUBLISH == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" "${{ steps.ipa.outputs.ipa }}" --clobber
+
+  notify-result:
+    name: Telegram - sonuç
+    needs: [desktop, android, ios]
+    if: ${{ always() && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    continue-on-error: true
+    steps:
+      - name: Sonucu bildir ve release dosyalarını gönder
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GH_TOKEN: ${{ github.token }}
+          RESULTS: ${{ needs.desktop.result }} ${{ needs.android.result }} ${{ needs.ios.result }}
+        run: |
+          [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] || { echo 'Telegram ayarlı değil, atlandı'; exit 0; }
+          api="https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}"
+          read -ra res <<< "$RESULTS"
+          names=("Masaüstü (Win/macOS/Linux)" "Android APK" "iOS IPA")
+          overall="✅ başarılı"; lines=""
+          for i in 0 1 2; do
+            case "${res[i]}" in
+              success) icon="✅" ;;
+              skipped|cancelled) icon="⏭" ; [ "${res[i]}" = cancelled ] && overall="⚠️ iptal" ;;
+              *) icon="❌"; overall="❌ hatalı" ;;
+            esac
+            lines="${lines}${icon} ${names[i]} (${res[i]})
+          "
+          done
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          text="${overall} — ${GITHUB_REPOSITORY#*/} ${GITHUB_REF_TYPE} ${GITHUB_REF_NAME}
+          ${lines}
+          ${run_url}"
+          if [ "$GITHUB_REF_TYPE" = tag ]; then text="${text}
+          ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${GITHUB_REF_NAME}"; fi
+          curl -fsS --max-time 20 "$api/sendMessage" --form-string "chat_id=${TELEGRAM_CHAT_ID}" \
+            --form-string "text=${text}" -F disable_web_page_preview=true > /dev/null || true
+
+          # Yayınlanan release dosyaları (Telegram bot sınırı 50 MB; büyükler yalnız link olarak kalır)
+          [ "$GITHUB_REF_TYPE" = tag ] || exit 0
+          mkdir -p assets
+          gh release download "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" -D assets 2>/dev/null || { echo 'release dosyası yok'; exit 0; }
+          for f in assets/*; do
+            [ -f "$f" ] || continue
+            size=$(wc -c < "$f")
+            if [ "$size" -gt 49000000 ]; then
+              curl -fsS --max-time 20 "$api/sendMessage" --form-string "chat_id=${TELEGRAM_CHAT_ID}" \
+                --form-string "text=📦 $(basename "$f") ($((size/1048576)) MB) 50 MB sınırını aştı; Release sayfasından indir." > /dev/null || true
+              continue
+            fi
+            curl -fsS --max-time 300 "$api/sendDocument" --form-string "chat_id=${TELEGRAM_CHAT_ID}" \
+              --form-string "caption=${GITHUB_REPOSITORY#*/} ${GITHUB_REF_NAME}" -F "document=@${f}" > /dev/null \
+              || echo "gönderilemedi: $f"
+          done
